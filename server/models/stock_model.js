@@ -98,17 +98,44 @@ const getBasicInfo = async function (symbol) {
         };
         return {
             prevClose: getData("price", "regularMarketPreviousClose").raw,
-            dayRange: [getData("price", "regularMarketDayLow").raw, getData("price", "regularMarketDayHigh").raw],
+            dayRange: `${getData("price", "regularMarketDayLow").raw} - ${getData("price", "regularMarketDayHigh").raw}`,
             averageVolume: getData("price", "averageDailyVolume3Month").raw,
-            annualReturn: getData("summaryDetail", "ytdReturn"),
+            annualReturn: getData("summaryDetail", "ytdReturn").raw,
             beta: getData("summaryDetail", "beta").raw,
             marketCap: getData("defaultKeyStatistics", "enterpriseValue").raw,
             eps: getData("defaultKeyStatistics", "trailingEps").raw,
-            financialChart: getData("earnings", "financialsChart"),
             peRation: getData("price", "regularMarketPrice").raw / getData("defaultKeyStatistics", "trailingEps").raw,
-            dividend: getData("summaryDetail", "dividendYield"),
+            dividend: getData("summaryDetail", "dividendYield").raw,
+            financialChart: getData("earnings", "financialsChart"),
             profile: response.data.summaryProfile,
         };    
+    } catch(error) {
+        console.log(error);
+        return "Error when retrieving stock price";
+    }
+};
+
+const getNews = async function (symbol) {
+    try {
+        const config = {
+            "headers":{
+                "x-rapidapi-host":RAPID_API_HOST,
+                "x-rapidapi-key":RAPID_API_KEY,
+                "useQueryString":true
+            }, "params":{
+                "category":symbol,
+                "region":"US"
+            }
+        };
+        const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/list", config);
+        const shortRes = response.data.items.result.map(i => ({
+            title: i.title,
+            link: i.link,
+            author: i.author,
+            time: (new Date(i.published_at)).toISOString().substr(0, 10)
+        })).slice(0, 10);
+        return shortRes;
+
     } catch(error) {
         console.log(error);
         return "Error when retrieving stock price";
@@ -130,5 +157,6 @@ const symbolSearch = async function (symbol) {
 module.exports = {
     getStockPrice,
     getBasicInfo,
+    getNews,
     symbolSearch
 };

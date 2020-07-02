@@ -13,6 +13,12 @@ const getBasicInfo = async (req, res) => {
     res.status(200).json({data: basicInfo});
 };
 
+const getNews = async (req, res) => {
+    const { symbol } = req.query;
+    const getNews = await Stock.getNews(symbol);
+    res.status(200).json({data: getNews});
+};
+
 const symbolSearch = async (req, res) => {
     const { symbol } = req.query;
     const symbolSearch = await Stock.symbolSearch(symbol);
@@ -22,5 +28,6 @@ const symbolSearch = async (req, res) => {
 module.exports = {
     getStockPrice,
     getBasicInfo,
+    getNews,
     symbolSearch
 };

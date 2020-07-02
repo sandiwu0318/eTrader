@@ -1,7 +1,8 @@
 require("dotenv").config();
 const {PORT_TEST, PORT, NODE_ENV, API_VERSION} = process.env;
-
 const port = NODE_ENV == "test" ? PORT_TEST : PORT;
+const CronJob = require("cron").CronJob;
+const {matchOrders} = require("./server/controllers/trade_controller");
 
 // Express Initialization
 const express = require("express");
@@ -27,6 +28,7 @@ app.use("/api/", function(req, res, next){
 app.use("/api/" + API_VERSION,
     [
         require("./server/routes/stock_route"),
+        require("./server/routes/trade_route"),
     ]
 );
 
@@ -40,6 +42,29 @@ app.use(function(err, req, res, next) {
 if (NODE_ENV != "production"){
     app.listen(port, () => {console.log(`Listening on port: ${port}`);});
 }
+
+// Function to match orders every minute
+//9:30-10:00
+const Job1 = new CronJob("0 30-59/1 9 * * 1-5", function() {
+    matchOrders();
+},
+null,
+true,
+"America/New_York"
+// "Asia/Taipei"
+
+);
+Job1.start;
+//10:00-16:00
+const Job2 = new CronJob("0 */1 10-16 * * 1-5", function() {
+    matchOrders();
+},
+null,
+true,
+"America/New_York"
+// "Asia/Taipei"
+);
+Job2.start;
 
 
 module.exports = app;

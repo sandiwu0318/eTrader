@@ -140,7 +140,7 @@ btn.addEventListener("click",
             const profileKeys = Object.keys(resJson.profile);
             profileKeys.map(i => createList("#profile_ul", i, `${i}: ${resJson.profile[i]}`));
         } catch (err) {
-            console.log("price fetch failed, err");
+            console.log("info fetch failed, err");
         }
     }
 )
@@ -154,7 +154,7 @@ btn.addEventListener("click",
             const resJson = (await res.json()).data;
             resJson.map(i => createListWithLink(`${i.title} | ${i.author} | ${i.time}`,i.link));
         } catch (err) {
-            console.log("price fetch failed, err");
+            console.log("news fetch failed, err");
         }
     }
 )
@@ -190,7 +190,7 @@ btn.addEventListener("click",() => {
                 });
                 const resJson = (await res.json()).data;
             } catch (err) {
-                console.log("price fetch failed, err");
+                console.log("set order fetch failed, err");
             }
         }
     )

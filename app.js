@@ -29,6 +29,7 @@ app.use("/api/" + API_VERSION,
     [
         require("./server/routes/stock_route"),
         require("./server/routes/trade_route"),
+        require("./server/routes/user_route"),
     ]
 );
 

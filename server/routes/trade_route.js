@@ -10,7 +10,4 @@ router.route("/trade/setOrder")
     .post(wrapAsync(setOrder));
 
 
-// router.route("/stock/symbolSearch")
-//     .get(wrapAsync(symbolSearch));
-
 module.exports = router;

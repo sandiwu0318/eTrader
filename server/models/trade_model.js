@@ -38,11 +38,8 @@ const setOrder = async function (id, symbol, price, volume, action, period) {
 const matchOrders = async function () {
     try {
         const today = (new Date()).toISOString().substr(0, 10);
-        await transaction();
         const queryStr = "SELECT * FROM orders WHERE deadline >= ? and success = 0";
         const orders = await query(queryStr, today);
-        console.log(orders);
-        await commit();
         for (let order of orders) {
             const symbol = order.symbol;
             const markets = await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHAVANTAGE_API_KEY}`);
@@ -57,8 +54,8 @@ const matchOrders = async function () {
         }
         return;
     } catch(error) {
-        console.log(error);
-        return "Error when retrieving symbol";
+        await rollback();
+        return {error};
     }
 };
 

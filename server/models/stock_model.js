@@ -50,7 +50,6 @@ const getStockPrice = async function (symbol, frequency) {
             period1 = 0;
             break;
         }
-        
         const config = {
             "headers":{
                 "x-rapidapi-host":RAPID_API_HOST,
@@ -132,10 +131,9 @@ const getNews = async function (symbol) {
             title: i.title,
             link: i.link,
             author: i.author,
-            time: (new Date(i.published_at)).toISOString().substr(0, 10)
+            time: (new Date(i.published_at*1000)).toISOString().substr(0, 10)
         })).slice(0, 10);
         return shortRes;
-
     } catch(error) {
         console.log(error);
         return "Error when retrieving stock price";

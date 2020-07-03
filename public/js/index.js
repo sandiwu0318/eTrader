@@ -1,43 +1,4 @@
-function getElement(element) {
-    return document.querySelector(element);
-}
-
-function createList(ulId, id, text) {
-    const ul = getElement(ulId);
-    const li = document.createElement("li");
-    li.id = id;
-    li.innerText = text;
-    ul.appendChild(li);
-}
-
-function createListWithLink(text, link) {
-    const ul = getElement("#news_ul");
-    const li = document.createElement("li");
-    const a = document.createElement("a");
-    a.innerText = text;
-    a.href = link;
-    ul.appendChild(li);
-    li.appendChild(a);
-}
-
-function createForm(formId, inputArr, button) {
-    const form = document.createElement("form");
-    inputArr.map(i => {
-        const input = document.createElement("input");
-        input.id = i;
-        input.placeholder = i;
-        form.appendChild(input);
-    })
-    const btn = document.createElement("button");
-    const div = getElement("#trade");
-    form.id = formId;
-    btn.id = button;
-    btn.type = "button";
-    btn.innerText = button;
-    div.appendChild(form);
-    form.appendChild(btn);
-}
-
+import {getElement, createList, createListWithLink, createForm,} from "./utils.js";
 //Get Price
 const btn = getElement("#btn");
 btn.addEventListener("click",
@@ -152,6 +113,7 @@ btn.addEventListener("click",
         try {
             const res = await fetch(`/api/1.0/stock/getNews?symbol=${symbol}`);
             const resJson = (await res.json()).data;
+            console.log(resJson)
             resJson.map(i => createListWithLink(`${i.title} | ${i.author} | ${i.time}`,i.link));
         } catch (err) {
             console.log("news fetch failed, err");
@@ -171,6 +133,7 @@ btn.addEventListener("click",() => {
             const symbol = getElement("#symbol").value;
             const period = getElement("#Expire").value;
             console.log(action, price, volume, symbol);
+            let id = 1;
             try {
                 console.log(action, price, volume, symbol);
                 const data = {
@@ -179,7 +142,7 @@ btn.addEventListener("click",() => {
                     volume: volume,
                     symbol: symbol,
                     period: period,
-                    id: 1
+                    id: id
                 }
                 const res = await fetch(`/api/1.0/trade/setOrder`,{
                     method: "POST",

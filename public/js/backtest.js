@@ -1,23 +1,11 @@
-import {getElement, createList, createListWithLink, createForm,} from "./utils.js";
+import {getElement, getDataByClass, createList, createListWithLink, createForm,} from "./utils.js";
 //Get Price
-const btn = getElement("#btn");
-btn.addEventListener("click",
+const getDataBtn = getElement("#getDataBtn");
+getDataBtn.addEventListener("click",
     async function (){
-        const periodElement = document.getElementsByClassName("period")
-        let periods = [];
-        for (let i of periodElement) {
-            let period = i.value;
-            periods.push(period);
-        }
-        const symbolsElement = document.getElementsByClassName("symbol")
-        let symbols = [];
-        for (let i of symbolsElement) {
-            let symbol = i.value;
-            symbols.push(symbol);
-        }
         const data = {
-            periods: periods,
-            symbols: symbols
+            periods: getDataByClass("period"),
+            symbols: getDataByClass("symbol")
         }
         try {
             const res = await fetch("/api/1.0/backtest/getData", {
@@ -57,3 +45,29 @@ btn.addEventListener("click",
     }
 )
 
+const backtestBtn = getElement("#backtestBtn");
+backtestBtn.addEventListener("click",
+    async function (){
+        const data = {
+            periods: getDataByClass("period"),
+            symbols: getDataByClass("symbol"),
+            actions: getDataByClass("action"),
+            prices: getDataByClass("price"),
+            exitPrices: getDataByClass("exitPrice"),
+            volumes: getDataByClass("volume"),
+        }
+        try {
+            const res = await fetch("/api/1.0/backtest/getResult", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const resJson = (await res.json()).data;
+            console.log(resJson);
+        } catch (err) {
+            console.log("price fetch failed, err");
+        }
+    }
+)

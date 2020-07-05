@@ -11,7 +11,7 @@
 </head>
 <body>
     <div id="stockSearch">
-        <form class="item">
+        <form>
             <input type="date" class="period"/>
             <input type="date" class="period"/>
             <br>
@@ -19,7 +19,25 @@
             <input type="text" class="symbol" placeholder="stock symbol"/>
             <input type="text" class="symbol" placeholder="stock symbol"/>
             <br>
-            <button type="button" id="btn">Submit</button>
+            <button type="button" id="getDataBtn">Submit</button>
+            <br>
+            <input type="text" class="action" placeholder="Buy / Sell"/>
+            <input type="text" class="action" placeholder="Buy / Sell"/>
+            <input type="text" class="action" placeholder="Buy / Sell"/>
+            <br>
+            <input type="text" class="volume" placeholder="Volume"/>
+            <input type="text" class="volume" placeholder="Volume"/>
+            <input type="text" class="volume" placeholder="Volume"/>
+            <br>
+            <input type="text" class="price" placeholder="Price"/>
+            <input type="text" class="price" placeholder="Price"/>
+            <input type="text" class="price" placeholder="Price"/>
+            <br>
+            <input type="text" class="exitPrice" placeholder="Exit price"/>
+            <input type="text" class="exitPrice" placeholder="Exit price"/>
+            <input type="text" class="exitPrice" placeholder="Exit price"/>
+            <br>
+            <button type="button" id="backtestBtn">Submit</button>
         </form>
     </div>
     <div id="priceChart"></div>

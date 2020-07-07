@@ -7,13 +7,14 @@ const getData = async (req, res) => {
     res.status(200).json({data: getData});
 };
 
-// const getBasicInfo = async (req, res) => {
-//     const { symbol } = req.query;
-//     const basicInfo = await Stock.getBasicInfo(symbol);
-//     res.status(200).json({data: basicInfo});
-// };
+const getResult = async (req, res) => {
+    console.log(req.body);
+    const { periods, symbols, actions, prices, exitPrices, volumes } = req.body;
+    const getResult = await Backtest.getResult(periods, symbols, actions, prices, exitPrices, volumes);
+    res.status(200).json({data: getResult});
+};
 
 module.exports = {
     getData,
-    
+    getResult
 };

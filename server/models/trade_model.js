@@ -28,7 +28,7 @@ const setOrder = async function (id, symbol, price, volume, action, period) {
         const queryStr = "INSERT INTO orders SET ?";
         await query(queryStr, order);
         await commit();
-        return order;
+        return {message: "The order placed! You can check the result in History and Orders now."};
     } catch(error) {
         await rollback();
         return {error};

@@ -1,6 +1,7 @@
 import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart} from "./utils.js";
 //Get Price
 
+const socket = io();
 const searchBtn = getElement("#searchBtn");
 searchBtn.addEventListener("click",
     async function (){
@@ -8,7 +9,6 @@ searchBtn.addEventListener("click",
         const frequency = getElement("#frequency").value;
         try {
             if (frequency === "1d") {
-                const socket = io();
                 socket.on("connect", () => {
                     console.log("connect");
                     fetch(`/api/1.0/stock/getIntradayPrices?symbol=${symbol}`);
@@ -18,6 +18,7 @@ searchBtn.addEventListener("click",
                     createChart(data);
                 });
             } else {
+                socket.disconnect();
                 const res = await fetch(`/api/1.0/stock/getPrices?symbol=${symbol}&frequency=${frequency}`);
                 const resJson = (await res.json()).data;
                 createChart(resJson);

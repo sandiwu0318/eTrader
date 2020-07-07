@@ -1,1 +1,160 @@
-@import "common.css";
+/* ------- General -------- */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+button,
+input,
+select,
+a {
+    font-size: 1.1rem;
+    font-family: sans-serif;
+    letter-spacing: 0.05rem;
+    font-style: normal;
+    text-decoration: none;
+    color: rgb(66, 66, 66);
+}
+
+a:visited {
+    color: rgb(66, 66, 66);
+}
+
+body {
+    height: 100vh;
+    background-color: rgb(235, 235, 235);
+    margin: 0;
+}
+
+/* ------- Search bar -------- */
+
+#logo {
+    width: 23%;
+}
+
+#logo_img {
+    display: block;
+    width: 85%;
+}
+
+.search {
+    font-size: 1rem;
+}
+
+.search_container {
+    display: flex;
+    background-color: rgb(66, 66, 66);
+    flex-wrap: wrap;
+    padding: 0.5rem;
+}
+
+.item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(66, 66, 66);
+}
+
+.search_item {
+    justify-content: space-evenly;
+}
+
+.search {
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    border: solid rgb(66, 66, 66);
+}
+
+#symbol_search {
+    width: 30rem;
+}
+
+#searchBtn {
+    background-color: #64ffda;
+    font-weight: bolder;
+    border: 0;
+}
+
+#searchBtn:hover {
+    background-color: #3fa089;
+    border: 0;
+    color: white;
+}
+
+
+
+/* ------Main Nav------- */
+.main_nav {
+    display: flex;
+    width: 100%;
+    background-color: rgb(235, 235, 235);
+    border-bottom: 1px solid rgb(190, 190, 190);
+    justify-content: center;
+    font-weight: bolder;
+}
+
+.nav_item {
+    padding: 0.8rem 4rem;
+}
+
+.nav_item a:hover {
+    color: rgb(148, 148, 148);
+}
+
+/* ------Main Content------- */
+
+.content_container {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(235, 235, 235);
+}
+
+
+.content_item {
+    width: 80%;
+    
+    margin: 2rem auto;
+    border: 5px solid rgb(235, 235, 235);
+    border-radius: 5px;
+}
+
+.graph {
+    height: 400px;
+}
+
+.main-svg {
+    border: 1px solid rgb(180, 180, 180);
+    border-radius: 8px;
+}
+
+#tradeForm {
+    display: flex;
+}
+
+#trade {
+    width: 80%;
+    margin: 2rem auto;
+}
+
+.input,
+#Trade {
+    margin: 0 1rem;
+    border: 1px solid rgb(180, 180, 180);;
+    border-radius: 5px;
+    padding: 0.2rem 0.5rem;
+}
+
+#Trade:hover {
+    background-color: rgb(131, 131, 131);
+    color: white;
+}
+
+#news_ul a {
+    text-decoration: underline rgb(66, 66, 66);
+}
+
+#news_ul a:hover {
+    color: rgb(131, 131, 131);
+}

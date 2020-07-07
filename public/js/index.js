@@ -1,58 +1,27 @@
-import {getElement, createList, createListWithLink, createForm,} from "./utils.js";
+import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart} from "./utils.js";
 //Get Price
-const btn = getElement("#btn");
-btn.addEventListener("click",
+
+const searchBtn = getElement("#searchBtn");
+searchBtn.addEventListener("click",
     async function (){
-        const symbol = getElement("#symbol").value;
+        const symbol = getElement("#symbol_search").value;
         const frequency = getElement("#frequency").value;
         try {
-            const res = await fetch(`/api/1.0/stock/getStockPrice?symbol=${symbol}&frequency=${frequency}`);
-            const resJson = await res.json();
-            const dates = resJson.data.times;
-            const prices = resJson.data.prices;
-            const volumes = resJson.data.volumes;
-            const priceTrace1 = {
-                x: dates,
-                y: prices,
-                mode: "lines",
-                type: "scatter",
-                name: "price",
-                yaxis: "y1"
-            };
-            const priceTrace2 = {
-                x: dates,
-                y: volumes,
-                type: "bar",
-                name: "Volume",
-                yaxis: "y2"
-            };
-            let priceLayout = {
-                title: "Stock price",
-                xaxis: {
-                    title: "Date",
-                    type: "date",
-                    rangebreaks: [{
-                        pattern: "day of week",
-                        bounds: [6, 1]
-                    }],
-                },
-                yaxis1: {
-                    title: "Price",
-                    side: "left"
-                },
-                yaxis2: {
-                    title: "Volume",
-                    side: "right",
-                    overlaying: "y",
-                    range: [0, Math.max(...volumes)*2]
-                }
-            };
             if (frequency === "1d") {
-                priceLayout.xaxis.rangebreaks[0].pattern = "hour";
-                priceLayout.xaxis.rangebreaks[0].bounds = [16.1, 9.58];
+                const socket = io();
+                socket.on("connect", () => {
+                    console.log("connect");
+                    fetch(`/api/1.0/stock/getIntradayPrices?symbol=${symbol}`);
+                });
+                socket.on("intraday", (data) => {
+                    console.log(data);
+                    createChart(data);
+                });
+            } else {
+                const res = await fetch(`/api/1.0/stock/getPrices?symbol=${symbol}&frequency=${frequency}`);
+                const resJson = (await res.json()).data;
+                createChart(resJson);
             }
-            const chartData = [priceTrace1, priceTrace2];
-            Plotly.newPlot("priceChart", chartData, priceLayout);
         } catch (err) {
             console.log("price fetch failed, err");
         }
@@ -60,15 +29,18 @@ btn.addEventListener("click",
 )
 
 //Get basic info, financials, profile
-btn.addEventListener("click",
+searchBtn.addEventListener("click",
     async function (){
-        const symbol = getElement("#symbol").value;
+        const symbol = getElement("#symbol_search").value;
+        removeChild("profile_ul");
+        removeChild("basicInfo_ul");
         try {
             const res = await fetch(`/api/1.0/stock/getBasicInfo?symbol=${symbol}`);
             const resJson = (await res.json()).data;
             //Basic info
             const basicInfoKeys = Object.keys(resJson);
-            basicInfoKeys.slice(0,-2).filter(i => resJson[i] !== {}).map(i => createList("#basicInfo_ul", i, `${i}: ${resJson[i]}`));
+            createTitle("#basicInfo_ul", "Basic Info");
+            basicInfoKeys.slice(0,-2).filter(i => resJson[i] !== null).map(i => createList("#basicInfo_ul", i, `${i}: ${resJson[i]}`));
             //Financials
             const financials_yearly = resJson.financialChart.yearly;
             const financials_quarterly = resJson.financialChart.quarterly;
@@ -78,12 +50,14 @@ btn.addEventListener("click",
                     y: data.map(i => i.revenue.longFmt),
                     type: "bar",
                     name: "Revenue",
+                    marker: {color: "#3fa089"}
                 };
                 const earningTrace = {
                     x: data.map(i => i.date),
                     y: data.map(i => i.earnings.longFmt),
                     type: "bar",
                     name: "Earnings",
+                    marker: {color: "#005662"},
                 };
                 let financialsLayout = {
                     title: `${id.substr(11)} Financials`,
@@ -99,6 +73,7 @@ btn.addEventListener("click",
             financialGraph("financials_Quarterly", financials_quarterly);
             //Profile
             const profileKeys = Object.keys(resJson.profile);
+            createTitle("#profile_ul", "Profile");
             profileKeys.map(i => createList("#profile_ul", i, `${i}: ${resJson.profile[i]}`));
         } catch (err) {
             console.log("info fetch failed, err");
@@ -107,14 +82,15 @@ btn.addEventListener("click",
 )
 
 //Get news
-btn.addEventListener("click",
+searchBtn.addEventListener("click",
     async function (){
-        const symbol = getElement("#symbol").value;
+        const symbol = getElement("#symbol_search").value;
+        removeChild("news_ul");
         try {
             const res = await fetch(`/api/1.0/stock/getNews?symbol=${symbol}`);
             const resJson = (await res.json()).data;
-            console.log(resJson)
-            resJson.map(i => createListWithLink(`${i.title} | ${i.author} | ${i.time}`,i.link));
+            createTitle("#news_ul", "News");
+            resJson.map(i => createListWithLink(`${i.title} | ${i.author} | ${i.time.substr(0,10)}`,i.link));
         } catch (err) {
             console.log("news fetch failed, err");
         }
@@ -122,7 +98,10 @@ btn.addEventListener("click",
 )
 
 //Add trade button
-btn.addEventListener("click",() => {
+searchBtn.addEventListener("click",() => {
+    if (getElement("#tradeForm") !== null) {
+        removeItem("tradeForm");
+    }
     createForm("tradeForm", ["BuyOrSell", "Price", "Volume", "Expire"], "Trade");
     let tradeBtn = getElement("#Trade");
     tradeBtn.addEventListener("click",
@@ -132,10 +111,8 @@ btn.addEventListener("click",() => {
             const volume = getElement("#Volume").value;
             const symbol = getElement("#symbol").value;
             const period = getElement("#Expire").value;
-            console.log(action, price, volume, symbol);
             let id = 1;
             try {
-                console.log(action, price, volume, symbol);
                 const data = {
                     action: action,
                     price: price,
@@ -152,6 +129,7 @@ btn.addEventListener("click",() => {
                       }
                 });
                 const resJson = (await res.json()).data;
+                alert(resJson.message);
             } catch (err) {
                 console.log("set order fetch failed, err");
             }

@@ -7,14 +7,21 @@ const getData = async (req, res) => {
     res.status(200).json({data: getData});
 };
 
-const getResult = async (req, res) => {
-    console.log(req.body);
+const testWithPrices = async (req, res) => {
     const { periods, symbols, actions, prices, exitPrices, volumes } = req.body;
-    const getResult = await Backtest.getResult(periods, symbols, actions, prices, exitPrices, volumes);
-    res.status(200).json({data: getResult});
+    const testWithPrices = await Backtest.testWithPrices(periods, symbols, actions, prices, exitPrices, volumes);
+    res.status(200).json({data: testWithPrices});
 };
+
+const testWithRSI = async (req, res) => {
+    const { periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes } = req.body;
+    const testWithRSI = await Backtest.testWithRSI(periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes);
+    res.status(200).json({data: testWithRSI});
+};
+
 
 module.exports = {
     getData,
-    getResult
+    testWithPrices,
+    testWithRSI
 };

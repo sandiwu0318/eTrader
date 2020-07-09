@@ -34,7 +34,7 @@ body {
 /* ------- Search bar -------- */
 
 #logo {
-    width: 18%;
+    width: 15%;
 }
 
 #logo_img {
@@ -50,6 +50,8 @@ body {
     display: flex;
     background-color: rgb(66, 66, 66);
     flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
     padding: 0.5rem;
 }
 
@@ -72,20 +74,30 @@ body {
 }
 
 #symbol_search {
-    width: 32rem;
-    margin-left: 3rem;
+    width: 35rem;
 }
 
 #searchBtn {
     background-color: #64ffda;
     font-weight: bolder;
     border: 0;
+    cursor: pointer;
 }
 
 #searchBtn:hover {
     background-color: #3fa089;
     border: 0;
     color: white;
+}
+
+#loginBtn {
+    background-color: #818181;
+    font-weight: bolder;
+    border-radius: 6px;
+    border: #818181;
+    height: 2rem;
+    font-size: 1rem;
+    cursor: pointer;
 }
 
 
@@ -100,12 +112,26 @@ body {
     font-weight: bolder;
 }
 
+.nav_item a {
+    display: inline-block;
+    padding: 0.2rem 0.4rem;
+}
+
 .nav_item {
-    padding: 0.8rem 4rem;
+    padding: 0.4rem 4rem;
 }
 
 .nav_item a:hover {
     color: rgb(148, 148, 148);
+}
+
+.current {
+    border-bottom: 0.15rem solid #3fa089;
+    cursor: default;
+}
+
+.current:hover {
+    color: rgb(66, 66, 66)
 }
 
 /* ------Main Content------- */
@@ -144,14 +170,14 @@ body {
 }
 
 .input,
-#Trade {
+.btn {
     margin: 0 1rem;
     border: 1px solid rgb(180, 180, 180);
     border-radius: 5px;
     padding: 0.2rem 0.5rem;
 }
 
-#Trade:hover {
+.btn:hover {
     background-color: rgb(131, 131, 131);
     color: white;
 }
@@ -185,4 +211,71 @@ body {
 .li_div,
 .title {
     margin: 0.5rem 0rem 0.5rem 3rem;
+}
+
+/* ------Backtesting Page------- */
+
+
+.test_input,
+.test_label {
+    width: 13rem;
+    border-radius: 6px;
+    padding: 0.3rem 1rem;
+    border: 0.1rem solid rgb(180, 180, 180);
+    margin: 0.5rem 1rem;
+}
+
+.test_label {
+    border: none;
+}
+
+#addSymbolBtn {
+    width: 1.6rem;
+	height: 1.6rem;
+	line-height: 1.6rem;
+	background-color: rgb(180, 180, 180);
+    border-radius: 1.6rem;
+    text-align: center;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    display: inline-block;
+    cursor: pointer;
+}
+
+#backtestBtn {
+    background-color: rgb(180, 180, 180);
+    margin: 2rem;
+}
+
+#addSymbolBtn:hover,
+#backtestBtn:hover {
+    background-color: rgb(105, 105, 105);
+    color: white;
+}
+
+/* ------Login Page------- */
+
+#login_form {
+    margin: 1rem;
+}
+
+.login_input,
+.login_label {
+    display: inline-block;
+    width: 13rem;
+    border-radius: 6px;
+    padding: 0.3rem 1rem;
+    border: 0.1rem solid rgb(180, 180, 180);
+    margin: 0.5rem 1rem;
+}
+
+.login_label {
+    border: none;
+}
+
+#signInBtn,
+#signUpBtn {
+    margin: 1rem 3rem;
 }

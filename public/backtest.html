@@ -10,37 +10,71 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 </head>
 <body>
-    <div id="stockSearch">
-        <form>
-            <input type="date" class="period"/>
-            <input type="date" class="period"/>
+    <div class="search_container">
+        <a href="/" id="logo"><img class="search_item" id="logo_img" src="img/logo.png"></a>
+        <div class="search_item item">
+            <form>
+                <input type="text" class="search" name="symbol" id="symbol_search" placeholder="Stock search"/>
+                <select class="search" name="frequency" id="frequency">
+                    <option value="1d">1 Day</option>
+                    <option value="1mo">1 Month</option>
+                    <option value="3mo">3 Month</option>
+                    <option value="6mo">6 Month</option>
+                    <option value="1yr">1 Year</option>
+                    <option value="3yr">3 Year</option>
+                    <option value="max">Max</option>
+                </select>
+                <button class="search" type="button" id="searchBtn">Search</button>
+            </form>
+        </div>
+        <button class="btn" type="button" id="loginBtn">Login</button>
+    </div>
+    <nav class="main_nav">
+        <div class="nav_item"><a href="/watchlist.html">Watchlist</a></div>
+        <div class="nav_item"><a href="/portfolios.html">Portfolios</a></div>
+        <div class="nav_item"><a href="/orders.html">Orders</a></div>
+        <div class="nav_item"><a href="/history.html">History</a></div>
+        <div class="nav_item"><a class="current" href="/backtest.html">Backtest</a></div>
+    </nav>
+    <div class="test_case">
+        <form id="test_form">
+            <label class="test_label">Date Range</label>
+            <input type="date" class="test_input period"/>
+            <input type="date" class="test_input period"/>
             <br>
-            <input type="text" class="symbol" placeholder="stock symbol"/>
-            <input type="text" class="symbol" placeholder="stock symbol"/>
-            <input type="text" class="symbol" placeholder="stock symbol"/>
+            <label class="test_label">Stock Symbol</label>
+            <input type="text" class="test_input symbol"/>
+            <div id="addSymbolBtn">+</div>
             <br>
-            <button type="button" id="getDataBtn">Submit</button>
+            <label class="test_label">Indicator</label>
+            <select type="text" class="test_input indicator">
+                <option value="RSI">RSI</option>
+                <option value="SMA">SMA</option>
+                <option value="EMA">EMA</option>
+                <option value="WMA">WMA</option>
+            </select>
             <br>
-            <input type="text" class="action" placeholder="Buy / Sell"/>
-            <input type="text" class="action" placeholder="Buy / Sell"/>
-            <input type="text" class="action" placeholder="Buy / Sell"/>
+            <label class="test_label">Indicator Period</label>
+            <input type="text" class="test_input indicatorPeriod"/>
             <br>
-            <input type="text" class="volume" placeholder="Volume"/>
-            <input type="text" class="volume" placeholder="Volume"/>
-            <input type="text" class="volume" placeholder="Volume"/>
+            <label class="test_label">Action (buy / sell)</label>
+            <input type="text" class="test_input action"/>
             <br>
-            <input type="text" class="price" placeholder="Price"/>
-            <input type="text" class="price" placeholder="Price"/>
-            <input type="text" class="price" placeholder="Price"/>
+            <label class="test_label">Volume</label>
+            <input type="text" class="test_input volume"/>
             <br>
-            <input type="text" class="exitPrice" placeholder="Exit price"/>
-            <input type="text" class="exitPrice" placeholder="Exit price"/>
-            <input type="text" class="exitPrice" placeholder="Exit price"/>
+            <label class="test_label">Action Value</label>
+            <input type="text" class="test_input actionValue"/>
             <br>
-            <button type="button" id="backtestBtn">Submit</button>
+            <label class="test_label">Exit Value</label>
+            <input type="text" class="test_input exitValue"/>
+            <br>
+            <button type="button" class="btn" id="backtestBtn">Submit</button>
         </form>
     </div>
     <div id="priceChart"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="js/index.js"></script>
     <script type="module" src="js/backtest.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

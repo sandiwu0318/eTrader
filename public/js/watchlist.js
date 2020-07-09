@@ -1,5 +1,10 @@
-import {getElement, createList, createListWithLink, createForm,} from "./utils.js";
-let id = 1;
+import {createList, checkLogin, loginBtn} from "./utils.js";
+const id = localStorage.getItem("id");
+loginBtn();
+checkLogin(id);
+if (id !== null) {
+    getWatchlist();
+}
 async function getWatchlist() {
     try {
         const data = {
@@ -13,16 +18,18 @@ async function getWatchlist() {
             }
         });
         const resJson = (await res.json()).data;
-        resJson.map(i => createList("#watchlist_ul", "user_li", Object.values(i)));
-        const pieLayout = {
-            title: 'Product sold percentage in different colors',
-            height: 400,
-            width: 500
-        };
-        Plotly.newPlot('pie', pieData, pieLayout);
+        if (resJson.error) {
+            alert(resJson.error);
+        } else {
+            resJson.map(i => createList("#watchlist_ul", "user_li", Object.values(i)));
+            const pieLayout = {
+                title: 'Product sold percentage in different colors',
+                height: 400,
+                width: 500
+            };
+            Plotly.newPlot('pie', pieData, pieLayout);
+        }
     } catch (err) {
         console.log("watchlist fetch failed, err");
     }
 }
-
-getWatchlist();

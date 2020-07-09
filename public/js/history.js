@@ -1,5 +1,9 @@
-import {getElement, createList, createListWithLink, createForm,} from "./utils.js";
-let id = 1;
+import {createList, checkLogin} from "./utils.js";
+const id = localStorage.getItem("id");
+checkLogin(id);
+if (id !== null) {
+    getHistory();
+}
 async function getHistory() {
     try {
         const data = {
@@ -13,11 +17,14 @@ async function getHistory() {
             }
         });
         const resJson = (await res.json()).data;
-        const history = resJson.history;
-        history.forEach(i => i.expense = i.volume * i.price);
-        history.map(i => createList("#history_ul", "user_li",Object.values(i)));
+        if (resJson.error) {
+            alert(resJson.error);
+        } else {
+            const history = resJson.history;
+            history.forEach(i => i.expense = i.volume * i.price);
+            history.map(i => createList("#history_ul", "user_li",Object.values(i)));
+        }
     } catch (err) {
         console.log("History fetch failed, err");
     }
 }
-getHistory();

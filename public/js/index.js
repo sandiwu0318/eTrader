@@ -1,6 +1,12 @@
-import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart} from "./utils.js";
+import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, loginBtn} from "./utils.js";
 //Get Price
-
+const id = window.localStorage.getItem("id");
+if (id !== null) {
+    getElement("#loginBtn").innerText = "Logout";
+    getElement("#loginBtn").addEventListener("click", () => localStorage.clear());
+} else {
+    loginBtn();
+}
 const socket = io();
 const searchBtn = getElement("#searchBtn");
 searchBtn.addEventListener("click",
@@ -10,11 +16,9 @@ searchBtn.addEventListener("click",
         try {
             if (frequency === "1d") {
                 socket.on("connect", () => {
-                    console.log("connect");
                     fetch(`/api/1.0/stock/getIntradayPrices?symbol=${symbol}`);
                 });
                 socket.on("intraday", (data) => {
-                    console.log(data);
                     createChart(data);
                 });
             } else {

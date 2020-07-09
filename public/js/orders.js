@@ -1,5 +1,9 @@
-import {getElement, createList, createListWithLink, createForm,} from "./utils.js";
-let id = 1;
+import {createList, checkLogin} from "./utils.js";
+const id = localStorage.getItem("id");
+checkLogin(id);
+if (id !== null) {
+    getOrders();
+}
 async function getOrders() {
     try {
         const data = {
@@ -13,12 +17,14 @@ async function getOrders() {
             }
         });
         const resJson = (await res.json()).data;
-        const orders = resJson.orders;
-        console.log(orders)
-        orders.forEach(i => i.expense = i.volume * i.price);
-        orders.map(i => createList("#orders_ul", "user_li",Object.values(i)));
+        if (resJson.error) {
+            alert(resJson.error);
+        } else {
+            const orders = resJson.orders;
+            orders.forEach(i => i.expense = i.volume * i.price);
+            orders.map(i => createList("#orders_ul", "user_li",Object.values(i)));
+        }
     } catch (err) {
         console.log("Orders fetch failed, err");
     }
 }
-getOrders();

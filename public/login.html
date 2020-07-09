@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="stock trading website. updated at 2020." />
 <title>eTrader 2020</title>
-<link rel="stylesheet" href="https://cdnjs.Cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="css/index.css" />
 </head>
 <body>
@@ -28,28 +27,21 @@
         </div>
         <button class="btn" type="button" id="loginBtn">Login</button>
     </div>
-    <nav class="main_nav">
-        <div class="nav_item"><a href="/watchlist.html">Watchlist</a></div>
-        <div class="nav_item"><a class="current" href="/portfolios.html">Portfolios</a></div>
-        <div class="nav_item"><a href="/orders.html">Orders</a></div>
-        <div class="nav_item"><a href="/history.html">History</a></div>
-        <div class="nav_item"><a href="/backtest.html">Backtest</a></div>
-    </nav>
-    <div class="titles">
-        <div class="title">Stock</div>
-        <div class="title">Volume</div>
-        <div class="title">Price</div>
-        <div class="title">Expense</div>
-    </div>
-    <div>
-        <ul id="portfolio_ul" class="user_ul"></ul>
-    </div>
     <div class="content_container">
-        <div class="content_item graph" id="portfolioPie"></div>
+        <form id="login_form">
+            <label class="login_label">Email</label>
+            <input type="email" class="login_input" id="email"/>
+            <br>
+            <label class="login_label">Password</label>
+            <input type="password" class="login_input" id="password"/>
+            <br>
+            <button type="button" class="btn" id="signInBtn">Sign in</button>
+            <button type="button" class="btn" id="signUpBtn">Sign up</button>
+        </form>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="js/index.js"></script>
-    <script type="module" src="js/portfolios.js"></script>
+    <script type="module" src="js/login.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>

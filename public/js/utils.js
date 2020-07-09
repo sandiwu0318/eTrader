@@ -12,6 +12,31 @@ function getDataByClass(className) {
     return arr;
 }
 
+function createInput(className) {
+    const input = document.createElement("input");
+    const inputList = document.getElementsByClassName(className);
+    const lastInput = inputList[inputList.length-1];
+    const form = getElement("#test_form");
+    input.type = "text";
+    input.className = `test_input ${className}`;
+    form.insertBefore(input, lastInput.nextElementSibling)
+}
+
+function createSelect(className, options) {
+    const select = document.createElement("select");
+    options.forEach(i => {
+        const option = document.createElement("option");
+        option.value = i;
+        option.innerText = i;
+        select.appendChild(option);   
+    })
+    const inputList = document.getElementsByClassName(className);
+    const lastInput = inputList[inputList.length-1];
+    const form = getElement("#test_form");
+    select.className = `test_input ${className}`;
+    form.insertBefore(select, lastInput.nextElementSibling)
+}
+
 function createTitle(id, title) {
     const element = getElement(id);
     const h2 = document.createElement("h2")
@@ -56,6 +81,7 @@ function createForm(formId, inputArr, button) {
     const div = getElement("#trade");
     form.id = formId;
     btn.id = button;
+    btn.className = "btn";
     btn.type = "button";
     btn.innerText = button;
     div.appendChild(form);
@@ -128,14 +154,32 @@ function createChart(data) {
     Plotly.newPlot("priceChart", chartData, priceLayout);
 }
 
+function checkLogin(id) {
+    if (id === null) {
+        localStorage.setItem("page", window.location.href);
+        window.location = "/login.html";
+    } else {
+            getElement("#loginBtn").innerText = "Logout";
+            getElement("#loginBtn").addEventListener("click", () => localStorage.clear());
+    }
+}
+
+function loginBtn() {
+    getElement("#loginBtn").addEventListener("click", () => window.location = "/login.html");
+}
+
 export {
     getElement,
     getDataByClass,
+    createInput,
+    createSelect,
     createTitle,
     createList,
     createListWithLink,
     createForm,
     removeItem,
     removeChild,
-    createChart
+    createChart,
+    checkLogin,
+    loginBtn
 };

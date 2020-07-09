@@ -1,63 +1,26 @@
-import {getElement, getDataByClass, createList, createListWithLink, createForm,} from "./utils.js";
-//Get Price
-const getDataBtn = getElement("#getDataBtn");
-getDataBtn.addEventListener("click",
-    async function (){
-        const data = {
-            periods: getDataByClass("period"),
-            symbols: getDataByClass("symbol")
-        }
-        try {
-            const res = await fetch("/api/1.0/backtest/getData", {
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const resJson = (await res.json()).data;
-            const chartData = resJson.map(i =>  ({
-                x: i.times,
-                y: i.prices,
-                mode: "lines",
-                type: "scatter",
-                name: i.symbol,
-            }))
-            let priceLayout = {
-                title: "Stock price",
-                xaxis: {
-                    title: "Date",
-                    type: "date",
-                    rangebreaks: [{
-                        pattern: "day of week",
-                        bounds: [6, 1]
-                    }],
-                },
-                yaxis: {
-                    title: "Price",
-                    side: "left"
-                }
-            };
-            Plotly.newPlot("priceChart", chartData, priceLayout);
-        } catch (err) {
-            console.log("price fetch failed, err");
-        }
-    }
-)
-
+import {getElement, getDataByClass, createInput, createSelect, loginBtn} from "./utils.js";
+const id = window.localStorage.getItem("id");
+if (id !== null) {
+    getElement("#loginBtn").innerText = "Logout";
+    getElement("#loginBtn").addEventListener("click", () => localStorage.clear());
+} else {
+    loginBtn();
+}
 const backtestBtn = getElement("#backtestBtn");
 backtestBtn.addEventListener("click",
     async function (){
         const data = {
             periods: getDataByClass("period"),
             symbols: getDataByClass("symbol"),
+            indicators: getDataByClass("indicator"),
+            indicatorPeriods: getDataByClass("indicatorPeriod"),
             actions: getDataByClass("action"),
-            prices: getDataByClass("price"),
-            exitPrices: getDataByClass("exitPrice"),
             volumes: getDataByClass("volume"),
+            actionValues: getDataByClass("actionValue"),
+            exitValues: getDataByClass("exitValue"),
         }
         try {
-            const res = await fetch("/api/1.0/backtest/getResult", {
+            const res = await fetch("/api/1.0/backtest/testWithIndicator", {
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: {
@@ -65,9 +28,25 @@ backtestBtn.addEventListener("click",
                 }
             });
             const resJson = (await res.json()).data;
-            console.log(resJson);
+            if (resJson.error) {
+                alert(resJson.error);
+            } else {
+                console.log(resJson)
+            }
         } catch (err) {
             console.log("price fetch failed, err");
         }
     }
 )
+
+//Add more stock
+const addSymbolBtn = getElement("#addSymbolBtn");
+addSymbolBtn.addEventListener("click", function() {
+    createInput("symbol");
+    createInput("action");
+    createSelect("indicator",["RSI", "SMA", "EMA", "WMA"]);
+    createInput("indicatorPeriod");
+    createInput("volume");
+    createInput("actionValue");
+    createInput("exitValue");
+});

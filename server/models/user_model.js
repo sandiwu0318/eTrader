@@ -96,42 +96,51 @@ const addRemoveWatchlist = async function (id, symbol) {
 const getWatchlist = async function (id) {
     const selectStr = "SELECT watchlist FROM user WHERE id = ?";
     const result = await query(selectStr, id);
-    let watchlist = result[0].watchlist.split(",");
-    let results = [];
-    for (let i of watchlist) {
-        const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
-        const result = {
-            symbol: current["01. symbol"],
-            price: current["05. price"],
-            volume: current["06. volume"],
-            change: current["09. change"],
-            changePercent: current["10. change percent"],
-        };
-        results.push(result);
+    if (result[0].watchlist === null) {
+        return {error: "You haven't created your watchlist yet"};
+    } else {
+        let watchlist = result[0].watchlist.split(",");
+        let results = [];
+        for (let i of watchlist) {
+            const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
+            const result = {
+                symbol: current["01. symbol"],
+                price: current["05. price"],
+                volume: current["06. volume"],
+                change: current["09. change"],
+                changePercent: current["10. change percent"],
+            };
+            results.push(result);
+        }
+        return results;
     }
-    return results;
 };
 
 const getOrders = async function (id) {
     const selectStr = "SELECT symbol, price, volume, success  FROM orders WHERE user_id = ? ORDER BY success";
     const results = await query(selectStr, id);
-    const history = results.filter(i => i.success === 1);
-    const orders = results.filter(i => i.success === 0);
-    history.forEach(i => delete i.success);
-    orders.forEach(i => delete i.success);
-    const portfolioList = _.groupBy(history, "symbol");
-    const symbols = Object.keys(portfolioList);
-    const portfolio = symbols.map(i => ({
-        symbol: i,
-        volume: portfolioList[i].map(i => i.volume).reduce((a, b) =>  a+b, 0),
-        averagePrice: (portfolioList[i].map(j => j.price*j.volume).reduce((a, b) => a+b, 0))/
+    console.log(results);
+    if (results.length === 0) {
+        return {error: "You haven't created any orders yet"};
+    } else {
+        const history = results.filter(i => i.success === 1);
+        const orders = results.filter(i => i.success === 0);
+        history.forEach(i => delete i.success);
+        orders.forEach(i => delete i.success);
+        const portfolioList = _.groupBy(history, "symbol");
+        const symbols = Object.keys(portfolioList);
+        const portfolio = symbols.map(i => ({
+            symbol: i,
+            volume: portfolioList[i].map(i => i.volume).reduce((a, b) =>  a+b, 0),
+            averagePrice: (portfolioList[i].map(j => j.price*j.volume).reduce((a, b) => a+b, 0))/
             portfolioList[i].map(i => i.volume).reduce((a, b) =>  a+b, 0),
-    }));
-    return {
-        history: history,
-        orders: orders,
-        portfolio: portfolio
-    };
+        }));
+        return {
+            history: history,
+            orders: orders,
+            portfolio: portfolio
+        };
+    }
 };
 
 module.exports = {

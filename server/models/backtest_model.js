@@ -66,15 +66,15 @@ const testWithPrices = async function (periods, symbols, actions, prices, exitPr
             case "buy": {
                 action = "buy";
                 exitAction = "sell";
-                filters = response.filter(i => i.volume >= volumes[index]).filter(a => a.price <= prices[index]);
-                exitFilters = response.filter(i => i.volume >= volumes[index]).filter(a => a.price >= exitPrices[index]);
+                filters = response.filter(i => i.volume >= parseInt(volumes[index])).filter(a => a.price <= prices[index]);
+                exitFilters = response.filter(i => i.volume >= parseInt(volumes[index])).filter(a => a.price >= exitPrices[index]);
                 break;
             }
             case "sell": {
                 action = "sell";
                 exitAction = "buy";
-                filters = response.filter(i => i.volume >= volumes[index]).filter(a => a.price >= prices[index]);
-                exitFilters = response.filter(i => i.volume >= volumes[index]).filter(a => a.price <= exitPrices[index]);
+                filters = response.filter(i => i.volume >= parseInt(volumes[index])).filter(a => a.price >= prices[index]);
+                exitFilters = response.filter(i => i.volume >= parseInt(volumes[index])).filter(a => a.price <= exitPrices[index]);
                 break;
             }
             }
@@ -152,7 +152,7 @@ const testWithPrices = async function (periods, symbols, actions, prices, exitPr
     }
 };
 
-const testWithRSI = async function (periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes) {
+const testWithIndicator = async function (periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes) {
     try {
         let data = [];
         for (let i of symbols) {
@@ -164,7 +164,7 @@ const testWithRSI = async function (periods, symbols, indicators, indicatorPerio
             let indicatorValue;
             let calculateValue = {
                 values: response.map(i => i.price),
-                period: indicatorPeriods[index]
+                period: parseInt(indicatorPeriods[index])
             };
             switch(indicators[index]) {
             case "RSI": {
@@ -184,24 +184,24 @@ const testWithRSI = async function (periods, symbols, indicators, indicatorPerio
                 break;
             }
             }
-            let arr = new Array(indicatorPeriods[index]).fill(0, 0, indicatorPeriods[index]);
+            let arr = new Array(parseInt(indicatorPeriods[index])).fill(0, 0, parseInt(indicatorPeriods[index]));
             indicatorValue = arr.concat(indicatorValue);
             const actionInput = {
                 lineA: indicatorValue,
-                lineB: new Array(indicatorValue.length).fill(actionValues[index])
+                lineB: new Array(indicatorValue.length).fill(parseInt(actionValues[index]))
             };
             const exitInput = {
                 lineA: indicatorValue,
-                lineB: new Array(indicatorValue.length).fill(exitValues[index])
+                lineB: new Array(indicatorValue.length).fill(parseInt(exitValues[index]))
             };
             let actionCross;
             let exitCross;
-            if (actionValues[index] > 0) {
+            if (parseInt(actionValues[index]) > 0) {
                 actionCross = CrossUp.calculate(actionInput);
             } else {
                 actionCross = CrossDown.calculate(actionInput);
             }
-            if (actionValues[index] > 0) {
+            if (parseInt(actionValues[index]) > 0) {
                 exitCross = CrossUp.calculate(exitInput);
             } else {
                 exitCross = CrossDown.calculate(exitInput);
@@ -230,8 +230,10 @@ const testWithRSI = async function (periods, symbols, indicators, indicatorPerio
             const singleData = {
                 symbol: i,
                 indicator: indicators[index],
+                actionValue: parseInt(actionValues[index]),
+                exitValue: parseInt(exitValues[index]),
                 action: actions[index],
-                volume: volumes[index],
+                volume: parseInt(volumes[index]),
                 profit: profit,
                 data: newOrderData,
                 chart: chartData
@@ -253,5 +255,5 @@ const testWithRSI = async function (periods, symbols, indicators, indicatorPerio
 module.exports = {
     getData,
     testWithPrices,
-    testWithRSI
+    testWithIndicator
 };

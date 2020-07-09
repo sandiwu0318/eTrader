@@ -4,7 +4,7 @@ const {wrapAsync} = require("../../utils/util");
 const {
     getData,
     testWithPrices,
-    testWithRSI
+    testWithIndicator
     
 } = require("../controllers/backtest_controller");
 
@@ -14,8 +14,8 @@ router.route("/backtest/getData")
 router.route("/backtest/testWithPrices")
     .post(wrapAsync(testWithPrices));
 
-router.route("/backtest/testWithRSI")
-    .post(wrapAsync(testWithRSI));
+router.route("/backtest/testWithIndicator")
+    .post(wrapAsync(testWithIndicator));
 
 
 module.exports = router;

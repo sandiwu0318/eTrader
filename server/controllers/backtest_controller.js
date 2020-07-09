@@ -13,15 +13,15 @@ const testWithPrices = async (req, res) => {
     res.status(200).json({data: testWithPrices});
 };
 
-const testWithRSI = async (req, res) => {
+const testWithIndicator = async (req, res) => {
     const { periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes } = req.body;
-    const testWithRSI = await Backtest.testWithRSI(periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes);
-    res.status(200).json({data: testWithRSI});
+    const testWithIndicator = await Backtest.testWithIndicator(periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes);
+    res.status(200).json({data: testWithIndicator});
 };
 
 
 module.exports = {
     getData,
     testWithPrices,
-    testWithRSI
+    testWithIndicator
 };

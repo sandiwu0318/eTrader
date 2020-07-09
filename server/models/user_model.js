@@ -1,8 +1,72 @@
 require("dotenv").config();
+const CryptoJS = require("crypto-js");
+const crypto = require("crypto");
 const { ALPHAVANTAGE_API_KEY } = process.env;
 const axios = require("axios");
 const _ = require("lodash");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
+
+const signUp = async (name, email, password, expire) => {
+    try {
+        await transaction();
+        const emails = await query("SELECT email FROM user WHERE email = ? FOR UPDATE", [email]);
+        if (emails.length > 0){
+            await commit();
+            return {error: "Email Already Exists"};
+        }
+        const loginAt = new Date();
+        const sha = crypto.createHash("sha256");
+        sha.update(email + password + loginAt);
+        const accessToken = sha.digest("hex");
+        const user = {
+            provider: "native",
+            email: email,
+            password: CryptoJS.AES.encrypt(password, email).toString(),
+            name: name,
+            picture: null,
+            access_token: accessToken,
+            access_expired: expire,
+            last_login: loginAt
+        };
+        const queryStr = "INSERT INTO user SET ?";
+        const result = await query(queryStr, user);
+        user.id = result.insertId;
+        await commit();
+        return {accessToken, loginAt, user};
+    } catch (error) {
+        await rollback();
+        return {error};
+    }
+};
+
+const nativeSignIn = async (email, password, expire) => {
+    try {
+        await transaction();
+        const users = await query("SELECT * FROM user WHERE email = ?", [email]);
+        const user = users[0];
+        if (users.length == 0) {
+            await commit();
+            return {error: "Please sign up first"};
+        } 
+        if (CryptoJS.AES.decrypt(user.password, email).toString(CryptoJS.enc.Utf8) !== password){
+            await commit();
+            return {error: "Password is wrong"};
+        }
+        const loginAt = new Date();
+        const sha = crypto.createHash("sha256");
+        sha.update(email + password + loginAt);
+        const accessToken = sha.digest("hex");
+        const queryStr = "UPDATE user SET access_token = ?, access_expired = ?, last_login = ? WHERE id = ?";
+        await query(queryStr, [accessToken, expire, loginAt, user.id]);
+        await commit();
+        return {accessToken, loginAt, user};
+    } catch (error) {
+        await rollback();
+        return {error};
+    }
+};
+
+
 
 const addRemoveWatchlist = async function (id, symbol) {
     try {
@@ -69,6 +133,8 @@ const getOrders = async function (id) {
 };
 
 module.exports = {
+    signUp,
+    nativeSignIn,
     addRemoveWatchlist,
     getWatchlist,
     getOrders

@@ -1,5 +1,16 @@
 const User = require("../models/user_model");
 
+const signUp = async (req, res) => {
+    const { name, email, password, expire } = req.body;
+    const signUp = await User.signUp(name, email, password, expire);
+    res.status(200).json({data: signUp});
+};
+
+const nativeSignIn = async (req, res) => {
+    const { email, password, expire } = req.body;
+    const nativeSignIn = await User.nativeSignIn(email, password, expire);
+    res.status(200).json({data: nativeSignIn});
+};
 
 const addRemoveWatchlist = async (req, res) => {
     const { id, symbol } = req.body;
@@ -20,6 +31,8 @@ const getOrders = async (req, res) => {
 };
 
 module.exports = {
+    signUp,
+    nativeSignIn,
     addRemoveWatchlist,
     getWatchlist,
     getOrders

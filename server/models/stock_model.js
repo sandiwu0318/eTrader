@@ -12,12 +12,11 @@ const getIntradayPrices = async function (symbol, io) {
             let period1;
             let period2;
             if ((hours === 13 && minutes >= 30) || (hours >=14 && hours <= 20)) {
-                console.log("here");
                 period1 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 21, 30).getTime()/1000;
-                period2 = today.getTime()/1000;
+                period2 = Math.floor(today.getTime()/1000);
             } else {
-                period1 = new Date(today.getFullYear(), today.getMonth(), today.getDate()-1, 21, 30).getTime()/1000;
-                period2 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 4).getTime()/1000;
+                period1 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-1, 21, 30).getTime()/1000);
+                period2 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 4).getTime()/1000);
             }
             const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${period1}&period2=${period2}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
             const data = {
@@ -25,7 +24,6 @@ const getIntradayPrices = async function (symbol, io) {
                 prices: response.data.chart.result[0].indicators.quote[0].close,
                 volumes: response.data.chart.result[0].indicators.quote[0].volume,
             };
-            // console.log("data", data);
             io.emit("intraday", data);
         } catch(error) {
             console.log(error);

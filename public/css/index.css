@@ -17,6 +17,10 @@ a {
     color: rgb(66, 66, 66);
 }
 
+ul {
+    padding: 0;
+}
+
 a:visited {
     color: rgb(66, 66, 66);
 }
@@ -30,7 +34,7 @@ body {
 /* ------- Search bar -------- */
 
 #logo {
-    width: 23%;
+    width: 18%;
 }
 
 #logo_img {
@@ -68,7 +72,8 @@ body {
 }
 
 #symbol_search {
-    width: 30rem;
+    width: 32rem;
+    margin-left: 3rem;
 }
 
 #searchBtn {
@@ -141,7 +146,7 @@ body {
 .input,
 #Trade {
     margin: 0 1rem;
-    border: 1px solid rgb(180, 180, 180);;
+    border: 1px solid rgb(180, 180, 180);
     border-radius: 5px;
     padding: 0.2rem 0.5rem;
 }
@@ -157,4 +162,27 @@ body {
 
 #news_ul a:hover {
     color: rgb(131, 131, 131);
+}
+
+/* ------Watchlist Page------- */
+
+.user_li,
+.titles {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 0.2rem 0.5rem;
+    border-bottom: 1px solid rgb(180, 180, 180);
+}
+
+.titles {
+    background-color: rgb(180, 180, 180);
+}
+
+.user_ul {
+    margin: 0;
+}
+
+.li_div,
+.title {
+    margin: 0.5rem 0rem 0.5rem 3rem;
 }

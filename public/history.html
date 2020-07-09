@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="stock trading website. updated at 2020." />
 <title>eTrader 2020</title>
+<link rel="stylesheet" href="https://cdnjs.Cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="css/index.css" />
 </head>
 <body>
@@ -32,23 +33,16 @@
         <div class="nav_item"><a href="/orders.html">Orders</a></div>
         <div class="nav_item"><a href="/history.html">History</a></div>
     </nav>
-    <div class="content_container">
-        <div id="trade"></div>
-        <div class="content_item graph" id="priceChart"></div>
-        <div class="content_item">
-            <ul id="basicInfo_ul"></ul>
-        </div>
-        <div class="content_item">
-            <ul id="profile_ul"></ul>
-        </div>
-        <div class="content_item graph" id="financials_Yearly"></div>
-        <div class="content_item graph" id="financials_Quarterly"></div>
-        <div class="content_item">
-            <ul id="news_ul"></ul>
-        </div>
+    <div class="titles">
+        <div class="title">Stock</a></div>
+        <div class="title">Price</a></div>
+        <div class="title">Volume</a></div>
+        <div class="title">Expense</a></div>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="js/index.js"></script>
+    <div>
+        <ul id="history_ul" class="user_ul"></ul>
+    </div>
+    <script type="module" src="js/history.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>

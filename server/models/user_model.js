@@ -113,10 +113,12 @@ const getWatchlist = async function (id) {
 };
 
 const getOrders = async function (id) {
-    const selectStr = "SELECT * FROM orders WHERE user_id = ? ORDER BY success";
+    const selectStr = "SELECT symbol, price, volume, success  FROM orders WHERE user_id = ? ORDER BY success";
     const results = await query(selectStr, id);
     const history = results.filter(i => i.success === 1);
     const orders = results.filter(i => i.success === 0);
+    history.forEach(i => delete i.success);
+    orders.forEach(i => delete i.success);
     const portfolioList = _.groupBy(history, "symbol");
     const symbols = Object.keys(portfolioList);
     const portfolio = symbols.map(i => ({

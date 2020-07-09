@@ -41,7 +41,7 @@ searchBtn.addEventListener("click",
             //Basic info
             const basicInfoKeys = Object.keys(resJson);
             createTitle("#basicInfo_ul", "Basic Info");
-            basicInfoKeys.slice(0,-2).filter(i => resJson[i] !== null).map(i => createList("#basicInfo_ul", i, `${i}: ${resJson[i]}`));
+            basicInfoKeys.slice(0,-2).filter(i => resJson[i] !== null).map(i => createList("#basicInfo_ul", "basic_info", `${i}: ${resJson[i]}`));
             //Financials
             const financials_yearly = resJson.financialChart.yearly;
             const financials_quarterly = resJson.financialChart.quarterly;
@@ -75,7 +75,7 @@ searchBtn.addEventListener("click",
             //Profile
             const profileKeys = Object.keys(resJson.profile);
             createTitle("#profile_ul", "Profile");
-            profileKeys.map(i => createList("#profile_ul", i, `${i}: ${resJson.profile[i]}`));
+            profileKeys.map(i => createList("#profile_ul", "profile", `${i}: ${resJson.profile[i]}`));
         } catch (err) {
             console.log("info fetch failed, err");
         }

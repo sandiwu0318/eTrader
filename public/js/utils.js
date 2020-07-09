@@ -19,11 +19,16 @@ function createTitle(id, title) {
     element.appendChild(h2);
 }
 
-function createList(ulId, id, text) {
+function createList(ulId, className, text) {
     const ul = getElement(ulId);
     const li = document.createElement("li");
-    li.id = id;
-    li.innerText = text;
+    li.className = className;
+    text.forEach(i => {
+        const div = document.createElement("div");
+        div.innerText = i;
+        div.className = "li_div";
+        li.appendChild(div);
+    })
     ul.appendChild(li);
 }
 
@@ -81,7 +86,6 @@ function createChart(data) {
         name: "price",
         yaxis: "y1",
         marker: {color: "#005662"},
-        
     };
     const priceTrace2 = {
         x: dates,
@@ -115,10 +119,11 @@ function createChart(data) {
             showgrid: false,
         }
     };
-    // if (frequency === "1d") {
-    //     priceLayout.xaxis.rangebreaks[0].pattern = "hour";
-    //     priceLayout.xaxis.rangebreaks[0].bounds = [16.1, 9.58];
-    // }
+    if (frequency === "1d") {
+        priceLayout.xaxis.range = []
+        // priceLayout.xaxis.rangebreaks[0].pattern = "hour";
+        // priceLayout.xaxis.rangebreaks[0].bounds = [16.1, 9.58];
+    }
     const chartData = [priceTrace1, priceTrace2];
     Plotly.newPlot("priceChart", chartData, priceLayout);
 }

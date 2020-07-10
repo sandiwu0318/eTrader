@@ -2,7 +2,7 @@ require("dotenv").config();
 const {PORT_TEST, PORT, NODE_ENV, API_VERSION} = process.env;
 const port = NODE_ENV == "test" ? PORT_TEST : PORT;
 const CronJob = require("cron").CronJob;
-const {getApiPrices, getApiNews} = require("./server/controllers/stock_controller");
+const {dailyGetPrices, dailyGetNews} = require("./server/controllers/stock_controller");
 const {matchOrders} = require("./server/controllers/trade_controller");
 
 // Express Initialization
@@ -86,8 +86,8 @@ true,
 
 // Function to get stock data every day
 const Job3 = new CronJob("0 0 0 * * 1-5", function() {
-    getApiPrices();
-    getApiNews();
+    dailyGetNews();
+    dailyGetPrices();
 },
 null,
 true,

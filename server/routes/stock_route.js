@@ -9,7 +9,9 @@ const {
     getApiPrices,
     getApiBasicInfo,
     getApiNews,
-    symbolSearch
+    symbolList,
+    dailyGetPrices,
+    dailyGetNews
 } = require("../controllers/stock_controller");
 
 router.route("/stock/getIntradayPrices")
@@ -33,7 +35,13 @@ router.route("/stock/getApiBasicInfo")
 router.route("/stock/getApiNews")
     .get(wrapAsync(getApiNews));
 
-router.route("/stock/symbolSearch")
-    .get(wrapAsync(symbolSearch));
+router.route("/stock/symbolList")
+    .get(wrapAsync(symbolList));
+
+router.route("/stock/dailyGetPrices")
+    .get(wrapAsync(dailyGetPrices));
+
+router.route("/stock/dailyGetNews")
+    .get(wrapAsync(dailyGetNews));
 
 module.exports = router;

@@ -93,27 +93,31 @@ const addRemoveWatchlist = async function (id, symbol) {
     }
 };
 
-const getWatchlist = async function (id) {
-    const selectStr = "SELECT watchlist FROM user WHERE id = ?";
-    const result = await query(selectStr, id);
-    if (result[0].watchlist === null) {
-        return {error: "You haven't created your watchlist yet"};
-    } else {
-        let watchlist = result[0].watchlist.split(",");
+const getWatchlist = async function (id, io) {
+    async function getData() {
+        const selectStr = "SELECT watchlist FROM user WHERE id = ?";
+        const result = await query(selectStr, id);
         let results = [];
-        for (let i of watchlist) {
-            const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
-            const result = {
-                symbol: current["01. symbol"],
-                price: current["05. price"],
-                volume: current["06. volume"],
-                change: current["09. change"],
-                changePercent: current["10. change percent"],
-            };
-            results.push(result);
+        if (result[0].watchlist === null) {
+            results = {error: "You haven't created your watchlist yet"};
+        } else {
+            let watchlist = result[0].watchlist.split(",");
+            for (let i of watchlist) {
+                const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
+                const result = {
+                    symbol: current["01. symbol"],
+                    price: current["05. price"],
+                    volume: current["06. volume"],
+                    change: current["09. change"],
+                    changePercent: current["10. change percent"],
+                };
+                results.push(result);
+            }
         }
-        return results;
+        io.emit("watchlist", results);
     }
+    getData();
+    setInterval(() => getData(), 20000);
 };
 
 const getOrders = async function (id) {

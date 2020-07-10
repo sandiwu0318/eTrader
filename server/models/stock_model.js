@@ -64,7 +64,7 @@ const getPrices = async function (symbol, frequency) {
         const result = await query(selectStr, [symbol, startDate]);
         await commit();
         if (result.length === 0) {
-            const prices = (await getApiPrices(symbol, 0)).filter(i => i.date >= today/1000-(60*60*24*30*month));
+            const prices = (await getApiPrices(symbol)).filter(i => i.date >= today/1000-(60*60*24*30*month));
             const formatPrices = {
                 times: prices.map(i => new Date(i.date*1000).toISOString().substr(0, 10)),
                 prices: prices.map(i => i.close),
@@ -142,13 +142,8 @@ const getNews = async function (symbol) {
     }
 };
 
-const getApiPrices = async function (symbol, oneday) {
-    let period1;
-    if (oneday === 0) {
-        period1 = 0;
-    } else {
-        period1 = Math.floor((new Date()).getTime()/1000-60*60*24);
-    }
+const getApiPrices = async function (symbol) {
+    let period1 = Math.floor((new Date()).getTime()/1000-60*60*24);
     const now = Math.floor(new Date().getTime()/1000);
     const config = {
         "headers":{
@@ -257,17 +252,100 @@ const getApiNews = async function (symbol) {
     }
 };
 
-const symbolSearch = async function (symbol) {
+const symbolList = async function () {
     try {
-        const response = await axios.get(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${symbol}&apikey=${ALPHAVANTAGE_API_KEY}`);
-        return response.data.bestMatches;
+        const selectStr = "SELECT symbol, name FROM stock_symbol ORDER BY symbol";
+        await transaction();
+        const results = await query(selectStr, []);
+        await commit();
+        return results;
     } catch(error) {
         console.log(error);
-        return "Error when retrieving symbol";
+        await rollback();
+        return "Error when retrieving symbols";
     }
 };
 
+const dailyGetPrices = async function () {
+    try {
+        const selectStr = "SELECT DISTINCT(symbol) FROM stock_price";
+        await transaction();
+        const results = await query(selectStr, []);
+        await commit();
+        const symbols = results.map(i => i.symbol);
+        for (let a of symbols) {
+            const period1 = Math.floor((new Date()).getTime()/1000-60*60*24);
+            const now = Math.floor(new Date().getTime()/1000);
+            const config = {
+                "headers":{
+                    "x-rapidapi-host":RAPID_API_HOST,
+                    "x-rapidapi-key":RAPID_API_KEY,
+                    "useQueryString":true
+                }, "params":{
+                    "frequency":"1d",
+                    "filter":"history",
+                    "period1":period1,
+                    "period2":now,
+                    "symbol":a
+                },
+            };
+            const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data", config);
+            const queryArr = response.data.prices.map(i => 
+                [a, (new Date(i.date*1000)).toISOString().substr(0, 10), i.close, i.volume]
+            );
+            if (queryArr.length !== 0) {
+                const insertStr = "INSERT INTO stock_price (symbol, time, price, volume) VALUES ?";
+                await transaction();
+                await query(insertStr, [queryArr]);
+                await commit();
+            }
+        }
+        return;
+    } catch(error) {
+        await rollback();
+        console.log(error);
+        return "Error when retrieving stock price every day";
+    }
+};
 
+const dailyGetNews = async function () {
+    try {
+        const selectStr = "SELECT DISTINCT(symbol) FROM stock_news";
+        await transaction();
+        const results = await query(selectStr, []);
+        await commit();
+        const symbols = results.map(i => i.symbol);
+        for (let a of symbols) {
+            const config = {
+                "headers":{
+                    "x-rapidapi-host":RAPID_API_HOST,
+                    "x-rapidapi-key":RAPID_API_KEY,
+                    "useQueryString":true
+                }, "params":{
+                    "category":a,
+                    "region":"US"
+                }
+            };
+            
+            const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/list", config);
+            const shortRes = response.data.items.result.slice(0, 10);
+            const data = shortRes.map(i => 
+                [a, i.title, i.link, i.author, (new Date(i.published_at*1000)).toISOString().substr(0, 10)]
+            );
+            const deleteStr = "DELETE FROM stock_news WHERE symbol=?";
+            const insertStr = "INSERT INTO stock_news (symbol, title, link, author, time) VALUES ?";
+            await transaction();
+            await query(deleteStr, [a]);
+            await query(insertStr, [data]);
+            await commit();
+        }
+        return;
+    } catch(error) {
+        await rollback();
+        console.log(error);
+        return "Error when retrieving API news";
+    }
+};
 
 module.exports = {
     getIntradayPrices,
@@ -277,5 +355,7 @@ module.exports = {
     getApiPrices,
     getApiBasicInfo,
     getApiNews,
-    symbolSearch
+    symbolList,
+    dailyGetPrices,
+    dailyGetNews
 };

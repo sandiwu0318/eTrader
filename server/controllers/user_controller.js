@@ -20,7 +20,8 @@ const addRemoveWatchlist = async (req, res) => {
 
 const getWatchlist = async (req, res) => {
     const { id } = req.body;
-    const getWatchlist = await User.getWatchlist(id);
+    const { io } = req;
+    const getWatchlist = await User.getWatchlist(id, io);
     res.status(200).json({data: getWatchlist});
 };
 

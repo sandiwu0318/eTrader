@@ -1,34 +1,32 @@
-import {createList, checkLogin} from "./utils.js";
+import {createList, checkLogin, removeChild} from "./utils.js";
 const id = localStorage.getItem("id");
 checkLogin(id);
+const socket = io();
 if (id !== null) {
     getWatchlist();
 }
 async function getWatchlist() {
-    try {
+    // try {
         const data = {
-            id: id
+            id: 1
         }
-        const res = await fetch(`/api/1.0/user/getWatchlist`,{
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json'
+        fetch(`/api/1.0/user/getWatchlist`,{
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        socket.on("watchlist", (data) => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                removeChild("watchlist_ul");
+                console.log("1")
+                data.map(i => createList("#watchlist_ul", "user_li", Object.values(i)));
             }
         });
-        const resJson = (await res.json()).data;
-        if (resJson.error) {
-            alert(resJson.error);
-        } else {
-            resJson.map(i => createList("#watchlist_ul", "user_li", Object.values(i)));
-            const pieLayout = {
-                title: 'Product sold percentage in different colors',
-                height: 400,
-                width: 500
-            };
-            Plotly.newPlot('pie', pieData, pieLayout);
-        }
-    } catch (err) {
-        console.log("watchlist fetch failed, err");
-    }
+    // } catch (err) {
+    //     console.log("watchlist fetch failed, err");
+    // }
 }

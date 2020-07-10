@@ -1,4 +1,4 @@
-import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, showLoginBtn} from "./utils.js";
+import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, showLoginBtn, autocomplete} from "./utils.js";
 //Get Price
 const id = window.localStorage.getItem("id");
 showLoginBtn(id);
@@ -6,13 +6,11 @@ const socket = io();
 const searchBtn = getElement("#searchBtn");
 searchBtn.addEventListener("click",
     async function (){
-        const symbol = getElement("#symbol_search").value;
+        const symbol = getElement("#symbol_search").value.split(" ")[0];
         const frequency = getElement("#frequency").value;
         try {
             if (frequency === "1d") {
-                socket.on("connect", () => {
-                    fetch(`/api/1.0/stock/getIntradayPrices?symbol=${symbol}`);
-                });
+                fetch(`/api/1.0/stock/getIntradayPrices?symbol=${symbol}`);
                 socket.on("intraday", (data) => {
                     createChart(data);
                 });
@@ -31,7 +29,7 @@ searchBtn.addEventListener("click",
 //Get basic info, financials, profile
 searchBtn.addEventListener("click",
     async function (){
-        const symbol = getElement("#symbol_search").value;
+        const symbol = getElement("#symbol_search").value.split(" ")[0];
         removeChild("profile_ul");
         removeChild("basicInfo_ul");
         // try {
@@ -88,7 +86,7 @@ searchBtn.addEventListener("click",
 //Get news
 searchBtn.addEventListener("click",
     async function (){
-        const symbol = getElement("#symbol_search").value;
+        const symbol = getElement("#symbol_search").value.split(" ")[0];
         removeChild("news_ul");
         try {
             const res = await fetch(`/api/1.0/stock/getNews?symbol=${symbol}`);
@@ -117,7 +115,7 @@ searchBtn.addEventListener("click",() => {
                 const action = getElement("#BuyOrSell").value;
                 const price = getElement("#Price").value;
                 const volume = getElement("#Volume").value;
-                const symbol = getElement("#symbol_search").value;
+                const symbol = getElement("#symbol_search").value.split(" ")[0];
                 const period = getElement("#Expire").value;
                 try {
                     const data = {
@@ -144,3 +142,14 @@ searchBtn.addEventListener("click",() => {
         }
     )
 })
+
+//Autocomplete for symbols
+async function getSymbols() {
+    const res = (await fetch(`/api/1.0/stock/symbolList`));
+    const resJson = (await res.json()).data;
+    const symbolList = resJson.map(i => `${i.symbol} (${i.name})`);
+    // console.log(symbolList)
+    autocomplete(getElement("#symbol_search"), symbolList);
+}
+
+getSymbols();

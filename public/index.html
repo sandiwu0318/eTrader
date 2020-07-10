@@ -11,8 +11,10 @@
     <div class="search_container">
         <a href="/" id="logo"><img class="search_item" id="logo_img" src="img/logo.png"></a>
         <div class="search_item item">
-            <form>
-                <input type="text" class="search" name="symbol" id="symbol_search" placeholder="Stock search"/>
+            <form autocomplete="off">
+                <div class="autocomplete">
+                    <input type="text" class="search" name="symbol" id="symbol_search" onfocus="this.value=''" placeholder="Stock search"/>
+                </div>
                 <select class="search" name="frequency" id="frequency">
                     <option value="1d">1 Day</option>
                     <option value="1mo">1 Month</option>

@@ -1,12 +1,7 @@
-import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, loginBtn} from "./utils.js";
+import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, showLoginBtn} from "./utils.js";
 //Get Price
 const id = window.localStorage.getItem("id");
-if (id !== null) {
-    getElement("#loginBtn").innerText = "Logout";
-    getElement("#loginBtn").addEventListener("click", () => localStorage.clear());
-} else {
-    loginBtn();
-}
+showLoginBtn(id);
 const socket = io();
 const searchBtn = getElement("#searchBtn");
 searchBtn.addEventListener("click",
@@ -39,13 +34,14 @@ searchBtn.addEventListener("click",
         const symbol = getElement("#symbol_search").value;
         removeChild("profile_ul");
         removeChild("basicInfo_ul");
-        try {
+        // try {
             const res = await fetch(`/api/1.0/stock/getBasicInfo?symbol=${symbol}`);
             const resJson = (await res.json()).data;
             //Basic info
-            const basicInfoKeys = Object.keys(resJson);
+            const basicInfofilter = Object.keys(resJson).slice(0,-2).filter(i => resJson[i] !== null);
+            const basicInfoData = basicInfofilter.map(i => [i, resJson[i]]).reduce((a,b) => a.concat(b));
             createTitle("#basicInfo_ul", "Basic Info");
-            basicInfoKeys.slice(0,-2).filter(i => resJson[i] !== null).map(i => createList("#basicInfo_ul", "basic_info", `${i}: ${resJson[i]}`));
+            createList("#basicInfo_ul", "basic_info", basicInfoData);
             //Financials
             const financials_yearly = resJson.financialChart.yearly;
             const financials_quarterly = resJson.financialChart.quarterly;
@@ -77,12 +73,15 @@ searchBtn.addEventListener("click",
             financialGraph("financials_Yearly", financials_yearly);
             financialGraph("financials_Quarterly", financials_quarterly);
             //Profile
-            const profileKeys = Object.keys(resJson.profile);
+            delete resJson.profile.zip;
+            delete resJson.profile.companyOfficers;
+            delete resJson.profile.maxAge;
+            const profileData = Object.keys(resJson.profile).map(i => [i, resJson.profile[i]]).reduce((a,b) => a.concat(b));
             createTitle("#profile_ul", "Profile");
-            profileKeys.map(i => createList("#profile_ul", "profile", `${i}: ${resJson.profile[i]}`));
-        } catch (err) {
-            console.log("info fetch failed, err");
-        }
+            createList("#profile_ul", "profile", profileData);
+        // } catch (err) {
+        //     console.log("info fetch failed, err");
+        // }
     }
 )
 
@@ -111,32 +110,36 @@ searchBtn.addEventListener("click",() => {
     let tradeBtn = getElement("#Trade");
     tradeBtn.addEventListener("click",
         async function (){
-            const action = getElement("#BuyOrSell").value;
-            const price = getElement("#Price").value;
-            const volume = getElement("#Volume").value;
-            const symbol = getElement("#symbol").value;
-            const period = getElement("#Expire").value;
-            let id = 1;
-            try {
-                const data = {
-                    action: action,
-                    price: price,
-                    volume: volume,
-                    symbol: symbol,
-                    period: period,
-                    id: id
+            let id = localStorage.getItem("id");
+            loginBtn();
+            checkLogin(id);
+            if (id !== null) {
+                const action = getElement("#BuyOrSell").value;
+                const price = getElement("#Price").value;
+                const volume = getElement("#Volume").value;
+                const symbol = getElement("#symbol_search").value;
+                const period = getElement("#Expire").value;
+                try {
+                    const data = {
+                        action: action,
+                        price: price,
+                        volume: volume,
+                        symbol: symbol,
+                        period: period,
+                        id: id
+                    }
+                    const res = await fetch(`/api/1.0/trade/setOrder`,{
+                        method: "POST",
+                        body: JSON.stringify(data),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const resJson = (await res.json()).data;
+                    alert(resJson.message);
+                } catch (err) {
+                    console.log("set order fetch failed, err");
                 }
-                const res = await fetch(`/api/1.0/trade/setOrder`,{
-                    method: "POST",
-                    body: JSON.stringify(data),
-                    headers: {
-                        'Content-Type': 'application/json'
-                      }
-                });
-                const resJson = (await res.json()).data;
-                alert(resJson.message);
-            } catch (err) {
-                console.log("set order fetch failed, err");
             }
         }
     )

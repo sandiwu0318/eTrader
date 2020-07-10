@@ -21,8 +21,12 @@ async function getHistory() {
             alert(resJson.error);
         } else {
             const history = resJson.history;
-            history.forEach(i => i.expense = i.volume * i.price);
-            history.map(i => createList("#history_ul", "user_li",Object.values(i)));
+            if (history.length !== 0) {
+                history.forEach(i => i.expense = i.volume * i.price);
+                history.map(i => createList("#history_ul", "user_li", Object.values(i)));
+            } else {
+                alert("You don't have any history yet")
+            }
         }
     } catch (err) {
         console.log("History fetch failed, err");

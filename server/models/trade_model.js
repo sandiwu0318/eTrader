@@ -6,6 +6,7 @@ const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js"
 const setOrder = async function (id, symbol, price, volume, action, period) {
     try {
         const now = new Date();
+        console.log(now);
         let deadline;
         switch (period) {
         case "1d":

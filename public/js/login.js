@@ -43,6 +43,7 @@ signInBtn.addEventListener("click",
                 }
             })
             const resJson = (await res.json()).data;
+            console.log(resJson)
             if (resJson.error) {
                 alert(resJson.error);
             } else {

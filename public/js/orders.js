@@ -21,8 +21,12 @@ async function getOrders() {
             alert(resJson.error);
         } else {
             const orders = resJson.orders;
-            orders.forEach(i => i.expense = i.volume * i.price);
-            orders.map(i => createList("#orders_ul", "user_li",Object.values(i)));
+            if (orders.length !== 0) {
+                orders.forEach(i => i.expense = i.volume * i.price);
+                orders.map(i => createList("#orders_ul", "user_li",Object.values(i)));
+            } else {
+                alert("You don't have any orders yet")
+            }
         }
     } catch (err) {
         console.log("Orders fetch failed, err");

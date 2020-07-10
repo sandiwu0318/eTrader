@@ -2,7 +2,7 @@ require("dotenv").config();
 const _ = require("lodash");
 const {RAPID_API_HOST, RAPID_API_KEY} = process.env;
 const axios = require("axios");
-const {RSI, SMA, EMA, WMA, CrossUp, CrossDown} = require("technicalIndicators");
+const {RSI, SMA, EMA, WMA, CrossUp, CrossDown} = require("technicalindicators");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 const {getApiPrices} = require("./stock_model");
 

@@ -117,16 +117,22 @@ const getWatchlist = async function (id) {
 };
 
 const getOrders = async function (id) {
-    const selectStr = "SELECT symbol, price, volume, success  FROM orders WHERE user_id = ? ORDER BY success";
+    const selectStr = "SELECT symbol, price, volume, success, deadline  FROM orders WHERE user_id = ? ORDER BY success";
     const results = await query(selectStr, id);
-    console.log(results);
     if (results.length === 0) {
         return {error: "You haven't created any orders yet"};
     } else {
+        const now = new Date();
         const history = results.filter(i => i.success === 1);
-        const orders = results.filter(i => i.success === 0);
-        history.forEach(i => delete i.success);
-        orders.forEach(i => delete i.success);
+        const orders = results.filter(i => i.success === 0 && i.deadline >= new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0));
+        history.forEach(i => {
+            delete i.success;
+            delete i.deadline;
+        });
+        orders.forEach(i => {
+            delete i.success;
+            i.deadline = i.deadline.toISOString().substr(0, 10);
+        });
         const portfolioList = _.groupBy(history, "symbol");
         const symbols = Object.keys(portfolioList);
         const portfolio = symbols.map(i => ({

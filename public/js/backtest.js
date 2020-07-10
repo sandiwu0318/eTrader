@@ -1,11 +1,7 @@
-import {getElement, getDataByClass, createInput, createSelect, loginBtn} from "./utils.js";
+import {getElement, getDataByClass, createInput, createSelect, showLoginBtn} from "./utils.js";
 const id = window.localStorage.getItem("id");
-if (id !== null) {
-    getElement("#loginBtn").innerText = "Logout";
-    getElement("#loginBtn").addEventListener("click", () => localStorage.clear());
-} else {
-    loginBtn();
-}
+showLoginBtn(id);
+
 const backtestBtn = getElement("#backtestBtn");
 backtestBtn.addEventListener("click",
     async function (){

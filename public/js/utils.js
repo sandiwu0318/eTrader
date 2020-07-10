@@ -156,16 +156,33 @@ function createChart(data) {
 
 function checkLogin(id) {
     if (id === null) {
+        alert("Please login first!");
         localStorage.setItem("page", window.location.href);
         window.location = "/login.html";
     } else {
-            getElement("#loginBtn").innerText = "Logout";
-            getElement("#loginBtn").addEventListener("click", () => localStorage.clear());
+        getElement("#loginBtn").innerText = "Logout";
+        getElement("#loginBtn").addEventListener("click", () => {
+            localStorage.clear();
+            window.location = "/index.html";
+            getElement("#loginBtn").innerText = "Login";
+        });
     }
 }
 
-function loginBtn() {
-    getElement("#loginBtn").addEventListener("click", () => window.location = "/login.html");
+function showLoginBtn(id) {
+    if (id === null) {
+        getElement("#loginBtn").addEventListener("click", () => {
+            localStorage.setItem("page", window.location.href);
+            window.location = "/login.html";    
+        });
+    } else {
+        getElement("#loginBtn").innerText = "Logout";
+        getElement("#loginBtn").addEventListener("click", () => {
+            localStorage.clear();
+            window.location = "/index.html";
+            getElement("#loginBtn").innerText = "Login";
+        });
+    }
 }
 
 export {
@@ -181,5 +198,5 @@ export {
     removeChild,
     createChart,
     checkLogin,
-    loginBtn
+    showLoginBtn
 };

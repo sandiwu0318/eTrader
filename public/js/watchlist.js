@@ -1,6 +1,5 @@
-import {createList, checkLogin, loginBtn} from "./utils.js";
+import {createList, checkLogin} from "./utils.js";
 const id = localStorage.getItem("id");
-loginBtn();
 checkLogin(id);
 if (id !== null) {
     getWatchlist();

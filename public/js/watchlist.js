@@ -22,11 +22,14 @@ async function getWatchlist() {
                 alert(data.error);
             } else {
                 removeChild("watchlist_ul");
-                console.log("1")
                 data.map(i => createList("#watchlist_ul", "user_li", Object.values(i)));
             }
         });
+        console.log(window.location.pathname === "/watchlist.html")
     // } catch (err) {
     //     console.log("watchlist fetch failed, err");
     // }
+}
+window.onbeforeunload = function() {
+    socket.disconnect();
 }

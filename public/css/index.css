@@ -264,6 +264,10 @@ body {
     border: none;
 }
 
+.period {
+    margin-bottom: 2rem;
+}
+
 #addSymbolBtn {
     width: 1.6rem;
 	height: 1.6rem;

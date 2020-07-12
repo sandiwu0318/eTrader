@@ -104,6 +104,7 @@ const getWatchlist = async function (id, io) {
             let watchlist = result[0].watchlist.split(",");
             for (let i of watchlist) {
                 const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
+                console.log("1");
                 const result = {
                     symbol: current["01. symbol"],
                     price: current["05. price"],
@@ -117,7 +118,7 @@ const getWatchlist = async function (id, io) {
         io.emit("watchlist", results);
     }
     getData();
-    setInterval(() => getData(), 20000);
+    setInterval(() => getData(), 30000);
 };
 
 const getOrders = async function (id) {

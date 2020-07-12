@@ -148,7 +148,6 @@ async function getSymbols() {
     const res = (await fetch(`/api/1.0/stock/symbolList`));
     const resJson = (await res.json()).data;
     const symbolList = resJson.map(i => `${i.symbol} (${i.name})`);
-    // console.log(symbolList)
     autocomplete(getElement("#symbol_search"), symbolList);
 }
 

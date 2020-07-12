@@ -1,4 +1,4 @@
-import {getElement, getDataByClass, createInput, createSelect, showLoginBtn} from "./utils.js";
+import {getElement, getDataByClass, createInput, createSelect, showLoginBtn, createList} from "./utils.js";
 const id = window.localStorage.getItem("id");
 showLoginBtn(id);
 
@@ -81,6 +81,13 @@ backtestBtn.addEventListener("click",
                 }
                 const data = [priceTrace, indicatorTrace, indicatorActionTrace1,indicatorActionTrace2];
                 Plotly.newPlot(priceChart, data, layout);
+                const resultList = resJson.data[0].data.map(i => ({
+                    time: i.time.substr(0,10),
+                    price: i.price,
+                    indicator: i.indicatorValue
+                }));
+                createList("#result_ul", "user_li", ["Time", "Price", "Indicator"])
+                resultList.map(i => createList("#result_ul", "user_li", Object.values(i)));
             }
         // } catch (err) {
         //     console.log("price fetch failed, err");

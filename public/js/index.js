@@ -1,7 +1,7 @@
-import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, showLoginBtn, autocomplete} from "./utils.js";
+import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, showLoginBtn, checkLogin, autocomplete, createInput} from "./utils.js";
 //Get Price
-const id = window.localStorage.getItem("id");
-showLoginBtn(id);
+const token = window.localStorage.getItem("token");
+showLoginBtn(token);
 const socket = io();
 const searchBtn = getElement("#searchBtn");
 searchBtn.addEventListener("click",
@@ -32,7 +32,8 @@ searchBtn.addEventListener("click",
         const symbol = getElement("#symbol_search").value.split(" ")[0];
         removeChild("profile_ul");
         removeChild("basicInfo_ul");
-        // try {
+        removeChild("intro");
+        try {
             const res = await fetch(`/api/1.0/stock/getBasicInfo?symbol=${symbol}`);
             const resJson = (await res.json()).data;
             //Basic info
@@ -74,12 +75,16 @@ searchBtn.addEventListener("click",
             delete resJson.profile.zip;
             delete resJson.profile.companyOfficers;
             delete resJson.profile.maxAge;
+            const longIntro = resJson.profile.longBusinessSummary;
+            delete resJson.profile.longBusinessSummary;
             const profileData = Object.keys(resJson.profile).map(i => [i, resJson.profile[i]]).reduce((a,b) => a.concat(b));
             createTitle("#profile_ul", "Profile");
             createList("#profile_ul", "profile", profileData);
-        // } catch (err) {
-        //     console.log("info fetch failed, err");
-        // }
+            createTitle("#intro", "Company Intro");
+            createList("#intro", "intro", [longIntro]);
+        } catch (err) {
+            console.log("info fetch failed, err");
+        }
     }
 )
 
@@ -109,7 +114,6 @@ searchBtn.addEventListener("click",() => {
     tradeBtn.addEventListener("click",
         async function (){
             let id = localStorage.getItem("id");
-            loginBtn();
             checkLogin(id);
             if (id !== null) {
                 const action = getElement("#BuyOrSell").value;

@@ -1,10 +1,81 @@
-import {getElement, getDataByClass, createInput, createSelect, showLoginBtn, createList} from "./utils.js";
-const id = window.localStorage.getItem("id");
-showLoginBtn(id);
+import {getElement, getDataByClass, createInput, createSelect, showLoginBtn, createList, removeChild} from "./utils.js";
+const token = window.localStorage.getItem("token");
+showLoginBtn(token);
+
+const showGraphBtn = getElement("#showGraphBtn");
+showGraphBtn.addEventListener("click",
+    async function (){
+        removeChild("result_ul");
+        removeChild("profit");
+        removeChild("margin");
+        removeChild("priceChart");
+        const data = {
+            periods: getDataByClass("period"),
+            symbols: getDataByClass("symbol"),
+            indicators: getDataByClass("indicator"),
+            indicatorPeriods: getDataByClass("indicatorPeriod"),
+        }
+        try {
+            const res = await fetch("/api/1.0/backtest/getData", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const resJson = (await res.json()).data;
+            if (resJson.error) {
+                alert(resJson.error);
+            } else {
+                const priceTrace = {
+                    x: resJson[0].map(i => i.time),
+                    y: resJson[0].map(i => i.price),
+                    type: "scatter",
+                    name: "Price",
+                    yaxis: "y1",
+                    marker: {color: "#3fa089"}
+                };
+                const indicatorTrace = {
+                    x: resJson[0].map(i => i.time),
+                    y: resJson[0].map(i => i.indicatorValue),
+                    type: "scatter",
+                    name: "RSI",
+                    yaxis: "y2",
+                    marker: {color: "#005662"},
+                };
+                let layout = {
+                    title: "Backtesting Result",
+                    xaxis: {
+                        title: "Date",
+                        type: "cateogry",
+                    },
+                    yaxis1: {
+                        title: "Price",
+                        side: "left",
+                        showline: false,
+                        showgrid: false,
+                    },
+                    yaxis2: {
+                        title: "RSI",
+                        side: "right",
+                        overlaying: "y",
+                        showline: false,
+                    }
+                }
+                const data = [priceTrace, indicatorTrace];
+                Plotly.newPlot(showGraph, data, layout);
+            }
+        } catch (err) {
+            console.log("price fetch failed", err);
+        }
+    }
+)
 
 const backtestBtn = getElement("#backtestBtn");
 backtestBtn.addEventListener("click",
     async function (){
+        removeChild("result_ul");
+        removeChild("showGraph");
         const data = {
             periods: getDataByClass("period"),
             symbols: getDataByClass("symbol"),
@@ -24,7 +95,7 @@ backtestBtn.addEventListener("click",
                 }
             });
             const resJson = (await res.json()).data;
-            console.log(resJson);
+            console.log(resJson)
             if (resJson.error) {
                 alert(resJson.error);
             } else {
@@ -86,11 +157,13 @@ backtestBtn.addEventListener("click",
                     price: i.price,
                     indicator: i.indicatorValue
                 }));
+                getElement("#profit").innerHTML = `<h2>Total Profit: ${Math.round(resJson.totalProfit)}</h2>`;
+                getElement("#margin").innerHTML = `<h2>Total Margin: ${(resJson.totalMargin/100)}%</h2>`;
                 createList("#result_ul", "user_li", ["Time", "Price", "Indicator"])
                 resultList.map(i => createList("#result_ul", "user_li", Object.values(i)));
             }
         // } catch (err) {
-        //     console.log("price fetch failed, err");
+        //     console.log("price fetch failed", err);
         // }
     }
 )

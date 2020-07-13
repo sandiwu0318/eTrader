@@ -18,7 +18,7 @@ signUpBtn.addEventListener("click",
             if (resJson.error) {
                 alert(resJson.error);
             } else {
-                localStorage.setItem("id", resJson.user.id);
+                localStorage.setItem("token", resJson.accessToken);
                 window.location = localStorage.getItem("page");
             }
         } catch (err) {
@@ -43,11 +43,10 @@ signInBtn.addEventListener("click",
                 }
             })
             const resJson = (await res.json()).data;
-            console.log(resJson)
             if (resJson.error) {
                 alert(resJson.error);
             } else {
-                localStorage.setItem("id", resJson.user.id);
+                localStorage.setItem("token", resJson.accessToken);
                 window.location = localStorage.getItem("page");
             }
         } catch (err) {

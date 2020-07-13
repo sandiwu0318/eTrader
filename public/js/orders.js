@@ -1,13 +1,13 @@
 import {createList, checkLogin} from "./utils.js";
-const id = localStorage.getItem("id");
-checkLogin(id);
-if (id !== null) {
+const token = localStorage.getItem("token");
+checkLogin(token);
+if (token !== null) {
     getOrders();
 }
 async function getOrders() {
     try {
         const data = {
-            id: id
+            token: token
         }
         const res = await fetch(`/api/1.0/user/getOrders`,{
             method: "POST",

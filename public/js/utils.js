@@ -154,8 +154,8 @@ function createChart(data) {
     Plotly.newPlot("priceChart", chartData, priceLayout);
 }
 
-function checkLogin(id) {
-    if (id === null) {
+function checkLogin(token) {
+    if (token === null) {
         alert("Please login first!");
         localStorage.setItem("page", window.location.href);
         window.location = "/login.html";
@@ -169,8 +169,8 @@ function checkLogin(id) {
     }
 }
 
-function showLoginBtn(id) {
-    if (id === null) {
+function showLoginBtn(token) {
+    if (token === null) {
         getElement("#loginBtn").addEventListener("click", () => {
             localStorage.setItem("page", window.location.href);
             window.location = "/login.html";    

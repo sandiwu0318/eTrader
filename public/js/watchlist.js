@@ -1,14 +1,14 @@
 import {createList, checkLogin, removeChild} from "./utils.js";
-const id = localStorage.getItem("id");
-checkLogin(id);
+const token = localStorage.getItem("token");
+checkLogin(token);
 const socket = io();
-if (id !== null) {
+if (token !== null) {
     getWatchlist();
 }
 async function getWatchlist() {
     // try {
         const data = {
-            id: 1
+            token: token
         }
         fetch(`/api/1.0/user/getWatchlist`,{
                 method: "POST",

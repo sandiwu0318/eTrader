@@ -11,7 +11,7 @@
 </head>
 <body>
     <div class="search_container">
-        <a href="/" id="logo"><img class="search_item" id="logo_img" src="img/logo.png"></a>
+        <a href="/" id="logo"><img class="search_item" id="logo_img" src="img/logo.jpeg"></a>
         <div class="search_item item">
             <form>
                 <input type="text" class="search" name="symbol" id="symbol_search" placeholder="Stock search"/>
@@ -57,7 +57,10 @@
             <label class="test_label">Indicator Period</label>
             <input type="text" class="test_input indicatorPeriod"/>
             <br>
-            <label class="test_label">Action (buy / sell)</label>
+            <button type="button" class="btn" id="showGraphBtn">Show graph</button>
+            <br>
+            <div id="showGraph"></div>
+            <label class="test_label">Action (long / short)</label>
             <input type="text" class="test_input action"/>
             <br>
             <label class="test_label">Volume</label>
@@ -69,9 +72,11 @@
             <label class="test_label">Exit Value</label>
             <input type="text" class="test_input exitValue"/>
             <br>
-            <button type="button" class="btn" id="backtestBtn">Submit</button>
+            <button type="button" class="btn" id="backtestBtn">Backtest</button>
         </form>
     </div>
+    <div class="user_ul" id="profit"></div>
+    <div class="user_ul" id="margin"></div>
     <div id="priceChart"></div>
     <div>
         <ul id="result_ul" class="user_ul"></ul>

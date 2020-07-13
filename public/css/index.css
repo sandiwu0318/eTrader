@@ -48,7 +48,7 @@ body {
 
 .search_container {
     display: flex;
-    background-color: rgb(66, 66, 66);
+    background-color: #424242;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
@@ -101,7 +101,6 @@ body {
 }
 
 .autocomplete {
-    /*the container must be positioned relative:*/
     position: relative;
     display: inline-block;
 }
@@ -112,7 +111,6 @@ body {
     border-bottom: none;
     border-top: none;
     z-index: 99;
-    /*position the autocomplete items to be the same width as the container:*/
     top: 100%;
     left: 0;
     right: 0;
@@ -126,12 +124,10 @@ body {
 }
 
 .autocomplete-items div:hover {
-    /*when hovering an item:*/
     background-color: #e9e9e9;
 }
 
 .autocomplete-active {
-    /*when navigating through the items using the arrow keys:*/
     background-color: DodgerBlue !important;
     color: #ffffff;
 }
@@ -225,6 +221,37 @@ body {
     color: rgb(131, 131, 131);
 }
 
+.basic_info,
+.profile,
+#financials {
+    display: flex;
+    width: 80%;
+    flex-wrap: wrap;
+}
+
+#financials {
+    justify-content: space-between;
+}
+
+.li_div {
+    width: 35%;
+}
+#financials_Yearly,
+#financials_Quarterly {
+    width: 45%;
+}
+
+.intro,
+.intro .li_div {
+    width: 100%;
+    list-style-type: none;
+}
+
+.intro .li_div {
+    width: 90%;
+}
+
+
 /* ------Watchlist Page------- */
 
 .user_li,
@@ -283,7 +310,8 @@ body {
     cursor: pointer;
 }
 
-#backtestBtn {
+#backtestBtn,
+#showGraphBtn {
     background-color: rgb(180, 180, 180);
     margin: 2rem;
 }
@@ -292,6 +320,10 @@ body {
 #backtestBtn:hover {
     background-color: rgb(105, 105, 105);
     color: white;
+}
+
+#priceChart {
+    width: 90%;
 }
 
 /* ------Login Page------- */

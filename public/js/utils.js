@@ -6,8 +6,9 @@ function getDataByClass(className) {
     const elements = document.getElementsByClassName(className);
     let arr = [];
     for (let i of elements) {
-        let value = i.value;
-        arr.push(value);
+        if (i.value !== "") {
+            arr.push(i.value);
+        }
     }
     return arr;
 }
@@ -70,6 +71,7 @@ function createListWithLink(text, link) {
 
 function createForm(formId, inputArr, button) {
     const form = document.createElement("form");
+    form.id = formId;
     inputArr.map(i => {
         const input = document.createElement("input");
         input.id = i;
@@ -78,14 +80,14 @@ function createForm(formId, inputArr, button) {
         form.appendChild(input);
     })
     const btn = document.createElement("button");
-    const div = getElement("#trade");
-    form.id = formId;
     btn.id = button;
     btn.className = "btn";
     btn.type = "button";
     btn.innerText = button;
-    div.appendChild(form);
     form.appendChild(btn);
+    const div = getElement("#trade");
+    div.appendChild(form);
+    
 }
 
 function removeItem(id) {

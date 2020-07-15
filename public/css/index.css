@@ -182,7 +182,7 @@ body {
     border-radius: 5px;
 }
 
-.graph {
+.financial_graph {
     height: 400px;
 }
 
@@ -193,11 +193,31 @@ body {
 
 #tradeForm {
     display: flex;
+    justify-content: space-between;
 }
 
 #trade {
     width: 80%;
     margin: 2rem auto;
+}
+
+#watchListBtn {
+    cursor: pointer;
+    background-color: #a0a0a0;
+    color: white;
+}
+
+#watchListBtn:hover {
+    background-color: #3fa089;
+}
+
+#watchListBtn-added {
+    cursor: pointer;
+    background-color: #3fa089;
+}
+
+#watchListBtn-added:hover {
+    background-color: #a0a0a0;
 }
 
 .input,
@@ -322,8 +342,18 @@ body {
     color: white;
 }
 
-#priceChart {
+#graph_container,
+#profit,
+#ROI {
     width: 90%;
+    margin: 2rem;
+}
+
+/* #priceChart */
+
+.graph {
+    height: 400px;
+    margin: 2rem;
 }
 
 /* ------Login Page------- */

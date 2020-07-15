@@ -3,7 +3,7 @@ const { ALPHAVANTAGE_API_KEY } = process.env;
 const axios = require("axios");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 
-const setOrder = async function (id, symbol, price, volume, action, period) {
+const setOrder = async function (token, symbol, price, volume, action, period) {
     try {
         const now = new Date();
         console.log(now);
@@ -17,8 +17,10 @@ const setOrder = async function (id, symbol, price, volume, action, period) {
             break;
         }
         await transaction();
+        const selectStr = "SELECT id FROM user WHERE access_token = ?";
+        const result = await query(selectStr, token);
         const order = {
-            user_id: id,
+            user_id: result[0].id,
             symbol: symbol,
             price: price,
             volume: volume,

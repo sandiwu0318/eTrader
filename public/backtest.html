@@ -59,9 +59,12 @@
             <br>
             <button type="button" class="btn" id="showGraphBtn">Show graph</button>
             <br>
-            <div id="showGraph"></div>
-            <label class="test_label">Action (long / short)</label>
-            <input type="text" class="test_input action"/>
+            <div id="graph_container"></div>
+            <label class="test_label">Action</label>
+            <select type="text" class="test_input action">
+                <option value="long">long</option>
+                <option value="short">short</option>
+            </select>
             <br>
             <label class="test_label">Volume</label>
             <input type="text" class="test_input volume"/>
@@ -76,11 +79,8 @@
         </form>
     </div>
     <div class="user_ul" id="profit"></div>
-    <div class="user_ul" id="margin"></div>
-    <div id="priceChart"></div>
-    <div>
-        <ul id="result_ul" class="user_ul"></ul>
-    </div>
+    <div class="user_ul" id="ROI"></div>
+    <div id="result_container"></div>
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="js/index.js"></script>
     <script type="module" src="js/backtest.js"></script>

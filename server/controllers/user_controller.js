@@ -13,21 +13,20 @@ const nativeSignIn = async (req, res) => {
 };
 
 const addRemoveWatchlist = async (req, res) => {
-    const { id, symbol } = req.body;
-    const addRemoveWatchlist = await User.addRemoveWatchlist(id, symbol);
+    const { token, symbol } = req.body;
+    const addRemoveWatchlist = await User.addRemoveWatchlist(token, symbol);
     res.status(200).json({data: addRemoveWatchlist});
 };
 
 const getWatchlist = async (req, res) => {
-    const { id } = req.body;
-    const { io } = req;
-    const getWatchlist = await User.getWatchlist(id, io);
+    const { token } = req.body;
+    const getWatchlist = await User.getWatchlist(token);
     res.status(200).json({data: getWatchlist});
 };
 
 const getOrders = async (req, res) => {
-    const { id } = req.body;
-    const getOrders = await User.getOrders(id);
+    const { token } = req.body;
+    const getOrders = await User.getOrders(token);
     res.status(200).json({data: getOrders});
 };
 

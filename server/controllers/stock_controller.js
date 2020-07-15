@@ -2,9 +2,9 @@ const Stock = require("../models/stock_model");
 
 
 const getIntradayPrices = async (req, res) => {
-    const { symbol } = req.query;
+    const { symbol, close } = req.query;
     const { io } = req;
-    const intradayPrices = await Stock.getIntradayPrices(symbol, io);
+    const intradayPrices = await Stock.getIntradayPrices(symbol, close, io);
     res.status(200).json({data: intradayPrices});
 };
 

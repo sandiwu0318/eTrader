@@ -2,7 +2,12 @@ import {getElement, createTitle, createList, createListWithLink, createForm, rem
 //Get Price
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
+
 const socket = io();
+socket.on("intraday", (data) => {
+    createChart(data);
+});
+
 const searchBtn = getElement("#searchBtn");
 searchBtn.addEventListener("click",
     async function (){
@@ -10,12 +15,8 @@ searchBtn.addEventListener("click",
         const frequency = getElement("#frequency").value;
         try {
             if (frequency === "1d") {
-                fetch(`/api/1.0/stock/getIntradayPrices?symbol=${symbol}`);
-                socket.on("intraday", (data) => {
-                    createChart(data);
-                });
+                socket.emit("symbol", symbol);
             } else {
-                socket.disconnect();
                 const res = await fetch(`/api/1.0/stock/getPrices?symbol=${symbol}&frequency=${frequency}`);
                 const resJson = (await res.json()).data;
                 createChart(resJson);
@@ -110,12 +111,17 @@ searchBtn.addEventListener("click",() => {
         removeItem("tradeForm");
     }
     createForm("tradeForm", ["BuyOrSell", "Price", "Volume", "Expire"], "Trade");
+    const btn = document.createElement("button");
+    btn.className = "btn add";
+    btn.id = "watchListBtn";
+    btn.innerText = "Add to watchlist";
+    const form = getElement("#tradeForm");
+    form.appendChild(btn);
     let tradeBtn = getElement("#Trade");
     tradeBtn.addEventListener("click",
         async function (){
-            let id = localStorage.getItem("id");
-            checkLogin(id);
-            if (id !== null) {
+            checkLogin(token);
+            if (token !== null) {
                 const action = getElement("#BuyOrSell").value;
                 const price = getElement("#Price").value;
                 const volume = getElement("#Volume").value;
@@ -128,7 +134,7 @@ searchBtn.addEventListener("click",() => {
                         volume: volume,
                         symbol: symbol,
                         period: period,
-                        id: id
+                        token: token
                     }
                     const res = await fetch(`/api/1.0/trade/setOrder`,{
                         method: "POST",
@@ -142,6 +148,40 @@ searchBtn.addEventListener("click",() => {
                 } catch (err) {
                     console.log("set order fetch failed, err");
                 }
+            }
+        }
+    )
+    let watchListBtn = getElement("#watchListBtn");
+    watchListBtn.addEventListener("click",
+        async function (e){
+            e.preventDefault();
+            checkLogin(token);
+            if (token !== null) {
+                const symbol = getElement("#symbol_search").value.split(" ")[0];
+                // try {
+                    const data = {
+                        symbol: symbol,
+                        token: token
+                    }
+                    const res = await fetch(`/api/1.0/user/addRemoveWatchlist`,{
+                        method: "POST",
+                        body: JSON.stringify(data),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const resJson = (await res.json()).data;
+                    if (resJson.error) {
+                        alert(resJson.error);
+                    } else {
+                        alert(`Add ${symbol}  to watchlist`);
+                        getElement("#watchListBtn").id = "watchListBtn-added";
+                        getElement("#watchListBtn").innerText = "Remove from watchlist";
+                    }
+                    
+                // } catch (err) {
+                //     console.log("set watchlist fetch failed, err");
+                // }
             }
         }
     )

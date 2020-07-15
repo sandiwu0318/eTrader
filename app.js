@@ -4,6 +4,7 @@ const port = NODE_ENV == "test" ? PORT_TEST : PORT;
 const CronJob = require("cron").CronJob;
 const {dailyGetPrices, dailyGetNews} = require("./server/controllers/stock_controller");
 const {matchOrders} = require("./server/controllers/trade_controller");
+const {socket} = require("./server/controllers/socket_controller");
 
 // Express Initialization
 const express = require("express");
@@ -22,17 +23,23 @@ if (NODE_ENV != "production"){
     io = require("socket.io")(server);
 }
 
-app.use(function(req, res, next) {
-    req.io = io;
-    next();
-});
+socket(io);
 
-// io.on("connect", socket => {
-//     console.log("here");
-//     let count = 0;
-//     setInterval(() => {
-//         socket.emit("intraday", ++count);
-//     }, 1000);
+// app.use(async (req, res, next) => {
+//     req.io = io;
+//     console.log("WHY?");
+//     console.log(io);
+// const socket = await new Promise((resolve, reject) => {
+//     console.log("???");
+//     io.on("connection", (socket) => {
+//         console.log(socket);
+//         console.log("here");
+//         resolve(socket);
+//     });
+// }).catch(e => console.log(e));
+//     console.log("hi");
+//     req.socket = socket;
+//     next();
 // });
 
 // CORS Control

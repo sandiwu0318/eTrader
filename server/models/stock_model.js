@@ -3,35 +3,51 @@ const {RAPID_API_HOST, RAPID_API_KEY, ALPHAVANTAGE_API_KEY} = process.env;
 const axios = require("axios");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 
-const getIntradayPrices = async function (symbol, io) {
-    async function getData() {
-        try {
-            const today = new Date();
-            const hours = today.getUTCHours();
-            const minutes = today.getUTCMinutes();
-            let period1;
-            let period2;
-            if ((hours === 13 && minutes >= 30) || (hours >=14 && hours <= 20)) {
-                period1 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 21, 30).getTime()/1000;
-                period2 = Math.floor(today.getTime()/1000);
-            } else {
-                period1 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-1, 21, 30).getTime()/1000);
-                period2 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 4).getTime()/1000);
-            }
-            const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${period1}&period2=${period2}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
-            const data = {
-                times: response.data.chart.result[0].timestamp.map(i => new Date((i-14400)*1000)),
-                prices: response.data.chart.result[0].indicators.quote[0].close,
-                volumes: response.data.chart.result[0].indicators.quote[0].volume,
-            };
-            io.emit("intraday", data);
-        } catch(error) {
-            console.log(error);
-            return "Error when retrieving intraday price";
+const getIntradayPrices = async function (symbol) {
+    try {
+        const today = new Date();
+        const hours = today.getUTCHours();
+        const minutes = today.getUTCMinutes();
+        let period1;
+        let period2;
+        if ((hours === 13 && minutes >= 30) || (hours >=14 && hours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
+            console.log("1");
+            period1 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 21, 30).getTime()/1000;
+            period2 = Math.floor(today.getTime()/1000);
+        } else if (today.getDay() === 0) {
+            console.log("2");
+            period1 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-2, 21, 30).getTime()/1000);
+            period2 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-1, 4).getTime()/1000);
+        } else if (today.getDay() === 1) {
+            console.log("3");
+            period1 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-3, 21, 30).getTime()/1000);
+            period2 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-2, 4).getTime()/1000);
+        } else {
+            console.log("4");
+            period1 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-1, 21, 30).getTime()/1000);
+            period2 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 4).getTime()/1000);
         }
-    }  
-    getData();
-    setInterval(() => getData(), 20000);
+        const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${period1}&period2=${period2}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
+        const data = {
+            times: response.data.chart.result[0].timestamp.map(i => new Date((i-14400)*1000)),
+            prices: response.data.chart.result[0].indicators.quote[0].close,
+            volumes: response.data.chart.result[0].indicators.quote[0].volume,
+        };
+        for (let i =0; i<data.prices.length; i++) {
+            if (data.prices[i] === null) {
+                data.prices[i] = data.prices[i-1];
+            }
+        }
+        for (let i =0; i<data.volumes.length; i++) {
+            if (data.volumes[i] === null) {
+                data.volumes[i] = 0;
+            }
+        }
+        return data;
+    } catch(error) {
+        console.log(error);
+        return "Error when retrieving intraday price";
+    }
 };
 
 const getPrices = async function (symbol, frequency) {
@@ -59,7 +75,7 @@ const getPrices = async function (symbol, frequency) {
     }
     const startDate = new Date(today-(1000*60*60*24*30*month)).toISOString().substr(0, 10);
     try {
-        const selectStr = "SELECT time, price, volume FROM stock_price WHERE symbol=? AND time >= ?";
+        const selectStr = "SELECT DISTINCT(time), price, volume FROM stock_price WHERE symbol=? AND time >= ? ORDER BY time";
         await transaction();
         const result = await query(selectStr, [symbol, startDate]);
         await commit();
@@ -143,7 +159,6 @@ const getNews = async function (symbol) {
 };
 
 const getApiPrices = async function (symbol) {
-    let period1 = Math.floor((new Date()).getTime()/1000-60*60*24);
     const now = Math.floor(new Date().getTime()/1000);
     const config = {
         "headers":{
@@ -153,7 +168,7 @@ const getApiPrices = async function (symbol) {
         }, "params":{
             "frequency":"1d",
             "filter":"history",
-            "period1":period1,
+            "period1":0,
             "period2":now,
             "symbol":symbol
         },
@@ -202,7 +217,7 @@ const getApiBasicInfo = async function (symbol) {
             beta: getData("summaryDetail", "beta").raw,
             marketCap: getData("defaultKeyStatistics", "enterpriseValue").raw,
             eps: getData("defaultKeyStatistics", "trailingEps").raw,
-            peRation: getData("price", "regularMarketPrice").raw / getData("defaultKeyStatistics", "trailingEps").raw,
+            peRation: getData("price", "regularMarketPrice").raw / getData("defaultKeyStatistics", "trailingEps").raw || null,
             dividend: getData("summaryDetail", "dividendYield").raw,
             financialChart: JSON.stringify(getData("earnings", "financialsChart")),
             profile: JSON.stringify(response.data.summaryProfile),

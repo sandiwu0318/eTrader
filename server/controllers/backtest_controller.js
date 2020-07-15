@@ -2,15 +2,9 @@ const Backtest = require("../models/backtest_model");
 
 
 const getData = async (req, res) => {
-    const { periods, symbols } = req.body;
-    const getData = await Backtest.getData(periods, symbols);
+    const { periods, symbols, indicators, indicatorPeriods } = req.body;
+    const getData = await Backtest.getData(periods, symbols, indicators, indicatorPeriods);
     res.status(200).json({data: getData});
-};
-
-const testWithPrices = async (req, res) => {
-    const { periods, symbols, actions, prices, exitPrices, volumes } = req.body;
-    const testWithPrices = await Backtest.testWithPrices(periods, symbols, actions, prices, exitPrices, volumes);
-    res.status(200).json({data: testWithPrices});
 };
 
 const testWithIndicator = async (req, res) => {
@@ -22,6 +16,5 @@ const testWithIndicator = async (req, res) => {
 
 module.exports = {
     getData,
-    testWithPrices,
     testWithIndicator
 };

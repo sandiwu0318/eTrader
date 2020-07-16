@@ -19,8 +19,8 @@ const addRemoveWatchlist = async (req, res) => {
 };
 
 const getWatchlist = async (req, res) => {
-    const { token } = req.body;
-    const getWatchlist = await User.getWatchlist(token);
+    const { token, symbolOnly } = req.body;
+    const getWatchlist = await User.getWatchlist(token, symbolOnly);
     res.status(200).json({data: getWatchlist});
 };
 

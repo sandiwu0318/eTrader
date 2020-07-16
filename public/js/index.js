@@ -34,12 +34,14 @@ searchBtn.addEventListener("click",
         removeChild("profile_ul");
         removeChild("basicInfo_ul");
         removeChild("intro");
+        removeChild("show_symbol");
         try {
             const res = await fetch(`/api/1.0/stock/getBasicInfo?symbol=${symbol}`);
             const resJson = (await res.json()).data;
             //Basic info
             const basicInfofilter = Object.keys(resJson).slice(0,-2).filter(i => resJson[i] !== null);
             const basicInfoData = basicInfofilter.map(i => [i, resJson[i]]).reduce((a,b) => a.concat(b));
+            getElement("#show_symbol").innerText = symbol;
             createTitle("#basicInfo_ul", "Basic Info");
             createList("#basicInfo_ul", "basic_info", basicInfoData);
             //Financials
@@ -105,16 +107,42 @@ searchBtn.addEventListener("click",
     }
 )
 
+
+//Create watchlistBtn
+function setWatchlistBtn(watchlist,symbol,btn) {
+    if (watchlist.includes(symbol)) {
+        btn.className = "btn added";
+        btn.innerText = "- watchlist";
+    } else {
+        btn.className = "btn not_added";
+        btn.innerText = "+ watchlist";
+    }
+}
+
 //Add trade button
-searchBtn.addEventListener("click",() => {
+searchBtn.addEventListener("click",async () => {
     if (getElement("#tradeForm") !== null) {
         removeItem("tradeForm");
     }
     createForm("tradeForm", ["BuyOrSell", "Price", "Volume", "Expire"], "Trade");
+    const data = {
+        token: token,
+        symbolOnly: 1
+    }
+    const res = await fetch(`/api/1.0/user/getWatchlist`,{
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    const resJson = (await res.json()).data;
+    const symbol = getElement("#show_symbol").innerText;
+    console.log(resJson)
+    const watchlist = resJson[0].watchlist.split(",");
     const btn = document.createElement("button");
-    btn.className = "btn add";
     btn.id = "watchListBtn";
-    btn.innerText = "Add to watchlist";
+    setWatchlistBtn(watchlist,symbol,btn);
     const form = getElement("#tradeForm");
     form.appendChild(btn);
     let tradeBtn = getElement("#Trade");
@@ -125,7 +153,7 @@ searchBtn.addEventListener("click",() => {
                 const action = getElement("#BuyOrSell").value;
                 const price = getElement("#Price").value;
                 const volume = getElement("#Volume").value;
-                const symbol = getElement("#symbol_search").value.split(" ")[0];
+                const symbol = getElement("#show_symbol").value.split(" ")[0];
                 const period = getElement("#Expire").value;
                 try {
                     const data = {
@@ -157,7 +185,8 @@ searchBtn.addEventListener("click",() => {
             e.preventDefault();
             checkLogin(token);
             if (token !== null) {
-                const symbol = getElement("#symbol_search").value.split(" ")[0];
+                const symbol = getElement("#show_symbol").innerText;
+                console.log(symbol)
                 // try {
                     const data = {
                         symbol: symbol,
@@ -171,12 +200,13 @@ searchBtn.addEventListener("click",() => {
                         }
                     });
                     const resJson = (await res.json()).data;
+                    console.log(resJson)
                     if (resJson.error) {
                         alert(resJson.error);
                     } else {
-                        alert(`Add ${symbol}  to watchlist`);
-                        getElement("#watchListBtn").id = "watchListBtn-added";
-                        getElement("#watchListBtn").innerText = "Remove from watchlist";
+                        const btn = getElement("#watchListBtn");
+                        const watchlist = resJson.watchlist;
+                        setWatchlistBtn(watchlist,symbol,btn);
                     }
                     
                 // } catch (err) {

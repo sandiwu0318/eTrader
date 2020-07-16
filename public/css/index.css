@@ -26,7 +26,7 @@ a:visited {
 }
 
 body {
-    height: 100vh;
+    height: 100%;
     background-color: rgb(235, 235, 235);
     margin: 0;
 }
@@ -201,25 +201,6 @@ body {
     margin: 2rem auto;
 }
 
-#watchListBtn {
-    cursor: pointer;
-    background-color: #a0a0a0;
-    color: white;
-}
-
-#watchListBtn:hover {
-    background-color: #3fa089;
-}
-
-#watchListBtn-added {
-    cursor: pointer;
-    background-color: #3fa089;
-}
-
-#watchListBtn-added:hover {
-    background-color: #a0a0a0;
-}
-
 .input,
 .btn {
     margin: 0 1rem;
@@ -232,6 +213,27 @@ body {
     background-color: rgb(131, 131, 131);
     color: white;
 }
+
+.not_added {
+    cursor: pointer;
+    background-color: #a0a0a0;
+    color: white;
+}
+
+.not_added:hover {
+    background-color: #3fa089;
+}
+
+.added {
+    cursor: pointer;
+    background-color: #3fa089;
+}
+
+.added:hover {
+    background-color: #a0a0a0;
+}
+
+
 
 #news_ul a {
     text-decoration: underline rgb(66, 66, 66);
@@ -271,15 +273,30 @@ body {
     width: 90%;
 }
 
+#show_symbol {
+    margin: 2rem 7rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
 
 /* ------Watchlist Page------- */
 
 .user_li,
+.title_li,
 .titles {
     display: flex;
     justify-content: space-evenly;
     padding: 0.2rem 0.5rem;
     border-bottom: 1px solid rgb(180, 180, 180);
+}
+
+.buy_li {
+    background-color: #9200006c;
+}
+
+.sell_li {
+    background-color: rgba(4, 105, 0, 0.471);
 }
 
 .titles {
@@ -331,7 +348,8 @@ body {
 }
 
 #backtestBtn,
-#showGraphBtn {
+#showGraphBtn,
+#codeBtn {
     background-color: rgb(180, 180, 180);
     margin: 2rem;
 }
@@ -349,11 +367,22 @@ body {
     margin: 2rem;
 }
 
-/* #priceChart */
-
 .graph {
     height: 400px;
     margin: 2rem;
+}
+
+#backtest_code {
+    width: 50%;
+    height: 200px;
+    border-radius: 6px;
+    padding: 0.3rem 1rem;
+    border: 0.1rem solid rgb(180, 180, 180);
+    margin: 2rem;
+}
+
+#code_form {
+    height: 30%;
 }
 
 /* ------Login Page------- */

@@ -98,21 +98,25 @@ const addRemoveWatchlist = async function (token, symbol) {
     const updateStr = "UPDATE user SET watchlist = ? WHERE id = ?";
     await query(updateStr, [watchlistStr, result[0].id]);
     await commit();
-    return {watchlistStr};
+    return {watchlist: watchlistStr};
     // } catch(error) {
     //     await rollback();
     //     return {error};
     // }
 };
 
-const getWatchlist = async function (token) {
-    console.log(1);
+const getWatchlist = async function (token, symbolOnly) {
+    console.log(token);
     const selectStr = "SELECT watchlist FROM user WHERE access_token = ?";
     const result = await query(selectStr, token);
+    console.log(result);
     let results = [];
     if (result[0].watchlist === null) {
         results = {error: "You haven't created your watchlist yet"};
     } else {
+        if (symbolOnly === 1) {
+            return result;
+        }
         let watchlist = result[0].watchlist.split(",");
         for (let i of watchlist) {
             const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
@@ -126,6 +130,7 @@ const getWatchlist = async function (token) {
             results.push(result);
         }
     }
+    console.log(results);
     return results;
 };
 

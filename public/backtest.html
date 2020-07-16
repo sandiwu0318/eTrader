@@ -49,6 +49,7 @@
             <label class="test_label">Indicator</label>
             <select type="text" class="test_input indicator">
                 <option value="RSI">RSI</option>
+                <option value="BB">BB</option>
                 <option value="SMA">SMA</option>
                 <option value="EMA">EMA</option>
                 <option value="WMA">WMA</option>
@@ -75,9 +76,21 @@
             <label class="test_label">Exit Value</label>
             <input type="text" class="test_input exitValue"/>
             <br>
+            <label class="test_label" id="bbline_label" >BBline</label>
+            <select type="text" class="test_input bbline">
+                <option value="upper">upper</option>
+                <option value="middle">middle</option>
+                <option value="lower">lower</option>
+            </select>
+            <br>
             <button type="button" class="btn" id="backtestBtn">Backtest</button>
         </form>
     </div>
+    <form id="code_form">
+        <textarea id="backtest_code" placeholder="Write your own code"></textarea>
+        <br>
+        <button type="button" class="btn" id="codeBtn">Test with my code</button>
+    </form>
     <div class="user_ul" id="profit"></div>
     <div class="user_ul" id="ROI"></div>
     <div id="result_container"></div>

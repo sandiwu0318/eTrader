@@ -3,7 +3,8 @@ const {wrapAsync} = require("../../utils/util");
 
 const {
     getData,
-    testWithIndicator
+    testWithIndicator,
+    testByUserCode
     
 } = require("../controllers/backtest_controller");
 
@@ -12,6 +13,9 @@ router.route("/backtest/getData")
 
 router.route("/backtest/testWithIndicator")
     .post(wrapAsync(testWithIndicator));
+
+router.route("/backtest/testByUserCode")
+    .post(wrapAsync(testByUserCode));
 
 
 module.exports = router;

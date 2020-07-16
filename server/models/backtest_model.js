@@ -3,6 +3,7 @@ const _ = require("lodash");
 const {RAPID_API_HOST, RAPID_API_KEY} = process.env;
 const axios = require("axios");
 const {RSI, SMA, EMA, WMA, CrossUp, CrossDown} = require("technicalindicators");
+const BB = require("technicalindicators").BollingerBands;
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 const {getApiPrices} = require("./stock_model");
 
@@ -23,6 +24,11 @@ const getData = async function (periods, symbols, indicators, indicatorPeriods) 
             switch(indicators[index]) {
             case "RSI": {
                 indicatorValue = RSI.calculate(calculateValue);
+                break;
+            }
+            case "BB": {
+                calculateValue.stdDev = 2;
+                indicatorValue = BB.calculate(calculateValue);
                 break;
             }
             case "SMA": {
@@ -59,7 +65,7 @@ const getData = async function (periods, symbols, indicators, indicatorPeriods) 
 };
 
 
-const testWithIndicator = async function (periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes) {
+const testWithIndicator = async function (periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes, bbline) {
     try {
         let data = [];
         for (let i of symbols) {
@@ -78,6 +84,11 @@ const testWithIndicator = async function (periods, symbols, indicators, indicato
                 indicatorValue = RSI.calculate(calculateValue);
                 break;
             }
+            case "BB": {
+                calculateValue.stdDev = 2;
+                indicatorValue = BB.calculate(calculateValue);
+                break;
+            }
             case "SMA": {
                 indicatorValue = SMA.calculate(calculateValue);
                 break;
@@ -91,23 +102,36 @@ const testWithIndicator = async function (periods, symbols, indicators, indicato
                 break;
             }
             }
-            let arr = new Array(parseInt(indicatorPeriods[index])).fill(0, 0, parseInt(indicatorPeriods[index]));
-            indicatorValue = arr.concat(indicatorValue);
-            const actionInput = {
-                lineA: indicatorValue,
-                lineB: new Array(indicatorValue.length).fill(Math.abs(parseInt(actionValues[index])))
-            };
-            const exitInput = {
-                lineA: indicatorValue,
-                lineB: new Array(indicatorValue.length).fill(Math.abs(parseInt(exitValues[index])))
-            };
+            
+            let arr = new Array(parseInt(indicatorPeriods[index])).fill(indicatorValue[0], 0, parseInt(indicatorPeriods[index]));
+            const newIndicatorValue = arr.concat(indicatorValue);
+            let actionInput;
+            let exitInput;
+            if (indicators[index] === "BB") {
+                actionInput = {
+                    lineA: arr.concat(indicatorValue.map(i => i[bbline[index]])),
+                    lineB: new Array(newIndicatorValue.length).fill(Math.abs(parseInt(actionValues[index])))
+                };
+                exitInput = {
+                    lineA: arr.concat(indicatorValue.map(i => i[bbline[index]])),
+                    lineB: new Array(newIndicatorValue.length).fill(Math.abs(parseInt(exitValues[index])))
+                };
+            } else {
+                actionInput = {
+                    lineA: arr.concat(indicatorValue),
+                    lineB: new Array(newIndicatorValue.length).fill(Math.abs(parseInt(actionValues[index])))
+                };
+                exitInput = {
+                    lineA: arr.concat(indicatorValue),
+                    lineB: new Array(newIndicatorValue.length).fill(Math.abs(parseInt(exitValues[index])))
+                };
+            }
             let actionCross;
             let exitCross;
             if (parseInt(actionValues[index]) > 0) {
                 actionCross = CrossUp.calculate(actionInput);
             } else {
                 actionCross = CrossDown.calculate(actionInput);
-                console.log("ere");
             }
             if (parseInt(exitValues[index]) > 0) {
                 exitCross = CrossUp.calculate(exitInput);
@@ -117,7 +141,11 @@ const testWithIndicator = async function (periods, symbols, indicators, indicato
             actionCross.splice(0, 1, false);
             exitCross.splice(0, 1, false);
             response.forEach(i => {
-                i.indicatorValue = indicatorValue[response.indexOf(i)];
+                if (indicators[index] === "BB") {
+                    i.indicatorValue = newIndicatorValue[response.indexOf(i)][bbline[index]];
+                } else {
+                    i.indicatorValue = newIndicatorValue[response.indexOf(i)];
+                }
                 i.actionCross = actionCross[response.indexOf(i)];
                 i.exitCross = exitCross[response.indexOf(i)];
             });
@@ -125,15 +153,29 @@ const testWithIndicator = async function (periods, symbols, indicators, indicato
             let newOrderData = [];
             while (response.filter(i => i.exitCross === true).length !== 0 ) {
                 const buyIndex = response.findIndex(i => i.actionCross === true);
-                const buyData = response[buyIndex];
+                let buyData = response[buyIndex];
                 response.splice(0, buyIndex+1);
                 const sellIndex = response.findIndex(i => i.exitCross === true);
-                const sellData = response[sellIndex];
+                let sellData = response[sellIndex];
+                
                 response.splice(0, sellIndex+1);
                 if (buyIndex !== -1 && sellIndex !== -1) {
                     newOrderData.push(buyData, sellData);
+                    switch(actions[index]) {
+                    case "long": {
+                        buyData.action = "buy";
+                        sellData.action = "sell";
+                        break;
+                    }
+                    case "short": {
+                        buyData.action = "sell";
+                        sellData.action = "buy";
+                        break;
+                    }
+                    }
                 }
             }
+            
             let revenue;
             let expenses;
             switch(actions[index]) {
@@ -179,7 +221,92 @@ const testWithIndicator = async function (periods, symbols, indicators, indicato
 };
 
 
+const testByUserCode = async function (code) {
+    console.log(code);
+    try {
+        const codeNoSpace = code.replace(/ /g, "");
+        if (codeNoSpace === "") {
+            return {error: "Please enter correct code"};
+        }
+        let codeStr;
+        if (codeNoSpace.substr(codeNoSpace.length -1) === ";") {
+            codeStr = codeNoSpace.toLowerCase().substr(0, codeNoSpace.length -1);
+        } else {
+            codeStr = codeNoSpace;
+        }
+        const re = /=|;/;
+        let codeSpilt = codeStr.split(re);
+        const nameSet = ["start", "end", "stock", "value", "condition", "volume", "action"];
+        let codeArr = [];
+        codeSpilt.forEach(i => {
+            if (nameSet.includes(i)) {
+                const a = `"${i}":`;
+                codeArr.push(a);
+            } else if (nameSet.includes(i.substr(0, 5))) {
+                const b = `"${i}":`;
+                codeArr.push(b);
+            }  else if (nameSet.includes(i.substr(0, 9))) {
+                const c = `"${i}":`;
+                codeArr.push(c);
+            } else {
+                const d = `"${i}",`;
+                codeArr.push(d);
+            }
+        });
+        const codeJoin = codeArr.join(" ");
+        const codeSubstr = codeJoin.substr(0, codeJoin.length-1);
+        let codeParse = JSON.parse(`{${codeSubstr}}`);
+        console.log(codeParse);
+        codeParse.indicator = codeParse.value.split("(")[0].toUpperCase();
+        codeParse.indicatorPeriod = parseInt(codeParse.value.substring(codeParse.value.indexOf("(")+1, codeParse.value.indexOf(")")));
+        codeParse.condition1 = codeParse.condition1.substring(codeParse.condition1.indexOf("(")+1, codeParse.condition1.indexOf(")")).split(",");
+        codeParse.condition2 = codeParse.condition2.substring(codeParse.condition2.indexOf("(")+1, codeParse.condition2.indexOf(")")).split(",");
+        delete codeParse.value;
+        if (codeParse.condition1[0] === "crossdown") {
+            codeParse.condition1[1] = -codeParse.condition1[1];
+        } else {
+            codeParse.condition1[1] = parseInt(codeParse.condition1[1]);
+        }
+        if (codeParse.condition2[0] === "crossdown") {
+            codeParse.condition2[1] = -codeParse.condition2[1];
+        } else {
+            codeParse.condition2[1] = parseInt(codeParse.condition2[1]);
+        }
+        codeParse.stock = codeParse.stock.toUpperCase();
+        codeParse.volume = parseInt(codeParse.volume);
+        
+        
+        if ((codeParse.action === "long" && codeParse.condition1[2] === "buy" && codeParse.condition2[2] === "sell") || (codeParse.action === "short" && codeParse.condition1[2] === "sell" && codeParse.condition2[2] === "buy")) {
+            codeParse.actionValue = codeParse.condition1[1];
+            codeParse.exitValue = codeParse.condition2[1];
+        } else if ((codeParse.action === "long" && codeParse.condition2[2] === "buy" && codeParse.condition1[2] === "sell") || (codeParse.action === "short" && codeParse.condition2[2] === "sell" && codeParse.condition1[2] === "buy")) {
+            codeParse.exitValue = codeParse.condition1[1];
+            codeParse.actionValue = codeParse.condition2[1];
+        } else {
+            return {error: "Please have 1 condition for buy and 1 condition for sell"};
+        }
+        
+        
+        if (Date.parse(codeParse.start)<0 || Date.parse(codeParse.end)<0) {
+            return {error: "Please enter correct data type"};
+        }
+        delete codeParse.condition1;
+        delete codeParse.condition2;
+        const keys = ["start", "end", "stock", "action", "volume", "indicator", "indicatorPeriod", "actionValue", "exitValue"];
+        if (keys.filter(i => !Object.keys(codeParse).includes(i)).length !== 0) {
+            return {error: "Please make sure to assign start, end, stock, value, conditions, action, volume"};
+        }
+        return testWithIndicator([codeParse.start, codeParse.end], [codeParse.stock], [codeParse.indicator], [codeParse.indicatorPeriod], [codeParse.action], [codeParse.actionValue], [codeParse.exitValue], [codeParse.volume]);
+    } catch(error) {
+        console.log(error);
+        return {error: "Please make sure you entered the right codes"};
+    }
+    
+};
+
+
 module.exports = {
     getData,
-    testWithIndicator
+    testWithIndicator,
+    testByUserCode
 };

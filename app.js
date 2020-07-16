@@ -25,23 +25,6 @@ if (NODE_ENV != "production"){
 
 socket(io);
 
-// app.use(async (req, res, next) => {
-//     req.io = io;
-//     console.log("WHY?");
-//     console.log(io);
-// const socket = await new Promise((resolve, reject) => {
-//     console.log("???");
-//     io.on("connection", (socket) => {
-//         console.log(socket);
-//         console.log("here");
-//         resolve(socket);
-//     });
-// }).catch(e => console.log(e));
-//     console.log("hi");
-//     req.socket = socket;
-//     next();
-// });
-
 // CORS Control
 app.use("/api/", function(req, res, next){
     res.set("Access-Control-Allow-Origin", "*");
@@ -100,7 +83,6 @@ null,
 true,
 "America/New_York"
 // "Asia/Taipei"
-
 );
 // Job1.start;
 

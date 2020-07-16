@@ -77,39 +77,35 @@ const nativeSignIn = async (email, password, expire) => {
 
 
 const addRemoveWatchlist = async function (token, symbol) {
-    // try {
-    console.log(token);
-    const selectStr = "SELECT id, watchlist FROM user WHERE access_token = ?";
-    const result = await query(selectStr, token);
-    console.log(result);
-    let watchlist;
-    if (result[0].watchlist === null || result[0].watchlist === "") {
-        watchlist = [];
-    } else {
-        watchlist = result[0].watchlist.split(",");
+    try {
+        const selectStr = "SELECT id, watchlist FROM user WHERE access_token = ?";
+        const result = await query(selectStr, token);
+        let watchlist;
+        if (result[0].watchlist === null || result[0].watchlist === "") {
+            watchlist = [];
+        } else {
+            watchlist = result[0].watchlist.split(",");
+        }
+        if (watchlist.indexOf(symbol) !== -1) {
+            watchlist = watchlist.filter(i => i !== symbol);
+        } else {
+            watchlist.push(symbol);
+        }
+        const watchlistStr = watchlist.join(",");
+        await transaction();
+        const updateStr = "UPDATE user SET watchlist = ? WHERE id = ?";
+        await query(updateStr, [watchlistStr, result[0].id]);
+        await commit();
+        return {watchlist: watchlistStr};
+    } catch(error) {
+        await rollback();
+        return {error};
     }
-    if (watchlist.indexOf(symbol) !== -1) {
-        watchlist = watchlist.filter(i => i !== symbol);
-    } else {
-        watchlist.push(symbol);
-    }
-    const watchlistStr = watchlist.join(",");
-    await transaction();
-    const updateStr = "UPDATE user SET watchlist = ? WHERE id = ?";
-    await query(updateStr, [watchlistStr, result[0].id]);
-    await commit();
-    return {watchlist: watchlistStr};
-    // } catch(error) {
-    //     await rollback();
-    //     return {error};
-    // }
 };
 
 const getWatchlist = async function (token, symbolOnly) {
-    console.log(token);
     const selectStr = "SELECT watchlist FROM user WHERE access_token = ?";
     const result = await query(selectStr, token);
-    console.log(result);
     let results = [];
     if (result[0].watchlist === null) {
         results = {error: "You haven't created your watchlist yet"};
@@ -130,14 +126,12 @@ const getWatchlist = async function (token, symbolOnly) {
             results.push(result);
         }
     }
-    console.log(results);
     return results;
 };
 
 const getOrders = async function (token) {
     const getIdStr = "SELECT id FROM user WHERE access_token = ?";
     const id = (await query(getIdStr, token))[0].id;
-    console.log(id);
     if (id.length === 0) {
         return {error: "Wrong authorization"};
     }

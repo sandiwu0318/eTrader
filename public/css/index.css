@@ -1,4 +1,4 @@
-/* ------- General -------- */
+ /* ------- General -------- */
 
 * {
     box-sizing: border-box;
@@ -408,4 +408,4 @@ body {
 #signInBtn,
 #signUpBtn {
     margin: 1rem 3rem;
-}
+} 

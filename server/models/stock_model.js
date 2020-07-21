@@ -12,22 +12,29 @@ const getIntradayPrices = async function (symbol) {
         let period2;
         if ((hours === 13 && minutes >= 30) || (hours >=14 && hours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
             console.log("1");
-            period1 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 21, 30).getTime()/1000;
+            period1 = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 13, 30)).getTime()/1000;
             period2 = Math.floor(today.getTime()/1000);
         } else if (today.getDay() === 0) {
             console.log("2");
-            period1 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-2, 21, 30).getTime()/1000);
-            period2 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-1, 4).getTime()/1000);
+            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 13, 30)).getTime()/1000);
+            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 20)).getTime()/1000);
         } else if (today.getDay() === 1) {
             console.log("3");
-            period1 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-3, 21, 30).getTime()/1000);
-            period2 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-2, 4).getTime()/1000);
+            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 13, 30)).getTime()/1000);
+            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 20)).getTime()/1000);
         } else {
             console.log("4");
-            period1 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()-1, 21, 30).getTime()/1000);
-            period2 = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate(), 4).getTime()/1000);
+            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 13, 30)).getTime()/1000);
+            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 20)).getTime()/1000);
         }
         const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${period1}&period2=${period2}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
+        console.log(today);
+        console.log(today.getFullYear());
+        console.log(today.getMonth());
+        console.log(today.getDate());
+        console.log(period1);
+        console.log(period2);
+        // console.log(response.data.chart.result);
         const data = {
             times: response.data.chart.result[0].timestamp.map(i => new Date((i-14400)*1000)),
             prices: response.data.chart.result[0].indicators.quote[0].close,

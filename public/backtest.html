@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="stock trading website. updated at 2020." />
 <title>eTrader 2020</title>
-<link rel="stylesheet" href="https://cdnjs.Cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="css/index.css" />
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 </head>
 <body>
     <div class="search_container">
@@ -44,7 +42,6 @@
             <br>
             <label class="test_label">Stock Symbol</label>
             <input type="text" class="test_input symbol"/>
-            <div id="addSymbolBtn">+</div>
             <br>
             <label class="test_label">Indicator</label>
             <select type="text" class="test_input indicator">
@@ -55,7 +52,7 @@
                 <option value="WMA">WMA</option>
             </select>
             <br>
-            <label class="test_label">Indicator Period</label>
+            <label class="test_label indicatorPeriod">Indicator Period</label>
             <input type="text" class="test_input indicatorPeriod"/>
             <br>
             <button type="button" class="btn" id="showGraphBtn">Show graph</button>
@@ -70,27 +67,72 @@
             <label class="test_label">Volume</label>
             <input type="text" class="test_input volume"/>
             <br>
-            <label class="test_label">Action Value</label>
-            <input type="text" class="test_input actionValue"/>
-            <br>
-            <label class="test_label">Exit Value</label>
-            <input type="text" class="test_input exitValue"/>
-            <br>
-            <label class="test_label" id="bbline_label" >BBline</label>
-            <select type="text" class="test_input bbline">
-                <option value="upper">upper</option>
-                <option value="middle">middle</option>
-                <option value="lower">lower</option>
-            </select>
+            <div class="RSI_test show">
+                <label class="test_label">Action Timing</label>
+                <select type="text" class="RSI_test test_input actionCross">
+                    <option value="crossup">RSI Crossup</option>
+                    <option value="crossdown">RSI Crossdown</option>
+                </select>
+                <input type="text" class="RSI_test test_input actionValue" placeholder="ex. 20"/>
+                <br>
+                <label class="test_label">Exit Timing</label>
+                <select type="text" class="RSI_test test_input exitCross">
+                    <option value="crossup">RSI Crossup</option>
+                    <option value="crossdown">RSI Crossdown</option>
+                </select>
+                <input type="text" class="RSI_test test_input exitValue" placeholder="ex. 80"/>
+                <br>
+            </div>
+            <div class="MA_test hide">
+                <label class="test_label">Action Timing</label>
+                <input type="text" class="MA_test test_input actionValue" placeholder="ex. 6"/>
+                <select type="text" class="MA_test test_input actionCross">
+                    <option value="crossup">Period crossup</option>
+                    <option value="crossdown">Period crossdown</option>
+                </select>
+                <input type="text" class="MA_test test_input actionValue" placeholder="ex. 14"/>
+                <br>
+                <label class="test_label">Exit Timing</label>
+                <input type="text" class="MA_test test_input exitValue" placeholder="ex. 14"/>
+                <select type="text" class="MA_test test_input exitCross">
+                    <option value="crossup">Period crossup</option>
+                    <option value="crossdown">Period crossdown</option>
+                </select>
+                <input type="text" class="MA_test test_input actionValue" placeholder="ex. 6"/>
+                <br>
+            </div>
+            <div class="BB_test hide">
+                <label class="test_label">Action Timing</label>
+                <select type="text" class="BB_test test_input actionCross">
+                    <option value="crossup">Price crossup</option>
+                    <option value="crossdown">Price crossdown</option>
+                </select>
+                <select type="text" class="BB_test test_input actionValue">
+                    <option value="lower">Lower BB line</option>
+                    <option value="middle">Middle BB line</option>
+                    <option value="upper">Upper BB line</option>
+                </select>
+                <br>
+                <label class="test_label">Exit Timing</label>
+                <select type="text" class="BB_test test_input exitCross">
+                    <option value="crossup">Price crossup</option>
+                    <option value="crossdown">Price crossdown</option>
+                </select>
+                <select type="text" class="BB_test test_input exitValue">
+                    <option value="upper">Upper BB line</option>
+                    <option value="middle">Middle BB line</option>
+                    <option value="lower">Lower BB line</option>
+                </select>
+            </div>
             <br>
             <button type="button" class="btn" id="backtestBtn">Backtest</button>
         </form>
     </div>
-    <form id="code_form">
+    <!-- <form id="code_form">
         <textarea id="backtest_code" placeholder="Write your own code"></textarea>
         <br>
         <button type="button" class="btn" id="codeBtn">Test with my code</button>
-    </form>
+    </form> -->
     <div class="user_ul" id="profit"></div>
     <div class="user_ul" id="ROI"></div>
     <div id="result_container"></div>

@@ -125,21 +125,29 @@ searchBtn.addEventListener("click",async () => {
         removeItem("tradeForm");
     }
     createForm("tradeForm", ["BuyOrSell", "Price", "Volume", "Expire"], "Trade");
-    const data = {
-        token: token,
-        symbolOnly: 1
-    }
-    const res = await fetch(`/api/1.0/user/getWatchlist`,{
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-            'Content-Type': 'application/json'
+    let watchlist;
+    if (token) {
+        const data = {
+            token: token,
+            symbolOnly: 1
         }
-    });
-    const resJson = (await res.json()).data;
-    const symbol = getElement("#show_symbol").innerText;
-    console.log(resJson)
-    const watchlist = resJson[0].watchlist.split(",");
+        const res = await fetch(`/api/1.0/user/getWatchlist`,{
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const resJson = (await res.json()).data;
+        if (resJson.length === 0) {
+            watchlist = []
+        } else {
+            watchlist = resJson[0].watchlist.split(",");
+        }
+    } else {
+        watchlist = []
+    }
+    const symbol = getElement("#symbol_search").value.split(" ")[0];
     const btn = document.createElement("button");
     btn.id = "watchListBtn";
     setWatchlistBtn(watchlist,symbol,btn);
@@ -186,7 +194,6 @@ searchBtn.addEventListener("click",async () => {
             checkLogin(token);
             if (token !== null) {
                 const symbol = getElement("#show_symbol").innerText;
-                console.log(symbol)
                 // try {
                     const data = {
                         symbol: symbol,
@@ -200,7 +207,6 @@ searchBtn.addEventListener("click",async () => {
                         }
                     });
                     const resJson = (await res.json()).data;
-                    console.log(resJson)
                     if (resJson.error) {
                         alert(resJson.error);
                     } else {

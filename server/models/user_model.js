@@ -108,7 +108,7 @@ const getWatchlist = async function (token, symbolOnly) {
     const result = await query(selectStr, token);
     let results = [];
     if (result[0].watchlist === null) {
-        results = {error: "You haven't created your watchlist yet"};
+        results = [];
     } else {
         if (symbolOnly === 1) {
             return result;

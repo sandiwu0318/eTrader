@@ -2,14 +2,14 @@ const Backtest = require("../models/backtest_model");
 
 
 const getData = async (req, res) => {
-    const { periods, symbols, indicators, indicatorPeriods } = req.body;
-    const getData = await Backtest.getData(periods, symbols, indicators, indicatorPeriods);
+    const { periods, symbol, indicator, indicatorPeriod } = req.body;
+    const getData = await Backtest.getData(periods, symbol, indicator, indicatorPeriod);
     res.status(200).json({data: getData});
 };
 
 const testWithIndicator = async (req, res) => {
-    const { periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes, bbline } = req.body;
-    const testWithIndicator = await Backtest.testWithIndicator(periods, symbols, indicators, indicatorPeriods, actions, actionValues, exitValues, volumes, bbline);
+    const { periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross } = req.body;
+    const testWithIndicator = await Backtest.testWithIndicator(periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross);
     res.status(200).json({data: testWithIndicator});
 };
 

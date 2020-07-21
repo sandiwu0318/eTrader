@@ -1,5 +1,5 @@
 require("dotenv").config();
-const {RAPID_API_HOST, RAPID_API_KEY, ALPHAVANTAGE_API_KEY} = process.env;
+const {RAPID_API_HOST, RAPID_API_KEY} = process.env;
 const axios = require("axios");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 

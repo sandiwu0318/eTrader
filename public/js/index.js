@@ -1,4 +1,4 @@
-import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, showLoginBtn, checkLogin, autocomplete, createInput} from "./utils.js";
+import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, showLoginBtn, checkLogin, autocomplete, createInput, createSelect, createButton} from "./utils.js";
 //Get Price
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
@@ -124,7 +124,12 @@ searchBtn.addEventListener("click",async () => {
     if (getElement("#tradeForm") !== null) {
         removeItem("tradeForm");
     }
-    createForm("tradeForm", ["BuyOrSell", "Price", "Volume", "Expire"], "Trade");
+    createForm("tradeForm", "trade");
+    createSelect("input", "action", ["buy", "sell"], "tradeForm");
+    createInput("price", "price", "Price", "tradeForm");
+    createInput("volume", "volume", "volume", "tradeForm");
+    createSelect("input", "expiration", ["1 day", "90 days"], "tradeForm");
+    createButton("btn", "tradeBtn", "tradeForm", "Set Order");
     let watchlist;
     if (token) {
         const data = {
@@ -153,16 +158,17 @@ searchBtn.addEventListener("click",async () => {
     setWatchlistBtn(watchlist,symbol,btn);
     const form = getElement("#tradeForm");
     form.appendChild(btn);
-    let tradeBtn = getElement("#Trade");
+    let tradeBtn = getElement("#tradeBtn");
     tradeBtn.addEventListener("click",
-        async function (){
+        async function (e){
+            e.preventDefault();
             checkLogin(token);
             if (token !== null) {
-                const action = getElement("#BuyOrSell").value;
-                const price = getElement("#Price").value;
-                const volume = getElement("#Volume").value;
-                const symbol = getElement("#show_symbol").value.split(" ")[0];
-                const period = getElement("#Expire").value;
+                const action = getElement("#action").value;
+                const price = getElement("#price").value;
+                const volume = getElement("#volume").value;
+                const symbol = getElement("#show_symbol").innerText.split(" ")[0];
+                const period = getElement("#expiration").value;
                 try {
                     const data = {
                         action: action,

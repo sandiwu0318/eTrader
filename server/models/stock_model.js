@@ -28,13 +28,6 @@ const getIntradayPrices = async function (symbol) {
             period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 20)).getTime()/1000);
         }
         const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${period1}&period2=${period2}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
-        console.log(today);
-        console.log(today.getFullYear());
-        console.log(today.getMonth());
-        console.log(today.getDate());
-        console.log(period1);
-        console.log(period2);
-        // console.log(response.data.chart.result);
         const data = {
             times: response.data.chart.result[0].timestamp.map(i => new Date((i-14400)*1000)),
             prices: response.data.chart.result[0].indicators.quote[0].close,
@@ -308,7 +301,8 @@ const dailyGetPrices = async function () {
                     "filter":"history",
                     "period1":period1,
                     "period2":now,
-                    "symbol":a
+                    "symbol":"AMZN"
+                // "symbol":a
                 },
             };
             const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data", config);

@@ -13,29 +13,28 @@ function getDataByClass(className) {
     return arr;
 }
 
-function createInput(className) {
+function createInput(className, id, placeholder, form_id) {
     const input = document.createElement("input");
-    const inputList = document.getElementsByClassName(className);
-    const lastInput = inputList[inputList.length-1];
-    const form = getElement("#test_form");
+    const form = getElement(`#${form_id}`);
     input.type = "text";
-    input.className = `test_input ${className}`;
-    form.insertBefore(input, lastInput.nextElementSibling)
+    input.className = `input ${className}`;
+    input.id = id;
+    input.placeholder = placeholder;
+    form.appendChild(input)
 }
 
-function createSelect(className, options) {
+function createSelect(className, id, options, form_id) {
     const select = document.createElement("select");
     options.forEach(i => {
         const option = document.createElement("option");
         option.value = i;
         option.innerText = i;
-        select.appendChild(option);   
+        select.appendChild(option);
     })
-    const inputList = document.getElementsByClassName(className);
-    const lastInput = inputList[inputList.length-1];
-    const form = getElement("#test_form");
-    select.className = `test_input ${className}`;
-    form.insertBefore(select, lastInput.nextElementSibling)
+    const form = getElement(`#${form_id}`);
+    select.className = className;
+    select.id = id;
+    form.appendChild(select)
 }
 
 function createTitle(id, title) {
@@ -69,25 +68,20 @@ function createListWithLink(text, link) {
     li.appendChild(a);
 }
 
-function createForm(formId, inputArr, button) {
+function createForm(formId, divId) {
     const form = document.createElement("form");
     form.id = formId;
-    inputArr.map(i => {
-        const input = document.createElement("input");
-        input.id = i;
-        input.className = "input";
-        input.placeholder = i;
-        form.appendChild(input);
-    })
-    const btn = document.createElement("button");
-    btn.id = button;
-    btn.className = "btn";
-    btn.type = "button";
-    btn.innerText = button;
-    form.appendChild(btn);
-    const div = getElement("#trade");
+    const div = getElement(`#${divId}`);
     div.appendChild(form);
-    
+}
+
+function createButton(className, id, formId, text) {
+    const button = document.createElement("button");
+    button.className = className;
+    button.id = id;
+    button.innerText = text;
+    const form = getElement(`#${formId}`);
+    form.appendChild(button);
 }
 
 function removeItem(id) {
@@ -262,6 +256,7 @@ export {
     createList,
     createListWithLink,
     createForm,
+    createButton,
     removeItem,
     removeChild,
     createChart,

@@ -2,16 +2,21 @@ const Trade = require("../models/trade_model");
 
 
 const setOrder = async (req, res) => {
-    const { token, symbol, price, volume, action, period } = req.body;
-    const setOrder = await Trade.setOrder(token, symbol, price, volume, action, period);
+    const { token, symbol, category, value, indicatorPeriod, cross, volume, action, period } = req.body;
+    const setOrder = await Trade.setOrder(token, symbol, category, value, indicatorPeriod, cross, volume, action, period);
     res.status(200).json({data: setOrder});
 };
 
-const matchOrders = async () => {
-    await Trade.matchOrders();
+const matchPriceOrders = async () => {
+    await Trade.matchPriceOrders();
+};
+
+const matchIndicatorOrders = async () => {
+    await Trade.matchIndicatorOrders();
 };
 
 module.exports = {
     setOrder,
-    matchOrders,
+    matchPriceOrders,
+    matchIndicatorOrders
 };

@@ -414,10 +414,14 @@ body {
 
 .input,
 .btn {
-    margin: 0 1rem;
+    width: 10rem;
     border: 1px solid rgb(180, 180, 180);
     border-radius: 5px;
-    padding: 0.2rem 0.5rem;
+    padding: 0.1rem 0.5rem;
+}
+
+.btn {
+    width: 8rem;
 }
 
 .btn:hover {
@@ -503,11 +507,11 @@ body {
 }
 
 .buy_li {
-    background-color: #9200006c;
+    color: #920000;
 }
 
 .sell_li {
-    background-color: rgba(4, 105, 0, 0.471);
+    color: rgb(4, 105, 0);
 }
 
 .titles {
@@ -520,16 +524,21 @@ body {
 
 .li_div,
 .title {
-    margin: 0.5rem 0rem 0.5rem 3rem;
+    margin: 0.5rem 0rem 0.5rem 7rem;
 }
 
 /* ------Backtesting Page------- */
 
 
+.test_case {
+    margin: 2rem auto;
+    width: 80%;
+}
+
 .test_input,
 .test_label {
     display: inline-block;
-    width: 13rem;
+    width: 20rem;
     border-radius: 6px;
     padding: 0.3rem 1rem;
     border: 0.1rem solid rgb(180, 180, 180);
@@ -538,6 +547,7 @@ body {
 
 .test_label {
     border: none;
+    width: 13rem;
 }
 
 .period {
@@ -573,11 +583,14 @@ body {
     color: white;
 }
 
-#graph_container,
-#profit,
-#ROI {
-    width: 90%;
+#graph_container {
     margin: 2rem;
+}
+#profit,
+#ROI,
+#result_graph {
+    width: 80%;
+    margin: 2rem auto;
 }
 
 .graph {
@@ -585,21 +598,12 @@ body {
     margin: 2rem;
 }
 
-#backtest_code {
-    width: 50%;
-    height: 200px;
-    border-radius: 6px;
-    padding: 0.3rem 1rem;
-    border: 0.1rem solid rgb(180, 180, 180);
-    margin: 2rem;
-}
-
-#code_form {
-    height: 30%;
-}
-
 .hide {
     display: none;
+}
+
+#setOrderBtn {
+    width: 20rem;
 }
 
 /* ------Login Page------- */

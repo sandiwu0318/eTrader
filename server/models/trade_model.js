@@ -1,57 +1,186 @@
 require("dotenv").config();
 const { ALPHAVANTAGE_API_KEY } = process.env;
+const {RSI, SMA, EMA, WMA, CrossUp, CrossDown} = require("technicalindicators");
+const BB = require("technicalindicators").BollingerBands;
 const axios = require("axios");
+const _ = require("lodash");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 
-const setOrder = async function (token, symbol, price, volume, action, period) {
+const setOrder = async function (token, symbol, category, value, indicatorPeriod, cross, volume, action, period) {
     try {
         const now = new Date();
-        console.log(now);
         let deadline;
         switch (period) {
-        case "1d":
-            deadline = now;
+        case "1 day":
+            deadline = new Date(now.getTime()+1000*60*60*24);
             break;
-        case "90d":
+        case "90 days":
             deadline = new Date(now.getTime()+1000*60*60*24*90);
             break;
         }
         await transaction();
         const selectStr = "SELECT id FROM user WHERE access_token = ?";
         const result = await query(selectStr, token);
-        const order = {
+        const title = `${category}`;
+        let order = {
             user_id: result[0].id,
             symbol: symbol,
-            price: price,
             volume: volume,
             action: action,
+            indicatorPeriod: indicatorPeriod,
+            cross: cross,
             deadline: deadline,
             success: 0
         };
+        if (title.substr(1, 2) === "MA") {
+            order[title] = `${JSON.stringify(value)}`;
+        } else {
+            order[title] = value;
+        }
+        order["category"] = title;
         const queryStr = "INSERT INTO orders SET ?";
         await query(queryStr, order);
         await commit();
         return {message: "The order placed! You can check the result in History and Orders now."};
+    } catch(error) {
+        console.log(error);
+        await rollback();
+        return {error};
+    }
+};
+
+const matchPriceOrders = async function () {
+    try {
+        const today = new Date();
+        const queryStr = "SELECT * FROM orders WHERE deadline >= ? and success = 0 and price IS NOT NULL";
+        const orders = await query(queryStr, new Date(today.getTime()));
+        if (orders.length === 0) {
+            return;
+        }
+        for (let order of orders) {
+            const symbol = order.symbol;
+            const markets = await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHAVANTAGE_API_KEY}`);
+            const marketPrice = markets.data["Global Quote"]["05. price"];
+            if (order.price >= marketPrice) {
+                await transaction();
+                const queryStr = "UPDATE orders SET price = ?, success = 1, success_date = ? WHERE id = ?";
+                await query(queryStr, [marketPrice, today, order.id]);
+                await commit();
+            }
+        }
+        return orders;
     } catch(error) {
         await rollback();
         return {error};
     }
 };
 
-const matchOrders = async function () {
+const matchIndicatorOrders = async function () {
     try {
-        const today = (new Date()).toISOString().substr(0, 10);
-        const queryStr = "SELECT * FROM orders WHERE deadline >= ? and success = 0";
-        const orders = await query(queryStr, today);
+        const today = new Date();
+        const queryStr = "SELECT * FROM orders WHERE deadline >= ? and success = 0 and price IS NULL";
+        const orders = await query(queryStr, new Date(today.getTime()));
+        if (orders.length === 0) {
+            return;
+        }
         for (let order of orders) {
             const symbol = order.symbol;
-            const markets = await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHAVANTAGE_API_KEY}`);
-            const marketPrice = markets.data["Global Quote"]["05. price"];
-            console.log(order.price, marketPrice);
-            if (order.price >= marketPrice) {
+            const indicatorPeriod = order.indicatorPeriod;
+            const selectStr = "SELECT DISTINCT(time), price FROM stock_price WHERE symbol = ? ORDER BY time DESC LIMIT ?";
+            let results;
+            if (order.category.substr(1, 2) === "MA") {
+                const period = _.max([JSON.parse(order.MA)[0]+2, JSON.parse(order.MA)[1]+2]);
+                results = await query(selectStr, [symbol, period]);
+            } else {
+                results = await query(selectStr, [symbol, indicatorPeriod+2]);
+            }
+            if (results.length === 0) {
+                return;
+            }
+            let calculateInput = {
+                values: results.map(i => i.price),
+                period: indicatorPeriod
+            };
+            let calculateInput1;
+            let calculateInput2;
+            let calculateValue1;
+            let calculateValue2;
+            let arr;
+            if (order.category.substr(1, 2) === "MA") {
+                calculateInput1 = {
+                    values: results.map(i => i.price),
+                    period: JSON.parse(order.MA)[0]
+                };
+                calculateInput2 = {
+                    values: results.map(i => i.price),
+                    period: JSON.parse(order.MA)[1]
+                };
+            }
+            
+            let crossInput;
+            switch(order.category) {
+            case "RSI": {
+                const calculateValue = RSI.calculate(calculateInput);
+                crossInput = {
+                    lineA: calculateValue,
+                    lineB: new Array(calculateValue.length).fill(order.RSI)
+                };
+                break;
+            }
+            case "BBline": {
+                calculateInput.stdDev = 2;
+                const calculateValue = BB.calculate(calculateInput).map(i => i[order.BBline]);
+                crossInput = {
+                    lineA: results.slice(0-calculateValue.length).map(i => i.price),
+                    lineB: calculateValue,
+                };
+                break;
+            }
+            case "SMA": {
+                calculateValue1 = SMA.calculate(calculateInput1);
+                calculateValue2 = SMA.calculate(calculateInput2);
+                break;
+            }
+            case "EMA": {
+                calculateValue1 = EMA.calculate(calculateInput1);
+                calculateValue2 = EMA.calculate(calculateInput2);
+                break;
+            }
+            case "WMA": {
+                calculateValue1 = WMA.calculate(calculateInput1);
+                calculateValue2 = WMA.calculate(calculateInput2);
+                break;
+            }
+            }
+            if (order.category.substr(1, 2) === "MA") {
+                arr = new Array(Math.abs(calculateValue1.length-calculateValue2.length)).fill(0);
+                if (calculateValue1.length > calculateValue2.length) {
+                    crossInput = {
+                        lineA: calculateValue1,
+                        lineB: arr.concat(calculateValue2)
+                    };
+                } else {
+                    crossInput = {
+                        lineA: calculateValue1,
+                        lineB: arr.concat(calculateValue2)
+                    };
+                }
+            }
+            let crossArr = [];
+            switch(order.cross) {
+            case "crossup": {
+                crossArr = CrossUp.calculate(crossInput);
+                break;
+            }
+            case "crossdown": {
+                crossArr = CrossDown.calculate(crossInput);
+                break;
+            }
+            }
+            if (crossArr[crossArr.length-1] === true) {
                 await transaction();
-                const queryStr = "UPDATE orders SET price = ?, success = 1 WHERE id = ?";
-                await query(queryStr, [marketPrice, order.id]);
+                const queryStr = "UPDATE orders SET price = ?, success = 1, success_date = ? WHERE id = ?";
+                await query(queryStr, [results[results.length-1].price, today, order.id]);
                 await commit();
             }
         }
@@ -66,5 +195,6 @@ const matchOrders = async function () {
 
 module.exports = {
     setOrder,
-    matchOrders,
+    matchPriceOrders,
+    matchIndicatorOrders
 };

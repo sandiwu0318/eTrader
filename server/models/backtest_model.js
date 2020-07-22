@@ -10,7 +10,6 @@ const getData = async function (periods, symbol, indicator, indicatorPeriod) {
         await transaction();
         const response = await query(selectStr, [symbol, periods[0], periods[1]]);
         await commit();
-        let indicatorValues = [];
         let indicatorValue;
         let calculateValue = {
             values: response.map(i => i.price),
@@ -64,12 +63,26 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         await transaction();
         const response = await query(selectStr, [symbol, periods[0], periods[1]]);
         await commit();
-        let indicatorValues = [];
+        
         let indicatorValue;
         let calculateValue = {
             values: response.map(i => i.price),
             period: parseInt(indicatorPeriod)
         };
+        let calculateValue1;
+        let calculateValue2;
+        let indicatorValue1;
+        let indicatorValue2;
+        if (indicator.substr(1, 2) === "MA") {
+            calculateValue1 = {
+                values: response.map(i => i.price),
+                period: parseInt(actionValue)
+            };
+            calculateValue2 = {
+                values: response.map(i => i.price),
+                period: parseInt(exitValue)
+            };
+        }
         switch(indicator) {
         case "RSI": {
             indicatorValue = RSI.calculate(calculateValue);
@@ -78,29 +91,40 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         case "BB": {
             calculateValue.stdDev = 2;
             indicatorValue = BB.calculate(calculateValue).slice(0, -1);
-            console.log("------indicatorValue------");
-            console.log(indicatorValue);
-            console.log(indicatorValue.length);
-            console.log(response.length);
             break;
         }
         case "SMA": {
-            indicatorValue = SMA.calculate(calculateValue);
+            indicatorValue1 = SMA.calculate(calculateValue1);
+            indicatorValue2 = SMA.calculate(calculateValue2);
             break;
         }
         case "EMA": {
-            indicatorValue = EMA.calculate(calculateValue);
+            indicatorValue1 = EMA.calculate(calculateValue1);
+            indicatorValue2 = EMA.calculate(calculateValue2);
             break;
         }
         case "WMA": {
-            indicatorValue = WMA.calculate(calculateValue);
+            indicatorValue1 = WMA.calculate(calculateValue1);
+            indicatorValue2 = WMA.calculate(calculateValue2);
             break;
         }
         }
-        // console.log("-------response-------");
-        // console.log(response);
-        let arr = new Array(response.length - indicatorValue.length).fill(0);
-        const newIndicatorValue = arr.concat(indicatorValue);
+        let arr = []; 
+        let arr1 = [];
+        let arr2 = [];
+        let newIndicatorValue = [];
+        if (indicator.substr(1, 2) !== "MA") {
+            arr = new Array(response.length - indicatorValue.length).fill(0);
+            newIndicatorValue = arr.concat(indicatorValue);
+        } else {
+            arr1 = new Array(response.length - indicatorValue1.length).fill(0);
+            indicatorValue1 = arr1.concat(indicatorValue1);
+            arr2 = new Array(response.length - indicatorValue2.length).fill(0);
+            indicatorValue2 = arr2.concat(indicatorValue2);
+            for (let i =0; i<indicatorValue1.length; i ++) {
+                newIndicatorValue.push({actionValue1: indicatorValue1[i], actionValue2: indicatorValue2[i]});
+            }
+        }
         let actionInput;
         let exitInput;
         if (indicator === "BB") {
@@ -112,7 +136,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
                 lineA: response.map(i => i.price),
                 lineB: arr.concat(indicatorValue.map(i => i[exitValue]))
             };
-        } else {
+        } else if (indicator === "RSI") {
             actionInput = {
                 lineA: arr.concat(indicatorValue),
                 lineB: new Array(newIndicatorValue.length).fill(actionValue)
@@ -121,10 +145,17 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
                 lineA: arr.concat(indicatorValue),
                 lineB: new Array(newIndicatorValue.length).fill(exitValue)
             };
-            console.log(123);
+        } else {
+            actionInput = {
+                lineA: indicatorValue1,
+                lineB: indicatorValue2
+            };
+            exitInput = {
+                lineA: indicatorValue2,
+                lineB: indicatorValue1
+            };
         }
-        console.log("-----actionInput------");
-        console.log(actionInput);
+        
         let actionCrossArr = [];
         let exitCrossArr = [];
         switch(actionCross) {
@@ -148,10 +179,14 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         }
         }
         
-        actionCrossArr = actionCrossArr.fill(false, 0, arr.length+1);
-        exitCrossArr = exitCrossArr.fill(false, 0, arr.length+1);
-        console.log("-------actionCrossArr------");
-        console.log(actionCrossArr);
+        if (indicator.substr(1, 2) === "MA") {
+            actionCrossArr = actionCrossArr.fill(false, 0, _.max([arr1.length+1, arr2.length+1]));
+            exitCrossArr = exitCrossArr.fill(false, 0, _.max([arr1.length+1, arr2.length+1]));
+        } else {
+            actionCrossArr = actionCrossArr.fill(false, 0, arr.length+1);
+            exitCrossArr = exitCrossArr.fill(false, 0, arr.length+1);
+        }
+        
         let actionCrossIndex = [];
         let actionFirstIndex = 0;
         while(actionCrossArr.findIndex(i => i === true) !== -1) {
@@ -176,7 +211,8 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
             actionCrossIndex: actionCrossIndex,
             exitCrossIndex: exitCrossIndex
         };
-        indicatorValues.push(indicatorResult);
+
+        
         let actionArr = [];
         let exitArr = [];
         switch(action) {
@@ -204,6 +240,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         }
         }
         const allArr = _.orderBy(actionArr.concat(exitArr), "index");
+
         let filterData = [];
         switch(action) {
         case "long": {
@@ -216,7 +253,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
                     buyData = {
                         time: response[originBuyIndex].time,
                         price: response[originBuyIndex].price,
-                        indicatorValue: indicatorValues.filter(i => i.indicator !== "price")[0].values[originBuyIndex],
+                        indicatorValue: indicatorResult.values[originBuyIndex],
                         action: allArr[buyIndex]["action"]
                     };
                     allArr.splice(0, buyIndex+1);
@@ -229,7 +266,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
                     sellData = {
                         time: response[originSellIndex].time,
                         price: response[originSellIndex].price,
-                        indicatorValue: indicatorValues.filter(i => i.indicator !== "price")[0].values[originSellIndex],
+                        indicatorValue: indicatorResult.values[originSellIndex],
                         action: allArr[sellIndex]["action"]
                     };
                     allArr.splice(0, sellIndex+1);
@@ -251,7 +288,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
                     sellData = {
                         time: response[originSellIndex].time,
                         price: response[originSellIndex].price,
-                        indicatorValue: indicatorValues.filter(i => i.indicator !== "price")[0].values[originSellIndex],
+                        indicatorValue: indicatorResult.values[originSellIndex],
                         action: allArr[sellIndex]["action"]
                     };
                     allArr.splice(0, sellIndex+1);
@@ -265,7 +302,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
                     buyData = {
                         time: response[originBuyIndex].time,
                         price: response[originBuyIndex].price,
-                        indicatorValue: indicatorValues.filter(i => i.indicator !== "price")[0].values[originBuyIndex],
+                        indicatorValue: indicatorResult.values[originBuyIndex],
                         action: allArr[buyIndex]["action"]
                     };
                     allArr.splice(0, buyIndex+1);
@@ -278,6 +315,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
             break;
         }
         }
+        
         const revenue = filterData.filter(i => i.action === "sell").reduce((a, b) => a+b.price, 0);
         const cost = filterData.filter(i => i.action === "buy").reduce((a, b) => a+b.price, 0);
         const investmentReturn = (revenue - cost);
@@ -294,7 +332,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
             investmentReturn: investmentReturn,
             ROI: ROI,
             data: filterData,
-            chart: indicatorValues
+            chart: indicatorResult
         };
         return singleData;
     } catch(error) {

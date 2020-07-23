@@ -91,15 +91,6 @@ body {
     color: white;
 }
 
-#loginBtn {
-    background-color: #818181;
-    font-weight: bolder;
-    border-radius: 6px;
-    border: #818181;
-    height: 2rem;
-    font-size: 1rem;
-    cursor: pointer;
-}
 
 .autocomplete {
     position: relative;
@@ -489,8 +480,9 @@ body {
 }
 
 #show_symbol {
-    margin: 2rem 7rem;
-    font-size: 1.5rem;
+    width: 80%;
+    margin: 2rem auto;
+    font-size: 2.5rem;
     font-weight: bold;
 }
 
@@ -524,6 +516,7 @@ body {
 
 .li_div,
 .title {
+    width: 13rem;
     margin: 0.5rem 0rem 0.5rem 7rem;
 }
 
@@ -537,6 +530,7 @@ body {
 
 .test_input,
 .test_label {
+    font: 1rem sans-serif;
     display: inline-block;
     width: 20rem;
     border-radius: 6px;
@@ -548,10 +542,6 @@ body {
 .test_label {
     border: none;
     width: 13rem;
-}
-
-.period {
-    margin-bottom: 2rem;
 }
 
 #addSymbolBtn,
@@ -571,10 +561,9 @@ body {
 }
 
 #backtestBtn,
-#showGraphBtn,
-#codeBtn {
+#showGraphBtn {
     background-color: rgb(180, 180, 180);
-    margin: 2rem;
+    margin: 1.5rem 2rem;
 }
 
 #addSymbolBtn:hover,
@@ -635,3 +624,14 @@ body {
 #signUpBtn {
     margin: 3rem 1rem 1rem 8rem;
 } 
+
+#loginBtn {
+    background-color: #818181;
+    font-weight: bolder;
+    border-radius: 6px;
+    border: #818181;
+    height: 2.3rem;
+    width: 5rem;
+    font-size: 1rem;
+    cursor: pointer;
+}

@@ -1,4 +1,5 @@
 import {getElement} from "./utils.js";
+window.scrollTo(0, 0);
 const signUpBtn = getElement("#signUpBtn");
 signUpBtn.addEventListener("click",
     async function (){

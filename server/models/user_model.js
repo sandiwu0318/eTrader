@@ -114,6 +114,9 @@ const getWatchlist = async function (token, symbolOnly) {
             return result;
         }
         let watchlist = result[0].watchlist.split(",");
+        if (watchlist.length === 1 && watchlist[0] === "") {
+            return;
+        }
         for (let i of watchlist) {
             const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
             const result = {
@@ -165,6 +168,7 @@ const getOrders = async function (token) {
         portfolio: portfolio
     };
 };
+
 
 module.exports = {
     signUp,

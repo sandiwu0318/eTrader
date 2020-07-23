@@ -1,5 +1,5 @@
 import {createList, checkLogin, removeChild} from "./utils.js";
-
+window.scrollTo(0, 0);
 const socket = io();
 socket.on("watchlist", (data) => {
     if (data.error) {

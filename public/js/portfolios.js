@@ -1,4 +1,5 @@
 import {createList, checkLogin} from "./utils.js";
+window.scrollTo(0, 0);
 const token = localStorage.getItem("token");
 checkLogin(token);
 if (token !== null) {

@@ -1,5 +1,6 @@
 import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, showLoginBtn, checkLogin, autocomplete, createInput, createSelect, createButton} from "./utils.js";
 //Get Price
+window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
 

@@ -127,7 +127,7 @@ const matchIndicatorOrders = async function () {
                 };
                 break;
             }
-            case "BBline": {
+            case "BB": {
                 calculateInput.stdDev = 2;
                 const calculateValue = BB.calculate(calculateInput).map(i => i[order.BBline]);
                 crossInput = {

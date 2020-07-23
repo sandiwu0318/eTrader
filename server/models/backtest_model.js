@@ -342,91 +342,59 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
 };
 
 
-// const testByUserCode = async function (code) {
-//     try {
-//         const codeNoSpace = code.replace(/ /g, "");
-//         if (codeNoSpace === "") {
-//             return {error: "Please enter correct code"};
-//         }
-//         let codeStr;
-//         if (codeNoSpace.substr(codeNoSpace.length -1) === ";") {
-//             codeStr = codeNoSpace.toLowerCase().substr(0, codeNoSpace.length -1);
-//         } else {
-//             codeStr = codeNoSpace;
-//         }
-//         const re = /=|;/;
-//         let codeSpilt = codeStr.split(re);
-//         const nameSet = ["start", "end", "stock", "value", "condition", "volume", "action"];
-//         console.log(codeSpilt);
-//         let codeArr = [];
-//         codeSpilt.forEach(i => {
-//             if (nameSet.includes(i)) {
-//                 const a = `"${i}":`;
-//                 codeArr.push(a);
-//             } else if (nameSet.includes(i.substr(0, 5))) {
-//                 const b = `"${i}":`;
-//                 codeArr.push(b);
-//             }  else if (nameSet.includes(i.substr(0, 9))) {
-//                 const c = `"${i}":`;
-//                 codeArr.push(c);
-//             } else {
-//                 const d = `"${i}",`;
-//                 codeArr.push(d);
-//             }
-//         });
-//         const codeJoin = codeArr.join(" ");
-//         const codeSubstr = codeJoin.substr(0, codeJoin.length-1);
-//         let codeParse = JSON.parse(`{${codeSubstr}}`);
-//         console.log(codeParse);
-//         codeParse.indicator = codeParse.value.split("(")[0].toUpperCase();
-//         codeParse.indicatorPeriod = parseInt(codeParse.value.substring(codeParse.value.indexOf("(")+1, codeParse.value.indexOf(")")));
-//         codeParse.condition1 = codeParse.condition1.substring(codeParse.condition1.indexOf("(")+1, codeParse.condition1.indexOf(")")).split(",");
-//         codeParse.condition2 = codeParse.condition2.substring(codeParse.condition2.indexOf("(")+1, codeParse.condition2.indexOf(")")).split(",");
-//         delete codeParse.value;
-//         if (codeParse.condition1[0] === "crossdown") {
-//             codeParse.condition1[1] = -codeParse.condition1[1];
-//         } else {
-//             codeParse.condition1[1] = parseInt(codeParse.condition1[1]);
-//         }
-//         if (codeParse.condition2[0] === "crossdown") {
-//             codeParse.condition2[1] = -codeParse.condition2[1];
-//         } else {
-//             codeParse.condition2[1] = parseInt(codeParse.condition2[1]);
-//         }
-//         codeParse.stock = codeParse.stock.toUpperCase();
-//         codeParse.volume = parseInt(codeParse.volume);
-        
-        
-//         if ((codeParse.action === "long" && codeParse.condition1[2] === "buy" && codeParse.condition2[2] === "sell") || (codeParse.action === "short" && codeParse.condition1[2] === "sell" && codeParse.condition2[2] === "buy")) {
-//             codeParse.actionValue = codeParse.condition1[1];
-//             codeParse.exitValue = codeParse.condition2[1];
-//         } else if ((codeParse.action === "long" && codeParse.condition2[2] === "buy" && codeParse.condition1[2] === "sell") || (codeParse.action === "short" && codeParse.condition2[2] === "sell" && codeParse.condition1[2] === "buy")) {
-//             codeParse.exitValue = codeParse.condition1[1];
-//             codeParse.actionValue = codeParse.condition2[1];
-//         } else {
-//             return {error: "Please have 1 condition for buy and 1 condition for sell"};
-//         }
-        
-        
-//         if (Date.parse(codeParse.start)<0 || Date.parse(codeParse.end)<0) {
-//             return {error: "Please enter correct data type"};
-//         }
-//         delete codeParse.condition1;
-//         delete codeParse.condition2;
-//         const keys = ["start", "end", "stock", "action", "volume", "indicator", "indicatorPeriod", "actionValue", "exitValue"];
-//         if (keys.filter(i => !Object.keys(codeParse).includes(i)).length !== 0) {
-//             return {error: "Please make sure to assign start, end, stock, value, conditions, action, volume"};
-//         }
-//         return testWithIndicator([codeParse.start, codeParse.end], [codeParse.stock], [codeParse.indicator], [codeParse.indicatorPeriod], [codeParse.action], [codeParse.actionValue], [codeParse.exitValue], [codeParse.volume]);
-//     } catch(error) {
-//         console.log(error);
-//         return {error: "Please make sure you entered the right codes"};
-//     }
-// };
+const saveBacktestResult = async function (token, periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross, investmentReturn, ROI) {
+    try {
+        const today = new Date();
+        const selectStr = "SELECT id FROM user WHERE access_token = ?";
+        const result = await query(selectStr, token);
+        let data = {
+            user_id: result[0].id,
+            periods: JSON.stringify(periods),
+            symbol: symbol,
+            action: action,
+            volume: volume,
+            indicator: indicator,
+            indicatorPeriod: indicatorPeriod,
+            actionValue: actionValue,
+            actionCross: actionCross,
+            exitValue: exitValue,
+            exitCross: exitCross,
+            investmentReturn: investmentReturn,
+            ROI: ROI,
+            created_date: today
+        };
+        const insertStr = "INSERT INTO backtest_result SET ?";
+        await transaction();
+        await query(insertStr, data);
+        await commit();
+        data.periods = periods;
+        return data;
+    } catch(error) {
+        await rollback();
+        return {error};
+    }
+};
+
+const getSavedResults = async function (token) {
+    try {
+        const selectStr = "SELECT id FROM user WHERE access_token = ?";
+        const result = await query(selectStr, token);
+        const selectTestsStr = "SELECT * FROM backtest_result WHERE USER_ID = ? ORDER BY id DESC";
+        await transaction();
+        const results = await query(selectTestsStr, result[0].id);
+        await commit();
+        results.forEach(i => i.periods = JSON.parse(i.periods));
+        return results;
+    } catch(error) {
+        await rollback();
+        return {error};
+    }
+};
 
 
 module.exports = {
     getData,
     testWithIndicator,
-    // testByUserCode
+    saveBacktestResult,
+    getSavedResults
 };

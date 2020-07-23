@@ -409,10 +409,12 @@ body {
     border: 1px solid rgb(180, 180, 180);
     border-radius: 5px;
     padding: 0.1rem 0.5rem;
+    margin: 0 1rem;
 }
 
 .btn {
     width: 8rem;
+    cursor: pointer;
 }
 
 .btn:hover {
@@ -517,11 +519,14 @@ body {
 .li_div,
 .title {
     width: 13rem;
-    margin: 0.5rem 0rem 0.5rem 7rem;
+    margin: 0.5rem 0rem 0.5rem 5rem;
 }
 
 /* ------Backtesting Page------- */
 
+#test_form {
+    
+}
 
 .test_case {
     margin: 2rem auto;
@@ -532,11 +537,12 @@ body {
 .test_label {
     font: 1rem sans-serif;
     display: inline-block;
-    width: 20rem;
+    width: 15rem;
     border-radius: 6px;
     padding: 0.3rem 1rem;
     border: 0.1rem solid rgb(180, 180, 180);
     margin: 0.5rem 1rem;
+    display: inline-block;
 }
 
 .test_label {
@@ -561,13 +567,21 @@ body {
 }
 
 #backtestBtn,
-#showGraphBtn {
+#showGraphBtn,
+#viewHistoryBtn {
     background-color: rgb(180, 180, 180);
     margin: 1.5rem 2rem;
+    cursor: pointer;
+}
+
+#viewHistoryBtn {
+    width: 10rem;
+    margin: 0 1rem;
 }
 
 #addSymbolBtn:hover,
-#backtestBtn:hover {
+#backtestBtn:hover,
+#viewHistoryBtn:hover {
     background-color: rgb(105, 105, 105);
     color: white;
 }
@@ -593,6 +607,14 @@ body {
 
 #setOrderBtn {
     width: 20rem;
+}
+
+.saved_li {
+    cursor: pointer;
+}
+
+.saved_li:hover {
+    background-color: #3fa089;
 }
 
 /* ------Login Page------- */

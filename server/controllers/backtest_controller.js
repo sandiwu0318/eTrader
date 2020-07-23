@@ -13,15 +13,24 @@ const testWithIndicator = async (req, res) => {
     res.status(200).json({data: testWithIndicator});
 };
 
-const testByUserCode = async (req, res) => {
-    const { code } = req.body;
-    const testByUserCode = await Backtest.testByUserCode(code);
-    res.status(200).json({data: testByUserCode});
+const saveBacktestResult = async (req, res) => {
+    const { token, periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross, investmentReturn, ROI } = req.body;
+    const saveBacktestResult = await Backtest.saveBacktestResult(token, periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross, investmentReturn, ROI);
+    res.status(200).json({data: saveBacktestResult});
 };
+
+const getSavedResults = async (req, res) => {
+    const { token } = req.body;
+    const getSavedResults = await Backtest.getSavedResults(token);
+    res.status(200).json({data: getSavedResults});
+};
+
+
 
 
 module.exports = {
     getData,
     testWithIndicator,
-    testByUserCode
+    saveBacktestResult,
+    getSavedResults
 };

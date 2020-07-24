@@ -1,4 +1,4 @@
-import {createList, checkLogin, removeChild} from "./utils.js";
+import {createList, checkLogin, removeChild, getSymbols, searchSymbol} from "./utils.js";
 window.scrollTo(0, 0);
 const socket = io();
 socket.on("watchlist", (data) => {
@@ -23,6 +23,11 @@ async function getWatchlist() {
         console.log("watchlist fetch failed, err");
     }
 }
+
 window.onbeforeunload = function() {
     socket.disconnect();
 }
+
+
+getSymbols();
+searchSymbol();

@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="stock trading website. updated at 2020." />
-<title>eTrader 2020</title>
-<link rel="stylesheet" href="css/index.css" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="stock trading website. updated at 2020." />
+    <title>eTrader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="shortcut icon" href="/img/favicon.ico"/>
+    <link rel="bookmark" href="/img/favicon.ico"/>
 </head>
 <body>
     <div class="search_container">
         <a href="/" id="logo"><img class="search_item" id="logo_img" src="img/logo.jpeg"></a>
         <div class="search_item item">
-            <form>
-                <input type="text" class="search" name="symbol" id="symbol_search" placeholder="Stock search"/>
+            <form autocomplete="off">
+                <div class="autocomplete">
+                    <input type="text" class="search" name="symbol" id="symbol_search" onfocus="this.value=''" placeholder="Stock search"/>
+                </div>
                 <select class="search" name="frequency" id="frequency">
                     <option value="1d">1 Day</option>
                     <option value="1mo">1 Month</option>
@@ -36,18 +41,20 @@
     </nav>
     <div class="titles">
         <div class="title">Stock</div>
+        <div class="title">Action</div>
         <div class="title">Volume</div>
         <div class="title">Price</div>
-        <div class="title">Expense</div>
+        <div class="title">Current Price</div>
+        <div class="title">%</div>
     </div>
     <div>
         <ul id="portfolio_ul" class="user_ul"></ul>
     </div>
-    <div class="content_container">
-        <div class="content_item graph" id="portfolioPie"></div>
+    <div class="pie_container">
+        <div class="pie_item graph" id="expensePie"></div>
+        <div class="pie_item graph" id="returnPie"></div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="js/index.js"></script>
     <script type="module" src="js/portfolios.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

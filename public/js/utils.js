@@ -96,7 +96,7 @@ function removeChild(id) {
     }
 }
 
-function createChart(data) {
+function createChart(data, frequency) {
     const dates = data.times;
     const prices = data.prices;
     const volumes = data.volumes;
@@ -141,10 +141,13 @@ function createChart(data) {
             showgrid: false,
         }
     };
-    if (frequency === "1d") {
-        priceLayout.xaxis.range = []
-        // priceLayout.xaxis.rangebreaks[0].pattern = "hour";
-        // priceLayout.xaxis.rangebreaks[0].bounds = [16.1, 9.58];
+    const nowHours = new Date().getUTCHours();
+    const nowMinutes = new Date().getUTCMinutes();
+    if (frequency === "1d" && (nowHours > 14 && nowHours < 20) || (nowHours === 13 && nowMinutes > 30 && nowMinutes <= 59)) {
+        const today = new Date();
+        const period1 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 30);
+        const period2 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 16);
+        priceLayout.xaxis.range = [period1, period2];
     }
     const chartData = [priceTrace1, priceTrace2];
     Plotly.newPlot("priceChart", chartData, priceLayout);
@@ -247,6 +250,24 @@ function autocomplete(inp, arr) {
     });
 }
 
+async function getSymbols() {
+    const res = (await fetch(`/api/1.0/stock/symbolList`));
+    const resJson = (await res.json()).data;
+    const symbolList = resJson.map(i => `${i.symbol} (${i.name})`);
+    autocomplete(getElement("#symbol_search"), symbolList);
+}
+
+function searchSymbol() {
+    const searchBtn = getElement("#searchBtn");
+    searchBtn.addEventListener("click", function () {
+        const symbol = getElement("#symbol_search").value.split(" ")[0];
+        const frequency = getElement("#frequency").value;
+        localStorage.setItem("symbol", symbol);
+        localStorage.setItem("frequency", frequency);
+        window.location = "/";
+    })
+}
+
 export {
     getElement,
     getDataByClass,
@@ -262,5 +283,6 @@ export {
     createChart,
     checkLogin,
     showLoginBtn,
-    autocomplete
+    getSymbols,
+    searchSymbol
 };

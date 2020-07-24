@@ -1,4 +1,4 @@
-import {getElement, getDataByClass, createInput, createSelect, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem} from "./utils.js";
+import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, getSymbols, searchSymbol} from "./utils.js";
 window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
@@ -134,6 +134,7 @@ showGraphBtn.addEventListener("click",
                     Plotly.newPlot(id, plotData, layout);
                 }
                 showGraph("chart", resJson);
+                scrollTo(0, 500);
             }
         // } catch (err) {
         //     console.log("price fetch failed, err");
@@ -453,6 +454,7 @@ backtestBtn.addEventListener("click",
                 getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson.investmentReturn)}</h2>`;
                 getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson.ROI*10000)/100)}%</h2>`;
                 setOrder(data);
+                scrollTo(0, 800);
                 const saveBtn = getElement("#saveBtn");
                 saveBtn.addEventListener("click", async function (e) {
                     e.preventDefault();
@@ -514,8 +516,8 @@ const setOrder= function (data) {
             period: "90 days"
         }
         if (data.action === "short") {
-            data1.action = "sell";
-            data2.action = "buy";
+            data1.action = "short";
+            data2.action = "short cover";
         }
         if (data.indicator.substr(1,2) === "MA") {
             data1.value = [data.actionValue, data.exitValue];
@@ -627,3 +629,6 @@ viewHistoryBtn.addEventListener("click", async function (e) {
         })
     }
 })
+
+getSymbols();
+searchSymbol();

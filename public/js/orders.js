@@ -1,4 +1,4 @@
-import {createList, checkLogin} from "./utils.js";
+import {createList, checkLogin, getSymbols, searchSymbol} from "./utils.js";
 window.scrollTo(0, 0);
 const token = localStorage.getItem("token");
 checkLogin(token);
@@ -22,9 +22,26 @@ async function getOrders() {
             alert(resJson.error);
         } else {
             const orders = resJson.orders;
+            console.log(orders)
             if (orders.length !== 0) {
-                orders.forEach(i => i.expense = i.volume * i.price);
-                orders.map(i => createList("#orders_ul", "user_li",Object.values(i)));
+                let newOrders = []
+                orders.forEach(i => {
+                    const indicator = i.category;
+                    const value = i[indicator];
+                    const data = {
+                        symbol: i.symbol,
+                        action: i.sub_action,
+                        volume: i.volume,
+                        indicator: indicator,
+                        value: value,
+                        indicatorPeriod: i.indicatorPeriod || "-",
+                        cross: i.cross || "-",
+                        deadline: i.deadline
+                    }
+                    newOrders.push(data);
+                });
+                console.log(data)
+                newOrders.map(i => createList("#orders_ul", "user_li",Object.values(i)));
             } else {
                 alert("You don't have any orders yet")
             }
@@ -33,3 +50,7 @@ async function getOrders() {
         console.log("Orders fetch failed, err");
     }
 }
+
+
+getSymbols();
+searchSymbol();

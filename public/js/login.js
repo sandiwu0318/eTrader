@@ -1,4 +1,4 @@
-import {getElement} from "./utils.js";
+import {getElement, getSymbols, searchSymbol} from "./utils.js";
 window.scrollTo(0, 0);
 const signUpBtn = getElement("#signUpBtn");
 signUpBtn.addEventListener("click",
@@ -55,3 +55,6 @@ signInBtn.addEventListener("click",
         }
     }
 )
+
+getSymbols();
+searchSymbol();

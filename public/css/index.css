@@ -9,13 +9,21 @@ html,
 button,
 input,
 select,
-a {
+a,
+div,
+body {
     font-size: 1.1rem;
-    font-family: sans-serif;
+    line-height: 1.5rem;
+    font-family: 'Roboto', sans-serif;
     letter-spacing: 0.05rem;
     font-style: normal;
+    font-weight: 300;
     text-decoration: none;
     color: rgb(66, 66, 66);
+}
+
+h2 {
+    font-weight: 600;
 }
 
 ul {
@@ -35,7 +43,7 @@ body {
 /* ------- Search bar -------- */
 
 #logo {
-    width: 15%;
+    width: 11%;
 }
 
 #logo_img {
@@ -53,7 +61,7 @@ body {
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem;
+    padding: 0.25rem;
 }
 
 .item {
@@ -80,7 +88,7 @@ body {
 
 #searchBtn {
     background-color: #64ffda;
-    font-weight: bolder;
+    font-weight: 500;
     border: 0;
     cursor: pointer;
 }
@@ -131,10 +139,11 @@ body {
 .main_nav {
     display: flex;
     width: 100%;
+    height: 2.8rem;
     background-color: rgb(235, 235, 235);
     border-bottom: 1px solid rgb(190, 190, 190);
     justify-content: center;
-    font-weight: bolder;
+    font-weight: 500;
 }
 
 .nav_item a {
@@ -148,6 +157,7 @@ body {
 
 .nav_item a:hover {
     color: rgb(148, 148, 148);
+    border-bottom: 0.15rem solid #3fa089;
 }
 
 .current {
@@ -378,10 +388,20 @@ body {
 
 .content_item {
     width: 80%;
-    
     margin: 2rem auto;
     border: 5px solid rgb(235, 235, 235);
     border-radius: 5px;
+}
+
+#unavailable {
+    background-color: white;
+    text-align: center;
+    font-size: 2rem;
+    line-height: 380px;
+    height: 380px;
+    border: 1px solid rgb(148, 148, 148);
+    border-radius: 10px;
+    margin: 2rem auto;
 }
 
 .financial_graph {
@@ -441,10 +461,16 @@ body {
     background-color: #a0a0a0;
 }
 
-
+#news_ul {
+    margin: 0 5rem;
+}
 
 #news_ul a {
     text-decoration: underline rgb(66, 66, 66);
+    font-weight: 100;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    line-height: 2rem;
 }
 
 #news_ul a:hover {
@@ -465,7 +491,15 @@ body {
 
 .li_div {
     width: 35%;
+    width: 10rem;
+    margin: 0.5rem 0rem 0.5rem 5rem;
+    font-weight: 100;
 }
+
+.li_title {
+    font-weight: 400;
+}
+
 #financials_Yearly,
 #financials_Quarterly {
     width: 45%;
@@ -475,6 +509,8 @@ body {
 .intro .li_div {
     width: 100%;
     list-style-type: none;
+    font-weight: 100;
+    line-height: 2rem;
 }
 
 .intro .li_div {
@@ -482,10 +518,10 @@ body {
 }
 
 #show_symbol {
-    width: 80%;
+    width: 78%;
     margin: 2rem auto;
     font-size: 2.5rem;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 
@@ -516,17 +552,27 @@ body {
     margin: 0;
 }
 
-.li_div,
+#watchlist_ul .li_div,
+#portfolio_ul .li_div,
+#orders_ul .li_div,
+#history_ul .li_div,
 .title {
     width: 13rem;
     margin: 0.5rem 0rem 0.5rem 5rem;
 }
 
-/* ------Backtesting Page------- */
-
-#test_form {
-    
+.pie_container {
+    display: flex;
+    justify-content: space-evenly;
 }
+
+.pie_item {
+    margin: 10rem;
+}
+
+
+
+/* ------Backtesting Page------- */
 
 .test_case {
     margin: 2rem auto;
@@ -535,7 +581,7 @@ body {
 
 .test_input,
 .test_label {
-    font: 1rem sans-serif;
+    font-size: 1rem;
     display: inline-block;
     width: 15rem;
     border-radius: 6px;
@@ -548,6 +594,8 @@ body {
 .test_label {
     border: none;
     width: 13rem;
+    font-size: 1.1rem;
+    font-weight: 500;
 }
 
 #addSymbolBtn,
@@ -560,7 +608,6 @@ body {
     text-align: center;
     color: white;
     font-size: 1rem;
-    font-weight: bold;
     text-align: center;
     display: inline-block;
     cursor: pointer;
@@ -621,39 +668,102 @@ body {
 
 #login_form {
     display: block;
-    margin: 3rem auto;
     width: 50%;
+    margin: 10rem auto;
+    margin-bottom: 0;
+    text-align: left;
 }
 
 .login_input,
 .login_label {
+    font-size: 1.1rem;
     display: inline-block;
-    width: 30rem;
+    width: 22rem;
     border-radius: 6px;
     padding: 0.3rem 1rem;
-    border: 0.1rem solid rgb(180, 180, 180);
-    margin: 0.5rem 1rem;
+    border: 0.1rem solid #b4b4b4;
+    margin: 0.5rem 0rem;
 }
 
 .login_label {
+    color: white;
     border: none;
+    font-weight: 100;
     width: 13rem;
+    padding: 0;
+}
+
+#signInBtn,
+#signUpBtn {
+    width: 7rem;
+    height: 2rem;
+    margin: 2rem 0.8rem;
+    font-weight: 300;
+    display: inline-block;
 }
 
 #signInBtn {
-    margin: 3rem 1rem 1rem 20rem;
+    background-color: #1f5c7e;
+    color: white;
+    border: none;
 }
+
 #signUpBtn {
-    margin: 3rem 1rem 1rem 8rem;
-} 
+    background-color: white;
+    color: black;
+    border: none;
+}
+
+#signInBtn:hover {
+    background-color: #b4b4b4;
+    color: black;
+    box-shadow: 3px 3px white;
+}
+
+#signUpBtn:hover {
+    background-color: #818181;
+    color: white;
+    box-shadow: 3px 3px white;
+}
+
 
 #loginBtn {
     background-color: #818181;
-    font-weight: bolder;
+    font-weight: 500;
     border-radius: 6px;
     border: #818181;
-    height: 2.3rem;
+    height: 2.2rem;
     width: 5rem;
     font-size: 1rem;
     cursor: pointer;
+}
+
+.login_container {
+    display: flex;
+    background-image: url("../img/login_background.jpeg");
+    background-size: 100%;
+    height: 100vh;
+}
+
+.div_container {
+    width: 50%;
+    text-align: center;
+}
+
+
+#login_intro {
+    padding: 10rem 8rem;
+    width: 45%;
+    font-size: 1.1rem;
+    font-weight: 100;
+    background-color: #818181;
+    color: white;
+    text-align: left;
+}
+
+#login_title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 3.5rem;
+    margin: 0;
 }

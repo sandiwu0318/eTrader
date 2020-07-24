@@ -56,9 +56,29 @@
                 <option value="RSI">RSI</option>
                 <option value="BB">BB</option>
                 <option value="SMA">SMA</option>
-                <option value="EMA">EMA</option>
                 <option value="WMA">WMA</option>
+                <option value="EMA">EMA</option>
             </select>
+            <div id="indicator_info_container">
+                <div id="indicator_info_icon">i</div>
+                <div id="indicator_info_content">
+                    <p class="info_title">RSI (relative strength index):</p>
+                    <p class="info_content">Usually overbought when above 70% and oversold when below 30%.</p>
+                    <br>
+                    <p class="info_title">BB (Bollinger Bands):</p>
+                    <p class="info_content">Middle line is SMA. Upper and Lower Bands are 2 standard deviations away from the middle.</p>
+                    <br>
+                    <p class="info_title">SMA (Simple Moving Average):</p>
+                    <p class="info_content">Average price over a specified period.</p>
+                    <br>
+                    <p class="info_title">WMA (Weighted Moving Average):</p>
+                    <p class="info_content">Like SMA but applies more weight to data that is more current.</p>
+                    <br>
+                    <p class="info_title">EMA (Exponential Moving Average):</p>
+                    <p class="info_content">Like WMA but applies exponentially.</p>
+                </div>
+            </div>
+            
             <br>
             <label class="test_label indicatorPeriod">Indicator Period</label>
             <input type="text" class="test_input indicatorPeriod"/>
@@ -80,14 +100,14 @@
                     <option value="crossup">RSI Crossup</option>
                     <option value="crossdown">RSI Crossdown</option>
                 </select>
-                <input type="text" class="RSI_test test_input actionValue" placeholder="ex. 20"/>
+                <input type="text" class="RSI_test test_input actionValue" placeholder="ex. 30"/>
                 <br>
                 <label class="test_label">Exit Timing</label>
                 <select type="text" class="RSI_test test_input exitCross">
                     <option value="crossup">RSI Crossup</option>
                     <option value="crossdown">RSI Crossdown</option>
                 </select>
-                <input type="text" class="RSI_test test_input exitValue" placeholder="ex. 80"/>
+                <input type="text" class="RSI_test test_input exitValue" placeholder="ex. 70"/>
                 <br>
             </div>
             <div class="MA_test hide">

@@ -630,5 +630,15 @@ viewHistoryBtn.addEventListener("click", async function (e) {
     }
 })
 
+
+const container = getElement("#indicator_info_container");
+container.addEventListener("mouseover", function() {
+    getElement("#indicator_info_content").style.display = "block";
+});
+container.addEventListener("mouseout", function() {
+    getElement("#indicator_info_content").style.display = "none";
+});
+
+
 getSymbols();
 searchSymbol();

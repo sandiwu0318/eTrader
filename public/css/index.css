@@ -664,6 +664,52 @@ body {
     background-color: #3fa089;
 }
 
+#indicator_info_icon {
+    display: inline-block;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bolder;
+    font-family: sans-serif;
+    width: 1.2rem;
+    height: 1.2rem;
+    line-height: 1.2rem;
+    border-radius: 100%;
+    text-align: center;
+    background-color: rgb(180, 180, 180);
+    cursor: pointer;
+}
+
+#indicator_info_container {
+    position: relative;
+    display: inline-block;
+}
+
+#indicator_info_content {
+    display: none;
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    width: 50rem;
+    font-size: 1rem;
+    border: 1px solid white;
+    border-radius: 0.3rem;
+    padding: 0.5rem;
+    background-color: white;
+}
+
+.info_content {
+    margin: 0;
+    display: inline-block;
+    font-size: 0.8rem;
+}
+
+.info_title {
+    margin: 0;
+    display: inline-block;
+    font-weight: 300;
+}
+
+
 /* ------Login Page------- */
 
 #login_form {

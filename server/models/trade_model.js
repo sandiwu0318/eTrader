@@ -6,7 +6,7 @@ const axios = require("axios");
 const _ = require("lodash");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 
-const setOrder = async function (token, symbol, category, value, indicatorPeriod, cross, volume, action, period) {
+const setOrder = async function (token, symbol, category, value, indicatorPeriod, cross, volume, action, sub_action, period) {
     try {
         const now = new Date();
         let deadline;
@@ -27,6 +27,7 @@ const setOrder = async function (token, symbol, category, value, indicatorPeriod
             symbol: symbol,
             volume: volume,
             action: action,
+            sub_action: sub_action,
             indicatorPeriod: indicatorPeriod,
             cross: cross,
             deadline: deadline,
@@ -38,6 +39,7 @@ const setOrder = async function (token, symbol, category, value, indicatorPeriod
             order[title] = value;
         }
         order["category"] = title;
+        console.log(order);
         const queryStr = "INSERT INTO orders SET ?";
         await query(queryStr, order);
         await commit();

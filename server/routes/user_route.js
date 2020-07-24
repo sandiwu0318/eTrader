@@ -6,7 +6,8 @@ const {
     nativeSignIn,
     addRemoveWatchlist,
     getWatchlist,
-    getOrders
+    getOrders,
+    getPortfolios
 } = require("../controllers/user_controller");
 
 router.route("/user/signUp")
@@ -23,5 +24,8 @@ router.route("/user/getWatchlist")
 
 router.route("/user/getOrders")
     .post(wrapAsync(getOrders));
+
+router.route("/user/getPortfolios")
+    .post(wrapAsync(getPortfolios));
 
 module.exports = router;

@@ -119,6 +119,9 @@ const getWatchlist = async function (token, symbolOnly) {
         }
         for (let i of watchlist) {
             const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
+            if (current === undefined) {
+                return {error: "Please wait for a bit"};
+            }
             const result = {
                 symbol: current["01. symbol"],
                 price: current["05. price"],
@@ -129,16 +132,18 @@ const getWatchlist = async function (token, symbolOnly) {
             results.push(result);
         }
     }
+    
     return results;
 };
 
 const getOrders = async function (token) {
     const getIdStr = "SELECT id FROM user WHERE access_token = ?";
-    const id = (await query(getIdStr, token))[0].id;
-    if (id.length === 0) {
+    const result = (await query(getIdStr, token));
+    if (result === undefined) {
         return {error: "Wrong authorization"};
     }
-    const selectStr = "SELECT symbol, price, volume, success, deadline FROM orders WHERE user_id = ? ORDER BY success";
+    const id = result[0].id;
+    const selectStr = "SELECT * FROM orders WHERE user_id = ? ORDER BY success";
     const results = await query(selectStr, id);
     if (results.length === 0) {
         return {error: "You haven't created any orders yet"};
@@ -148,25 +153,63 @@ const getOrders = async function (token) {
     const orders = results.filter(i => i.success === 0 && i.deadline >= new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0));
     history.forEach(i => {
         delete i.success;
-        delete i.deadline;
     });
     orders.forEach(i => {
         delete i.success;
+        delete i.action;
         i.deadline = i.deadline.toISOString().substr(0, 10);
     });
-    const portfolioList = _.groupBy(history, "symbol");
-    const symbols = Object.keys(portfolioList);
-    const portfolio = symbols.map(i => ({
-        symbol: i,
-        volume: portfolioList[i].map(i => i.volume).reduce((a, b) =>  a+b, 0),
-        averagePrice: (portfolioList[i].map(j => j.price*j.volume).reduce((a, b) => a+b, 0))/
-            portfolioList[i].map(i => i.volume).reduce((a, b) =>  a+b, 0),
-    }));
     return {
         history: history,
         orders: orders,
-        portfolio: portfolio
     };
+};
+
+const getPortfolios = async function (token) {
+    const getIdStr = "SELECT id FROM user WHERE access_token = ?";
+    const result = (await query(getIdStr, token));
+    if (result === undefined) {
+        return {error: "Wrong authorization"};
+    }
+    const id = result[0].id;
+    const selectStr = "SELECT symbol, action, sub_action, price, volume FROM orders WHERE user_id = ? and success = 1";
+    const results = await query(selectStr, id);
+    if (results.length === 0) {
+        return {error: "You don't have any portfolios yet"};
+    }
+    results.forEach(i => {
+        if (i.sub_action === "buy" || i.sub_action === "short") {
+            i.multiple = i.price * i.volume;
+        } else {
+            i.multiple = - i.price * i.volume;
+            i.volume = -i.volume;
+        }
+    });
+    const portfolioList = _.groupBy(results, "symbol");
+    let portfolio = [];
+    Object.values(portfolioList).forEach(i => {
+        const group = _.groupBy(i, "action");
+        Object.values(group).forEach(j => {
+            const volume = _.sumBy(j, "volume");
+            const averagePrice = _.sumBy(j, "multiple")/volume;
+            const data = {
+                symbol: j[0].symbol,
+                action: j[0].action,
+                volume: volume,
+                price: averagePrice
+            };
+            portfolio.push(data);
+        });
+    });
+    for (let i of portfolio) {
+        const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i.symbol}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
+        if (current === undefined) {
+            return {error: "Please wait for a bit"};
+        }
+        i.current = current["05. price"];
+        i.changePercent = (i.current - i.price) / i.price;
+    }
+    return portfolio;
 };
 
 
@@ -175,5 +218,6 @@ module.exports = {
     nativeSignIn,
     addRemoveWatchlist,
     getWatchlist,
-    getOrders
+    getOrders,
+    getPortfolios
 };

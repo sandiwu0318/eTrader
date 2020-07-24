@@ -28,11 +28,17 @@ const getIntradayPrices = async function (symbol) {
             period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 20)).getTime()/1000);
         }
         const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${period1}&period2=${period2}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
-        const data = {
-            times: response.data.chart.result[0].timestamp.map(i => new Date((i-14400)*1000)),
-            prices: response.data.chart.result[0].indicators.quote[0].close,
-            volumes: response.data.chart.result[0].indicators.quote[0].volume,
-        };
+        let data;
+        if (response.data.chart.result[0].timestamp === undefined) {
+            console.log("Unavailable to get the data now");
+            return {error: "Unavailable to get the data now"};
+        } else {
+            data = {
+                times: response.data.chart.result[0].timestamp.map(i => new Date((i-14400)*1000)),
+                prices: response.data.chart.result[0].indicators.quote[0].close,
+                volumes: response.data.chart.result[0].indicators.quote[0].volume,
+            };
+        }
         for (let i =0; i<data.prices.length; i++) {
             if (data.prices[i] === null) {
                 data.prices[i] = data.prices[i-1];
@@ -112,18 +118,27 @@ const getBasicInfo = async function (symbol) {
             return basicInfo;
         } else {
             return {
-                symbol: result[0].symbol,
-                prevClose: result[0].prevClose,
-                dayRange: result[0].dayRange,
-                averageVolume: result[0].averageVolume,
-                annualReturn: result[0].annualReturn,
-                beta: result[0].beta,
-                marketCap: result[0].marketCap,
-                eps: result[0].eps,
-                peRation: result[0].peRation,
-                dividend: result[0].dividend,
+                Symbol: result[0].symbol,
+                "Previous Closing": result[0].prevClose,
+                "Day Range": result[0].dayRange,
+                "Average Volume": result[0].averageVolume,
+                "Annual Return": result[0].annualReturn,
+                "Beta": result[0].beta,
+                "Market Cap": result[0].marketCap,
+                "EPS": result[0].eps,
+                "PE Ration": result[0].peRation,
+                "Dividend": result[0].dividend,
                 financialChart: JSON.parse(result[0].financialChart),
-                profile: JSON.parse(result[0].profile),
+                profile: {
+                    Sector: JSON.parse(result[0].profile).sector,
+                    Industry: JSON.parse(result[0].profile).industry,
+                    Country: JSON.parse(result[0].profile).country,
+                    City: JSON.parse(result[0].profile).city,
+                    State: JSON.parse(result[0].profile).state,
+                    Employees: JSON.parse(result[0].profile).fullTimeEmployees,
+                    Website: JSON.parse(result[0].profile).website,
+                    longBusinessSummary: JSON.parse(result[0].profile).longBusinessSummary
+                }
             };
         }
     } catch(error) {

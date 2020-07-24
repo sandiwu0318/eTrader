@@ -30,10 +30,17 @@ const getOrders = async (req, res) => {
     res.status(200).json({data: getOrders});
 };
 
+const getPortfolios = async (req, res) => {
+    const { token } = req.body;
+    const getPortfolios = await User.getPortfolios(token);
+    res.status(200).json({data: getPortfolios});
+};
+
 module.exports = {
     signUp,
     nativeSignIn,
     addRemoveWatchlist,
     getWatchlist,
-    getOrders
+    getOrders,
+    getPortfolios
 };

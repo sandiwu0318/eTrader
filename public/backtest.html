@@ -53,6 +53,7 @@
             <br>
             <label class="test_label">Indicator</label>
             <select type="text" class="test_input indicator">
+                <option value="price">Price</option>
                 <option value="RSI">RSI</option>
                 <option value="BB">BB</option>
                 <option value="SMA">SMA</option>
@@ -63,7 +64,7 @@
                 <div id="indicator_info_icon">i</div>
                 <div id="indicator_info_content">
                     <p class="info_title">RSI (relative strength index):</p>
-                    <p class="info_content">Usually overbought when above 70% and oversold when below 30%.</p>
+                    <p class="info_content">The magnitude of recent price changes to evaluate overbought or oversold.</p>
                     <br>
                     <p class="info_title">BB (Bollinger Bands):</p>
                     <p class="info_content">Middle line is SMA. Upper and Lower Bands are 2 standard deviations away from the middle.</p>
@@ -94,7 +95,23 @@
             <label class="test_label">Volume</label>
             <input type="text" class="test_input volume"/>
             <br>
-            <div class="RSI_test show">
+            <div class="price_test show">
+                <label class="test_label">Action Timing</label>
+                <select type="text" class="price_test test_input actionCross">
+                    <option value="crossup">Price Crossup</option>
+                    <option value="crossdown">Price Crossdown</option>
+                </select>
+                <input type="text" class="price_test test_input actionValue"/>
+                <br>
+                <label class="test_label">Exit Timing</label>
+                <select type="text" class="price_test test_input exitCross">
+                    <option value="crossup">Price Crossup</option>
+                    <option value="crossdown">Price Crossdown</option>
+                </select>
+                <input type="text" class="price_test test_input exitValue"/>
+                <br>
+            </div>
+            <div class="RSI_test hide">
                 <label class="test_label">Action Timing</label>
                 <select type="text" class="RSI_test test_input actionCross">
                     <option value="crossup">RSI Crossup</option>

@@ -10,14 +10,13 @@ button,
 input,
 select,
 a,
-div,
 body {
     font-size: 1.1rem;
     line-height: 1.5rem;
-    font-family: 'Roboto', sans-serif;
     letter-spacing: 0.05rem;
     font-style: normal;
     font-weight: 300;
+    font-family: 'Roboto', sans-serif;
     text-decoration: none;
     color: rgb(66, 66, 66);
 }
@@ -641,6 +640,10 @@ body {
 #result_graph {
     width: 80%;
     margin: 2rem auto;
+}
+
+.indicatorPeriod {
+    display: none;
 }
 
 .graph {

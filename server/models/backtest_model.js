@@ -16,6 +16,10 @@ const getData = async function (periods, symbol, indicator, indicatorPeriod) {
             period: parseInt(indicatorPeriod)
         };
         switch(indicator) {
+        case "price": {
+            indicatorValue = response;
+            break;
+        }
         case "RSI": {
             indicatorValue = RSI.calculate(calculateValue);
             break;
@@ -40,7 +44,7 @@ const getData = async function (periods, symbol, indicator, indicatorPeriod) {
         }
         let arr = new Array(indicatorPeriod).fill(0);
         indicatorValue = arr.concat(indicatorValue);
-        const data = {
+        let data = {
             symbol: symbol,
             indicator: indicator,
             indicatorPeriod: indicatorPeriod,
@@ -48,6 +52,9 @@ const getData = async function (periods, symbol, indicator, indicatorPeriod) {
             prices: response.map(i => i.price),
             values: indicatorValue,
         };
+        if (indicator === "price") {
+            delete data.values;
+        }
         return data;
     } catch(error) {
         await rollback();
@@ -84,6 +91,10 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
             };
         }
         switch(indicator) {
+        case "price": {
+            indicatorValue = response.map(i => i.price);
+            break;
+        }
         case "RSI": {
             indicatorValue = RSI.calculate(calculateValue);
             break;
@@ -136,7 +147,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
                 lineA: response.map(i => i.price),
                 lineB: arr.concat(indicatorValue.map(i => i[exitValue]))
             };
-        } else if (indicator === "RSI") {
+        } else if (indicator === "RSI" || indicator === "price") {
             actionInput = {
                 lineA: arr.concat(indicatorValue),
                 lineB: new Array(newIndicatorValue.length).fill(actionValue)

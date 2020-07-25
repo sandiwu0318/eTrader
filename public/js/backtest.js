@@ -91,7 +91,7 @@ showGraphBtn.addEventListener("click",
                             opacity: 0.5
                         };
                         plotData.push(indicatorTrace1, indicatorTrace2, indicatorTrace3);
-                    } else {
+                    } else if (response.indicator !== "price") {
                         let indicatorTrace = {
                             x: response.times.map(i => i.substr(0,10)),
                             y: response.values,
@@ -99,7 +99,6 @@ showGraphBtn.addEventListener("click",
                             name: response.indicator,
                             yaxis: "y1",
                         };
-                        
                         switch (response.indicator) {
                             case "RSI": {
                                 layout.yaxis2 = {
@@ -175,7 +174,7 @@ function showResult(div_id, ul_id, response) {
             marker: {color: "#046900"},
         };
         plotData.push(indicatorTrace1, indicatorTrace2);
-    } else if (response.indicator === "RSI"){
+    } else if (response.indicator === "RSI" || response.indicator === "price"){
         indicatorTrace = {
             x: response.chart.times.map(i => i.substr(0,10)),
             y: response.chart.values,
@@ -203,6 +202,10 @@ function showResult(div_id, ul_id, response) {
         if (response.action === "short") {
             indicatorActionTrace1.marker.color = "#046900";
             indicatorActionTrace2.marker.color = "#920000";
+        }
+        if (response.indicator === "price") {
+            indicatorActionTrace1.yaxis = "y1";
+            indicatorActionTrace2.yaxis = "y1";
         }
     } else {
         const indicatorTrace1 = {
@@ -265,22 +268,12 @@ function showResult(div_id, ul_id, response) {
         bgcolor: '#046900',
         opacity: 0.8
     }))
-    if (response.indicator === "RSI") {
+    if (response.indicator === "RSI" || response.indicator === "price") {
         if (response.action === "short") {
             indicatorActionTrace1.x = sellFilter.map(i => i.time.substr(0,10));
             indicatorActionTrace2.x = buyFilter.map(i => i.time.substr(0,10));
         }
         plotData.push(indicatorTrace,indicatorActionTrace1,indicatorActionTrace2);
-    }
-    if (response.action === "short") {
-        buyArrow.forEach(i => {
-            i.y = exitValue;
-            i.ay = -40
-        });
-        sellArrow.forEach(i => {
-            i.y = actionValue;
-            i.ay = 40
-        });
     }
     if (response.indicator == "BB") {
         switch(response.action) {
@@ -333,6 +326,14 @@ function showResult(div_id, ul_id, response) {
                 break;
             }
             }
+    }
+    if (response.indicator === "price") {
+        buyArrow.forEach(i => {
+            i.yref = 'y1';
+        })
+        sellArrow.forEach(i => {
+            i.yref = 'y1';
+        })
     }
     let layout = {
         title: response.symbol,
@@ -547,9 +548,18 @@ const setOrder= function (data) {
 
 const indicator = getElement(".indicator");
 indicator.addEventListener("change", () => {    
+    const indicatorPeriods = document.getElementsByClassName("indicatorPeriod");
+    for (let i of indicatorPeriods) {
+        i.style.display = "inline-block"
+    }
     let selectClass;
     if (indicator.value.substr(1,2) === "MA") {
         selectClass = ".MA_test";
+    } else if (indicator.value === "price") {
+        selectClass = `.price_test`;
+        for (let i of indicatorPeriods) {
+            i.style.display = "none"
+        }
     } else {
         selectClass = `.${indicator.value}_test`;
     }
@@ -611,7 +621,6 @@ viewHistoryBtn.addEventListener("click", async function (e) {
             delete data.user_id;
             delete data.investmentReturn;
             delete data.ROI;
-            console.log(data);
             const res1 = await fetch("/api/1.0/backtest/testWithIndicator", {
                 method: "POST",
                 body: JSON.stringify(data),

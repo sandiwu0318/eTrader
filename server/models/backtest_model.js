@@ -366,9 +366,9 @@ const saveBacktestResult = async function (token, periods, symbol, action, volum
             volume: volume,
             indicator: indicator,
             indicatorPeriod: indicatorPeriod,
-            actionValue: actionValue,
+            actionValue: JSON.stringify(actionValue),
             actionCross: actionCross,
-            exitValue: exitValue,
+            exitValue: JSON.stringify(exitValue),
             exitCross: exitCross,
             investmentReturn: investmentReturn,
             ROI: ROI,
@@ -379,8 +379,11 @@ const saveBacktestResult = async function (token, periods, symbol, action, volum
         await query(insertStr, data);
         await commit();
         data.periods = periods;
+        data.actionValue = actionValue;
+        data.exitValue = exitValue;
         return data;
     } catch(error) {
+        console.log(error);
         await rollback();
         return {error};
     }

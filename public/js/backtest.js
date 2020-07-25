@@ -23,7 +23,7 @@ showGraphBtn.addEventListener("click",
             indicator: getElement(".indicator").value,
             indicatorPeriod: parseInt(getDataByClass("indicatorPeriod")[1]),
         }
-        // try {
+        try {
             const res = await fetch("/api/1.0/backtest/getData", {
                 method: "POST",
                 body: JSON.stringify(data),
@@ -135,9 +135,9 @@ showGraphBtn.addEventListener("click",
                 showGraph("chart", resJson);
                 scrollTo(0, 500);
             }
-        // } catch (err) {
-        //     console.log("price fetch failed, err");
-        // }
+        } catch (err) {
+            console.log("price fetch failed, err");
+        }
     }
 )
 
@@ -437,7 +437,7 @@ backtestBtn.addEventListener("click",
             data.exitValue = parseInt(values[3]),
             data.exitCross = values[2]
         }
-        // try {
+        try {
             const res = await fetch("/api/1.0/backtest/testWithIndicator", {
                 method: "POST",
                 body: JSON.stringify(data),
@@ -454,6 +454,8 @@ backtestBtn.addEventListener("click",
                 showResult("result_graph","result_ul", resJson);
                 getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson.investmentReturn)}</h2>`;
                 getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson.ROI*10000)/100)}%</h2>`;
+                data.actionValue = data.actionValue[0];
+                data.exitValue = data.exitValue[0];
                 setOrder(data);
                 scrollTo(0, 800);
                 const saveBtn = getElement("#saveBtn");
@@ -481,11 +483,41 @@ backtestBtn.addEventListener("click",
                         createList(`#saved_ul`, "title_li titles", ["Created","Start", "End", "Symbol", "Indicator", "Action", "ROI"])
                     }
                     createList(`#saved_ul`, "user_li saved_li", [resJson3.created_date.substr(0, 10), resJson3.periods[0],resJson3.periods[1], resJson3.symbol, resJson3.indicator, resJson3.action, `${Math.floor(resJson3.ROI*10000)/100}%`]);
+                    const saved_lis = document.getElementsByClassName("saved_li");
+                    saved_lis[saved_lis.length-1].addEventListener("click", async function() {
+                        removeChild("profit");
+                        removeChild("ROI");
+                        removeChild("result_container");
+                        if (getElement("#setOrderBtn")) {
+                            removeItem("setOrderBtn");
+                        }
+                        const newData = resJson3;
+                        delete newData.id;
+                        delete newData.user_id;
+                        delete newData.investmentReturn;
+                        delete newData.ROI;
+                        const res1 = await fetch("/api/1.0/backtest/testWithIndicator", {
+                            method: "POST",
+                            body: JSON.stringify(newData),
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const resJson1 = (await res1.json()).data;
+                        createButton("btn", "setOrderBtn", "test_form", "Set order with this strategy")
+                        showResult("result_graph","result_ul", resJson1);
+                        getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
+                        getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
+                        newData.actionValue = resJson3.actionValue[0];
+                        newData.exitValue = resJson3.exitValue[0];
+                        setOrder(newData);
+                        window.scrollTo(0, 500);
+                    })
                 })
             }
-        // } catch (err) {
-        //     console.log("price fetch failed", err);
-        // }
+        } catch (err) {
+            console.log("price fetch failed", err);
+        }
     }
 )
 
@@ -497,7 +529,8 @@ const setOrder= function (data) {
         let data1 = {
             token: token,
             symbol: data.symbol,
-            action: "buy",
+            action: "long",
+            sub_action: "buy",
             value: data.actionValue,
             category: data.indicator,
             cross: data.actionCross,
@@ -508,7 +541,8 @@ const setOrder= function (data) {
         let data2 = {
             token: token,
             symbol: data.symbol,
-            action: "sell",
+            action: "long",
+            sub_action: "sell",
             value: data.exitValue,
             category: data.indicator,
             cross: data.exitCross,
@@ -518,6 +552,8 @@ const setOrder= function (data) {
         }
         if (data.action === "short") {
             data1.action = "short";
+            data1.sub_action = "short";
+            data2.action = "short";
             data2.action = "short cover";
         }
         if (data.indicator.substr(1,2) === "MA") {
@@ -616,14 +652,14 @@ viewHistoryBtn.addEventListener("click", async function (e) {
             if (getElement("#setOrderBtn")) {
                 removeItem("setOrderBtn");
             }
-            const data = resJson[i];
-            delete data.id;
-            delete data.user_id;
-            delete data.investmentReturn;
-            delete data.ROI;
+            const newData = resJson[i];
+            delete newData.id;
+            delete newData.user_id;
+            delete newData.investmentReturn;
+            delete newData.ROI;
             const res1 = await fetch("/api/1.0/backtest/testWithIndicator", {
                 method: "POST",
-                body: JSON.stringify(data),
+                body: JSON.stringify(newData),
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -633,7 +669,9 @@ viewHistoryBtn.addEventListener("click", async function (e) {
             showResult("result_graph","result_ul", resJson1);
             getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
             getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
-            setOrder(data);
+            newData.actionValue = newData.actionValue[0];
+            newData.exitValue = newData.exitValue[0];
+            setOrder(newData);
             window.scrollTo(0, 500);
         })
     }

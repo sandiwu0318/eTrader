@@ -34,12 +34,11 @@ const setOrder = async function (token, symbol, category, value, indicatorPeriod
             success: 0
         };
         if (title.substr(1, 2) === "MA") {
-            order[title] = `${JSON.stringify(value)}`;
+            order["MA"] = `${JSON.stringify(value)}`;
         } else {
             order[title] = value;
         }
         order["category"] = title;
-        console.log(order);
         const queryStr = "INSERT INTO orders SET ?";
         await query(queryStr, order);
         await commit();

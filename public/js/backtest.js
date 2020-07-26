@@ -1,4 +1,4 @@
-import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, getSymbols, searchSymbol} from "./utils.js";
+import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, getSymbols, getInputSymbols, searchSymbol} from "./utils.js";
 window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
@@ -33,7 +33,12 @@ showGraphBtn.addEventListener("click",
             });
             const resJson = (await res.json()).data;
             if (resJson.error) {
-                alert(resJson.error);
+                Swal.fire({
+                    title: "Error!",
+                    text: resJson.error,
+                    icon: "error",
+                    confirmButtonText: "Ok"
+                });
             } else {
                 function showGraph(id, response) {
                     let plotData = [];
@@ -212,7 +217,7 @@ function showResult(div_id, ul_id, response) {
             x: response.chart.times.map(i => i.substr(0,10)),
             y: response.chart.values.map(i => i.actionValue1),
             type: "scatter",
-            name: `${response.indicator}${response.actionValue[0]}`,
+            name: `${response.indicator}${response.actionValue}`,
             yaxis: "y1",
             marker: {color: "#920000"},
         };
@@ -220,7 +225,7 @@ function showResult(div_id, ul_id, response) {
             x: response.chart.times.map(i => i.substr(0,10)),
             y: response.chart.values.map(i => i.actionValue2),
             type: "scatter",
-            name: `${response.indicator}${response.actionValue[1]}`,
+            name: `${response.indicator}${response.exitValue}`,
             yaxis: "y1",
             marker: {color: "#046900"},
         };
@@ -446,16 +451,24 @@ backtestBtn.addEventListener("click",
                 }
             });
             const resJson = (await res.json()).data;
+            console.log(resJson)
             if (resJson.error) {
-                alert(resJson.error);
+                Swal.fire({
+                    title: "Error!",
+                    text: resJson.error,
+                    icon: "error",
+                    confirmButtonText: "Ok"
+                });
             } else {
                 createButton("btn", "saveBtn", "test_form", "Save")
                 createButton("btn", "setOrderBtn", "test_form", "Set order with this strategy")
                 showResult("result_graph","result_ul", resJson);
                 getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson.investmentReturn)}</h2>`;
                 getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson.ROI*10000)/100)}%</h2>`;
-                data.actionValue = data.actionValue[0];
-                data.exitValue = data.exitValue[0];
+                if (data.indicator.substr(1 ,2) === "MA") {
+                    data.actionValue = data.actionValue[0];
+                    data.exitValue = data.exitValue[0];
+                }
                 setOrder(data);
                 scrollTo(0, 800);
                 const saveBtn = getElement("#saveBtn");
@@ -463,10 +476,11 @@ backtestBtn.addEventListener("click",
                     e.preventDefault();
                     checkLogin(token);
                     window.scrollTo(0, 0);
-                    let data3 = data;
+                    let data3 = Object.assign({}, data);
                     data3.token = token;
                     data3.investmentReturn = resJson.investmentReturn;
                     data3.ROI = resJson.ROI;
+                    console.log(data3)
                     const res3 = await fetch("/api/1.0/backtest/saveBacktestResult", {
                         method: "POST",
                         body: JSON.stringify(data3),
@@ -475,6 +489,7 @@ backtestBtn.addEventListener("click",
                         }
                     });
                     const resJson3 = (await res3.json()).data;
+                    console.log(resJson3)
                     if (!getElement("#saved_ul")) {
                         const ul = document.createElement("ul");
                         ul.id = "saved_ul";
@@ -491,7 +506,7 @@ backtestBtn.addEventListener("click",
                         if (getElement("#setOrderBtn")) {
                             removeItem("setOrderBtn");
                         }
-                        const newData = resJson3;
+                        const newData = Object.assign({}, resJson3);
                         delete newData.id;
                         delete newData.user_id;
                         delete newData.investmentReturn;
@@ -503,13 +518,17 @@ backtestBtn.addEventListener("click",
                                 'Content-Type': 'application/json'
                             }
                         });
+                        
                         const resJson1 = (await res1.json()).data;
+                        console.log(resJson1)
                         createButton("btn", "setOrderBtn", "test_form", "Set order with this strategy")
                         showResult("result_graph","result_ul", resJson1);
                         getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
                         getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
-                        newData.actionValue = resJson3.actionValue[0];
-                        newData.exitValue = resJson3.exitValue[0];
+                        if (newData.indicator.substr(1 ,2) === "MA") {
+                            newData.actionValue = resJson3.actionValue[0];
+                            newData.exitValue = resJson3.exitValue[0];
+                        }
                         setOrder(newData);
                         window.scrollTo(0, 500);
                     })
@@ -577,7 +596,12 @@ const setOrder= function (data) {
         const resJson1 = (await res1.json()).data;
         const resJson2 = (await res2.json()).data;
         if (!resJson1.error && !resJson2.error) {
-            alert("Orders places!");
+            Swal.fire({
+                title: "Success!",
+                text: "Order places",
+                icon: "success",
+                confirmButtonText: "Ok"
+            });
         }
     })
 }
@@ -622,6 +646,7 @@ viewHistoryBtn.addEventListener("click", async function (e) {
         }
     });
     const resJson = (await res.json()).data;
+    console.log(resJson)
     if (getElement("#saved_ul")) {
         removeChild("saved_ul");
         createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
@@ -643,20 +668,22 @@ viewHistoryBtn.addEventListener("click", async function (e) {
         e.preventDefault();
         window.location = "/backtest.html";
     })
+    console.log(resJson)
     const saved_lis = document.getElementsByClassName("saved_li");
     for (let i =0; i<saved_lis.length; i++) {
         saved_lis[i].addEventListener("click", async function() {
+            console.log(saved_lis[i])
             removeChild("profit");
             removeChild("ROI");
             removeChild("result_container");
             if (getElement("#setOrderBtn")) {
                 removeItem("setOrderBtn");
             }
-            const newData = resJson[i];
-            delete newData.id;
-            delete newData.user_id;
-            delete newData.investmentReturn;
-            delete newData.ROI;
+            const newData = Object.assign({}, resJson[i]);
+            if (newData.indicator.substr(1 ,2) === "MA") {
+                newData.actionValue = resJson[i].actionValue[0];
+                newData.exitValue = resJson[i].exitValue[0];
+            }
             const res1 = await fetch("/api/1.0/backtest/testWithIndicator", {
                 method: "POST",
                 body: JSON.stringify(newData),
@@ -665,12 +692,15 @@ viewHistoryBtn.addEventListener("click", async function (e) {
                 }
             });
             const resJson1 = (await res1.json()).data;
+            console.log(resJson1)
             createButton("btn", "setOrderBtn", "test_form", "Set order with this strategy")
             showResult("result_graph","result_ul", resJson1);
             getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
             getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
-            newData.actionValue = newData.actionValue[0];
-            newData.exitValue = newData.exitValue[0];
+            if (newData.indicator.substr(1 ,2) === "MA") {
+                newData.actionValue = parseInt(newData.actionValue[0]);
+                newData.exitValue = parseInt(newData.exitValue[0]);
+            }
             setOrder(newData);
             window.scrollTo(0, 500);
         })
@@ -688,4 +718,5 @@ container.addEventListener("mouseout", function() {
 
 
 getSymbols();
+getInputSymbols();
 searchSymbol();

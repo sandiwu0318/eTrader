@@ -18,12 +18,35 @@ const setOrder = async function (token, symbol, category, value, indicatorPeriod
             deadline = new Date(now.getTime()+1000*60*60*24*90);
             break;
         }
-        await transaction();
-        const selectStr = "SELECT id FROM user WHERE access_token = ?";
-        const result = await query(selectStr, token);
+        const selectIdStr = "SELECT id FROM user WHERE access_token = ?";
+        const result = await query(selectIdStr, token);
+        const user_id = result[0].id;
+        if (sub_action === "sell" || sub_action === "short cover") {
+            console.log([result[0].id, symbol, action]);
+            const selectOrdersStr = "SELECT * FROM orders WHERE user_id = ? AND symbol = ? AND action = ? AND success = 1";
+            const OrderResult = await query(selectOrdersStr, [user_id, symbol, action]);
+            switch(sub_action){
+            case "sell": {
+                const buyVolume = OrderResult.filter(i => i.sub_action === "buy").reduce((a, b) => (a+b.volume), 0);
+                const sellVolume = OrderResult.filter(i => i.sub_action === "sell").reduce((a, b) => (a+b.volume), 0);
+                if (buyVolume - sellVolume < volume) {
+                    return {error: "You don't have enough shares."};
+                }
+                break;
+            }
+            case "short cover": {
+                const buyVolume = OrderResult.filter(i => i.sub_action === "short").reduce((a, b) => (a+b.volume), 0);
+                const sellVolume = OrderResult.filter(i => i.sub_action === "short cover").reduce((a, b) => (a+b.volume), 0);
+                if (buyVolume - sellVolume < volume) {
+                    return {error: "You don't have enough shares."};
+                }
+                break;
+            }
+            }
+        }
         const title = `${category}`;
         let order = {
-            user_id: result[0].id,
+            user_id: user_id,
             symbol: symbol,
             volume: volume,
             action: action,
@@ -40,6 +63,7 @@ const setOrder = async function (token, symbol, category, value, indicatorPeriod
         }
         order["category"] = title;
         const queryStr = "INSERT INTO orders SET ?";
+        await transaction();
         await query(queryStr, order);
         await commit();
         return {message: "The order placed! You can check the result in History and Orders now."};

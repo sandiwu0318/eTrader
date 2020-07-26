@@ -7,9 +7,7 @@ const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js"
 const getData = async function (periods, symbol, indicator, indicatorPeriod) {
     try {
         const selectStr = "SELECT DISTINCT(time), price, volume FROM stock_price WHERE symbol=? AND time >= ? AND time <= ? ORDER BY time";
-        await transaction();
         const response = await query(selectStr, [symbol, periods[0], periods[1]]);
-        await commit();
         let indicatorValue;
         let calculateValue = {
             values: response.map(i => i.price),
@@ -57,9 +55,8 @@ const getData = async function (periods, symbol, indicator, indicatorPeriod) {
         }
         return data;
     } catch(error) {
-        await rollback();
         console.log(error);
-        return "Error when retrieving stock price for backtesting";
+        return {error};
     }
 };
 
@@ -67,10 +64,7 @@ const getData = async function (periods, symbol, indicator, indicatorPeriod) {
 const testWithIndicator = async function (periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross) {
     try {
         const selectStr = "SELECT DISTINCT(time), price, volume FROM stock_price WHERE symbol=? AND time >= ? AND time <= ? ORDER BY time";
-        await transaction();
         const response = await query(selectStr, [symbol, periods[0], periods[1]]);
-        await commit();
-        
         let indicatorValue;
         let calculateValue = {
             values: response.map(i => i.price),
@@ -189,7 +183,6 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
             break;
         }
         }
-        
         if (indicator.substr(1, 2) === "MA") {
             actionCrossArr = actionCrossArr.fill(false, 0, _.max([arr1.length+1, arr2.length+1]));
             exitCrossArr = exitCrossArr.fill(false, 0, _.max([arr1.length+1, arr2.length+1]));
@@ -197,7 +190,6 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
             actionCrossArr = actionCrossArr.fill(false, 0, arr.length+1);
             exitCrossArr = exitCrossArr.fill(false, 0, arr.length+1);
         }
-        
         let actionCrossIndex = [];
         let actionFirstIndex = 0;
         while(actionCrossArr.findIndex(i => i === true) !== -1) {
@@ -222,8 +214,6 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
             actionCrossIndex: actionCrossIndex,
             exitCrossIndex: exitCrossIndex
         };
-
-        
         let actionArr = [];
         let exitArr = [];
         switch(action) {
@@ -251,7 +241,6 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         }
         }
         const allArr = _.orderBy(actionArr.concat(exitArr), "index");
-
         let filterData = [];
         switch(action) {
         case "long": {
@@ -326,7 +315,6 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
             break;
         }
         }
-        
         const revenue = filterData.filter(i => i.action === "sell").reduce((a, b) => a+b.price, 0);
         const cost = filterData.filter(i => i.action === "buy").reduce((a, b) => a+b.price, 0);
         const investmentReturn = (revenue - cost);
@@ -348,7 +336,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         return singleData;
     } catch(error) {
         console.log(error);
-        return "Error when testing with indicators";
+        return {error};
     }
 };
 
@@ -366,14 +354,18 @@ const saveBacktestResult = async function (token, periods, symbol, action, volum
             volume: volume,
             indicator: indicator,
             indicatorPeriod: indicatorPeriod,
-            actionValue: JSON.stringify(actionValue),
+            actionValue: actionValue,
             actionCross: actionCross,
-            exitValue: JSON.stringify(exitValue),
+            exitValue: exitValue,
             exitCross: exitCross,
             investmentReturn: investmentReturn,
             ROI: ROI,
             created_date: today
         };
+        if(indicator.substr(1, 2) === "MA") {
+            data.actionValue = JSON.stringify(actionValue);
+            data.exitValue = JSON.stringify(exitValue);
+        }
         const insertStr = "INSERT INTO backtest_result SET ?";
         await transaction();
         await query(insertStr, data);
@@ -394,13 +386,17 @@ const getSavedResults = async function (token) {
         const selectStr = "SELECT id FROM user WHERE access_token = ?";
         const result = await query(selectStr, token);
         const selectTestsStr = "SELECT * FROM backtest_result WHERE USER_ID = ? ORDER BY id DESC";
-        await transaction();
         const results = await query(selectTestsStr, result[0].id);
-        await commit();
-        results.forEach(i => i.periods = JSON.parse(i.periods));
+        results.forEach(i => {
+            i.periods = JSON.parse(i.periods);
+            if (i.indicator.substr(1, 2) === "MA") {
+                i.actionValue = JSON.parse(i.actionValue);
+                i.exitValue = JSON.parse(i.exitValue);
+            }
+        });  
         return results;
     } catch(error) {
-        await rollback();
+        console.log(error);
         return {error};
     }
 };

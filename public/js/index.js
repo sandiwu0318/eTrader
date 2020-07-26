@@ -177,7 +177,12 @@ async function renderData(symbol, frequency){
                         }
                     });
                     const resJson4 = (await res4.json()).data;
-                    alert(resJson4.message);
+                    Swal.fire({
+                        title: "Success",
+                        text: resJson4.message,
+                        icon: "success",
+                        confirmButtonText: "Ok"
+                    })
                 } catch (err) {
                     console.log("set order fetch failed, err");
                 }
@@ -204,7 +209,12 @@ async function renderData(symbol, frequency){
                 });
                 const resJson5 = (await res5.json()).data;
                 if (resJson5.error) {
-                    alert(resJson5.error);
+                    Swal.fire({
+                        title: "Error",
+                        text: resJson.error,
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    })
                 } else {
                     const btn = getElement("#watchListBtn");
                     const watchlist = resJson5.watchlist;

@@ -19,7 +19,11 @@ async function getHistory() {
         });
         const resJson = (await res.json()).data;
         if (resJson.error) {
-            alert(resJson.error);
+            Swal.fire({
+                text: resJson.error,
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            })
         } else {
             const history = resJson.history;
             if (history.length !== 0) {
@@ -41,7 +45,11 @@ async function getHistory() {
                 });
                 newHistory.map(i => createList("#history_ul", "user_li", Object.values(i)));
             } else {
-                alert("You don't have any history yet")
+                Swal.fire({
+                    text: "You don't have any history yet",
+                    icon: "warning",
+                    confirmButtonText: "Ok"
+                })
             }
         }
     } catch (err) {

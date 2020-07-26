@@ -131,7 +131,6 @@ body {
     color: #ffffff;
 }
 
-
 /* ------Main Nav------- */
 
 
@@ -690,9 +689,9 @@ body {
 #indicator_info_content {
     display: none;
     position: absolute;
-    top: 1.5rem;
-    left: 1.5rem;
-    width: 50rem;
+    top: -2rem;
+    left: 2rem;
+    width: 46vw;
     font-size: 1rem;
     border: 1px solid white;
     border-radius: 0.3rem;

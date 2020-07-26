@@ -3,7 +3,11 @@ window.scrollTo(0, 0);
 const socket = io();
 socket.on("watchlist", (data) => {
     if (data.error) {
-        alert(data.error);
+        Swal.fire({
+            text: resJson.error,
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+        })
     } else {
         removeChild("watchlist_ul");
         data.map(i => createList("#watchlist_ul", "user_li", Object.values(i)));

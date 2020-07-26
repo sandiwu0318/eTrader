@@ -17,8 +17,20 @@ signUpBtn.addEventListener("click",
             })
             const resJson = (await res.json()).data;
             if (resJson.error) {
-                alert(resJson.error);
+                Swal.fire({
+                    title: "Error!",
+                    text: resJson.error,
+                    icon: "error",
+                    confirmButtonText: "Ok"
+                });
             } else {
+                await Swal.fire({
+                    title: "Success!",
+                    text: "sign up successfully",
+                    icon: "success",
+                    showConfirmButton: false,
+                    timer: "1000"
+                });
                 localStorage.setItem("token", resJson.accessToken);
                 window.location = localStorage.getItem("page");
             }
@@ -45,8 +57,20 @@ signInBtn.addEventListener("click",
             })
             const resJson = (await res.json()).data;
             if (resJson.error) {
-                alert(resJson.error);
+                Swal.fire({
+                    title: "Error!",
+                    text: resJson.error,
+                    icon: "error",
+                    confirmButtonText: "Ok"
+                })
             } else {
+                await Swal.fire({
+                    title: "Success!",
+                    text: "sign in successfully",
+                    icon: "success",
+                    showConfirmButton: false,
+                    timer: "1000"
+                });
                 localStorage.setItem("token", resJson.accessToken);
                 window.location = localStorage.getItem("page");
             }

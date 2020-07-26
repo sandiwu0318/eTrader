@@ -19,7 +19,11 @@ async function getPortfolios() {
         });
         const resJson = (await res.json()).data;
         if (resJson.error) {
-            alert(resJson.error);
+            Swal.fire({
+                text: resJson.error,
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            })
         } else {
             const portfolios = resJson;
             if (portfolios.length !== 0) {
@@ -55,7 +59,11 @@ async function getPortfolios() {
                 })
                 portfolios.filter(i => i.volume !== 0).map(i => createList("#portfolio_ul", "user_li",Object.values(i)));
             } else {
-                alert("You don't have any portfolios yet")
+                Swal.fire({
+                    text: "You don't have any portfolios yet",
+                    icon: "warning",
+                    confirmButtonText: "Ok"
+                })
             }
         }
     } catch (err) {

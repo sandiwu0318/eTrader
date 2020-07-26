@@ -19,10 +19,13 @@ async function getOrders() {
         });
         const resJson = (await res.json()).data;
         if (resJson.error) {
-            alert(resJson.error);
+            Swal.fire({
+                text: resJson.error,
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            })
         } else {
             const orders = resJson.orders;
-            console.log(orders)
             if (orders.length !== 0) {
                 let newOrders = []
                 orders.forEach(i => {
@@ -43,7 +46,11 @@ async function getOrders() {
                 console.log(data)
                 newOrders.map(i => createList("#orders_ul", "user_li",Object.values(i)));
             } else {
-                alert("You don't have any orders yet")
+                Swal.fire({
+                    text: "You don't have any orders yet",
+                    icon: "warning",
+                    confirmButtonText: "Ok"
+                })
             }
         }
     } catch (err) {

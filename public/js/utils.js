@@ -153,9 +153,14 @@ function createChart(data, frequency) {
     Plotly.newPlot("priceChart", chartData, priceLayout);
 }
 
-function checkLogin(token) {
+async function checkLogin(token) {
     if (token === null) {
-        alert("Please login first!");
+        await Swal.fire({
+            title: "Please login first!",
+            icon: 'warning',
+            showConfirmButton: false,
+            timer: "800",
+        })
         localStorage.setItem("page", window.location.href);
         window.location = "/login.html";
     } else {
@@ -257,6 +262,16 @@ async function getSymbols() {
     autocomplete(getElement("#symbol_search"), symbolList);
 }
 
+async function getInputSymbols() {
+    const res = (await fetch(`/api/1.0/stock/symbolList`));
+    const resJson = (await res.json()).data;
+    const symbolList = resJson.map(i => `${i.symbol}`);
+    autocomplete(getElement("#input_symbol_search"), symbolList);
+}
+
+
+
+
 function searchSymbol() {
     const searchBtn = getElement("#searchBtn");
     searchBtn.addEventListener("click", function () {
@@ -284,5 +299,6 @@ export {
     checkLogin,
     showLoginBtn,
     getSymbols,
+    getInputSymbols,
     searchSymbol
 };

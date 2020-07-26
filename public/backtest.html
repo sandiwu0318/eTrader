@@ -42,14 +42,16 @@
     <div id="saved_results">
     </div>
     <div class="test_case">
-        <form id="test_form">
+        <form autocomplete="off" id="test_form">
             <label class="test_label">Date Range</label>
             <input type="date" class="test_input period"/>
             <input type="date" class="test_input period"/>
             <button type="button" class="btn" id="viewHistoryBtn">Saved results</button>
             <br>
             <label class="test_label">Stock Symbol</label>
-            <input type="text" class="test_input symbol"/>
+            <div class="autocomplete input_symbol_search">
+                <input type="text" class="test_input symbol" onfocus="this.value=''" id="input_symbol_search"/>
+            </div>
             <br>
             <label class="test_label">Indicator</label>
             <select type="text" class="test_input indicator">
@@ -63,19 +65,24 @@
             <div id="indicator_info_container">
                 <div id="indicator_info_icon">i</div>
                 <div id="indicator_info_content">
-                    <p class="info_title">RSI (relative strength index):</p>
+                    <p class="info_title">RSI (relative strength index)</p>
+                    <br>
                     <p class="info_content">The magnitude of recent price changes to evaluate overbought or oversold.</p>
                     <br>
-                    <p class="info_title">BB (Bollinger Bands):</p>
+                    <p class="info_title">BB (Bollinger Bands)</p>
+                    <br>
                     <p class="info_content">Middle line is SMA. Upper and Lower Bands are 2 standard deviations away from the middle.</p>
                     <br>
-                    <p class="info_title">SMA (Simple Moving Average):</p>
+                    <p class="info_title">SMA (Simple Moving Average)</p>
+                    <br>
                     <p class="info_content">Average price over a specified period.</p>
                     <br>
-                    <p class="info_title">WMA (Weighted Moving Average):</p>
+                    <p class="info_title">WMA (Weighted Moving Average)</p>
+                    <br>
                     <p class="info_content">Like SMA but applies more weight to data that is more current.</p>
                     <br>
-                    <p class="info_title">EMA (Exponential Moving Average):</p>
+                    <p class="info_title">EMA (Exponential Moving Average)</p>
+                    <br>
                     <p class="info_content">Like WMA but applies exponentially.</p>
                 </div>
             </div>
@@ -172,14 +179,10 @@
             <button type="button" class="btn" id="backtestBtn">Backtest</button>
         </form>
     </div>
-    <!-- <form id="code_form">
-        <textarea id="backtest_code" placeholder="Write your own code"></textarea>
-        <br>
-        <button type="button" class="btn" id="codeBtn">Test with my code</button>
-    </form> -->
     <div class="user_ul" id="profit"></div>
     <div class="user_ul" id="ROI"></div>
     <div id="result_container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script type="module" src="js/backtest.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

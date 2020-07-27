@@ -7,6 +7,13 @@ showLoginBtn(token);
 const showGraphBtn = getElement("#showGraphBtn");
 showGraphBtn.addEventListener("click",
     async function (){
+        Swal.fire({
+            title: "Loading",
+            allowOutsideClick: false,
+            onBeforeOpen: () => {
+                Swal.showLoading()
+            },
+        });
         removeChild("result_container");
         removeChild("profit");
         removeChild("ROI");
@@ -48,6 +55,7 @@ showGraphBtn.addEventListener("click",
                         }
                     });
                     const resJson = (await res.json()).data;
+                    swal.close();
                     if (resJson.error) {
                         Swal.fire({
                             title: "Error!",
@@ -233,10 +241,6 @@ function showResult(div_id, ul_id, response) {
             indicatorActionTrace1.marker.color = "#046900";
             indicatorActionTrace2.marker.color = "#920000";
         }
-        if (response.indicator === "price") {
-            indicatorActionTrace1.yaxis = "y1";
-            indicatorActionTrace2.yaxis = "y1";
-        }
     } else {
         const indicatorTrace1 = {
             x: response.chart.times.map(i => i.substr(0,10)),
@@ -298,12 +302,31 @@ function showResult(div_id, ul_id, response) {
         bgcolor: '#046900',
         opacity: 0.8
     }))
+    console.log(buyArrow)
     if (response.indicator === "RSI" || response.indicator === "price") {
         if (response.action === "short") {
             indicatorActionTrace1.x = sellFilter.map(i => i.time.substr(0,10));
             indicatorActionTrace2.x = buyFilter.map(i => i.time.substr(0,10));
+            buyArrow.forEach(i => {
+                i.y = exitValue;
+            })
+            sellArrow.forEach(i => {
+                i.y = actionValue;
+            })
         }
-        plotData.push(indicatorTrace,indicatorActionTrace1,indicatorActionTrace2);
+        if (response.indicator === "RSI") {
+            plotData.push(indicatorTrace,indicatorActionTrace1,indicatorActionTrace2);    
+        } else {
+            indicatorActionTrace1.yaxis = "y1";
+            indicatorActionTrace2.yaxis = "y1";
+            buyArrow.forEach(i => {
+                i.yref = 'y1';
+            })
+            sellArrow.forEach(i => {
+                i.yref = 'y1';
+            })
+            plotData.push(indicatorActionTrace1,indicatorActionTrace2);    
+        }
     }
     if (response.indicator == "BB") {
         switch(response.action) {
@@ -364,6 +387,14 @@ function showResult(div_id, ul_id, response) {
         sellArrow.forEach(i => {
             i.yref = 'y1';
         })
+        if (response.action === "short") {
+            buyArrow.forEach(i => {
+                i.y = exitValue;
+            })
+            sellArrow.forEach(i => {
+                i.y = actionValue;
+            }) 
+        }
     }
     let layout = {
         title: response.symbol,
@@ -425,6 +456,13 @@ function showResult(div_id, ul_id, response) {
 const backtestBtn = getElement("#backtestBtn");
 backtestBtn.addEventListener("click",
     async function (){
+        Swal.fire({
+            title: "Loading",
+            allowOutsideClick: false,
+            onBeforeOpen: () => {
+                Swal.showLoading()
+            },
+        });
         removeChild("result_container");
         removeChild("graph_container");
         removeChild("profit");
@@ -476,6 +514,7 @@ backtestBtn.addEventListener("click",
                 }
             });
             const resJson = (await res.json()).data;
+            swal.close();
             if (resJson.error) {
                 Swal.fire({
                     title: "Error!",
@@ -744,12 +783,16 @@ MA_action_exitValue.addEventListener("input", (e) => {
 
 const action = getElement(".action");
 action.addEventListener("change", () => {
+    getElement("#RSI_actionValue_input").value = "";
+    getElement("#RSI_exitValue_input").value = "";
+    getElement("#MA_actionValue_input").value = "";
+    getElement("#MA_actionValue_input").value = "";
     if (action.value === "short") {
         getElement("#RSI_actionValue_input").placeholder = "ex. 70";
         getElement("#RSI_exitValue_input").placeholder = "ex. 30";
         getElement("#BB_actionValue").selectedIndex = 2;
         getElement("#BB_exitValue").selectedIndex = 2;
-        getElement("#MA_actionValue_input").placeholder = "ex. 14";
+        getElement("#MA_exitValue_input").placeholder = "ex. 14";
         getElement("#MA_exitValue_input").placeholder = "ex. 6";
     } else {
         getElement("#RSI_actionValue_input").placeholder = "ex. 30";

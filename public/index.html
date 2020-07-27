@@ -49,8 +49,8 @@
                     <option value="short">short</option>
                     <option value="short cover">short cover</option>
                 </select>
-                <input type="number" step="0.01" class="input price" id="price" placeholder="Price">
-                <input type="number" class="input volume" id="volume" placeholder="volume">
+                <input type="number" min="0.01" step="0.01" class="input price" id="price" placeholder="Price">
+                <input type="number" min="1" class="input volume" id="volume" placeholder="Amount">
                 <select class="input" id="expiration">
                     <option disabled>Expiration</option>
                     <option value="1 day">1 day</option>

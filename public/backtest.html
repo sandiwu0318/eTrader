@@ -99,8 +99,8 @@
                 <option value="short">short</option>
             </select>
             <br>
-            <label class="test_label">Volume</label>
-            <input type="number" class="test_input volume"/>
+            <label class="test_label">Amount</label>
+            <input type="number" min="1" class="test_input volume"/>
             <br>
             <div class="price_test show">
                 <label class="test_label">Action Timing</label>
@@ -108,14 +108,14 @@
                     <option value="crossup">Price Crossup</option>
                     <option value="crossdown">Price Crossdown</option>
                 </select>
-                <input type="number" class="price_test test_input actionValue"/>
+                <input type="number" step="0.01" min="0.01" class="price_test test_input actionValue"/>
                 <br>
                 <label class="test_label">Exit Timing</label>
                 <select type="text" class="price_test test_input exitCross">
                     <option value="crossup">Price Crossup</option>
                     <option value="crossdown">Price Crossdown</option>
                 </select>
-                <input type="number" class="price_test test_input exitValue"/>
+                <input type="number" step="0.01" min="0.01"  class="price_test test_input exitValue"/>
                 <br>
             </div>
             <div class="RSI_test hide">
@@ -124,32 +124,32 @@
                     <option value="crossup">RSI Crossup</option>
                     <option value="crossdown">RSI Crossdown</option>
                 </select>
-                <input type="number" class="RSI_test test_input actionValue" placeholder="ex. 30" id="RSI_actionValue_input"/>
+                <input type="number" min="1" class="RSI_test test_input actionValue" placeholder="ex. 30" id="RSI_actionValue_input"/>
                 <br>
                 <label class="test_label">Exit Timing</label>
                 <select type="text" class="RSI_test test_input exitCross">
                     <option value="crossup">RSI Crossup</option>
                     <option value="crossdown">RSI Crossdown</option>
                 </select>
-                <input type="number" class="RSI_test test_input exitValue" placeholder="ex. 70" id="RSI_exitValue_input"/>
+                <input type="number" min="1" class="RSI_test test_input exitValue" placeholder="ex. 70" id="RSI_exitValue_input"/>
                 <br>
             </div>
             <div class="MA_test hide">
                 <label class="test_label">Action Timing</label>
-                <input type="number" class="MA_test test_input actionValue" id="MA_actionValue_input" placeholder="ex. 6"/>
+                <input type="number" min="1" class="MA_test test_input actionValue" id="MA_actionValue_input" placeholder="ex. 6"/>
                 <select type="text" class="MA_test test_input actionCross">
                     <option value="crossup">Period crossup</option>
                     <option value="crossdown">Period crossdown</option>
                 </select>
-                <input type="number" class="MA_test test_input actionValue" id="MA_exitValue_input" placeholder="ex. 14"/>
+                <input type="number" min="1" class="MA_test test_input actionValue" id="MA_exitValue_input" placeholder="ex. 14"/>
                 <br>
                 <label class="test_label">Exit Timing</label>
-                <input type="number" class="MA_test test_input exitValue" id="MA_exitValue" disabled/>
+                <input type="number" min="1" class="MA_test test_input exitValue" id="MA_exitValue" disabled/>
                 <select type="text" class="MA_test test_input exitCross">
                     <option value="crossup">Period crossup</option>
                     <option value="crossdown">Period crossdown</option>
                 </select>
-                <input type="number" class="MA_test test_input actionValue" id="MA_actionValue" disabled/>
+                <input type="number" min="1" class="MA_test test_input actionValue" id="MA_actionValue" disabled/>
                 <br>
             </div>
             <div class="BB_test hide">

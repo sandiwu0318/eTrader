@@ -28,6 +28,7 @@ async function renderData(symbol, frequency){
     if (getElement("#news_title")) {
         removeItem("news_title");
     }
+    
     if (frequency === "1d") {
         socket.connect();
         socket.emit("symbol", symbol);
@@ -139,8 +140,7 @@ async function renderData(symbol, frequency){
     } else {
         watchlist = []
     }
-    const btn = document.createElement("button");
-    btn.id = "watchListBtn";
+    const btn = getElement("#watchListBtn");
     setWatchlistBtn(watchlist,symbol,btn);
     const form = getElement("#tradeForm");
     form.appendChild(btn);
@@ -255,7 +255,6 @@ searchBtn.addEventListener("click", function () {
         const symbol = getElement("#symbol_search").value.split(" ")[0];
         const frequency = getElement("#frequency").value;
         if (symbols.includes(symbol)) {
-            console.log(symbols)
             renderData(symbol, frequency);
         } else {
             Swal.fire({
@@ -276,10 +275,10 @@ searchBtn.addEventListener("click", function () {
 function setWatchlistBtn(watchlist,symbol,btn) {
     if (watchlist.includes(symbol)) {
         btn.className = "btn added";
-        btn.innerText = "- watchlist";
+        btn.innerText = "- Watchlist";
     } else {
         btn.className = "btn not_added";
-        btn.innerText = "+ watchlist";
+        btn.innerText = "+ Watchlist";
     }
 }
 

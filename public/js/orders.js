@@ -1,4 +1,4 @@
-import {createList, checkLogin, getSymbols, searchSymbol} from "./utils.js";
+import {createList, checkLogin, getSymbols, searchSymbol, removeItem} from "./utils.js";
 window.scrollTo(0, 0);
 const token = localStorage.getItem("token");
 checkLogin(token);
@@ -6,7 +6,7 @@ if (token !== null) {
     getOrders();
 }
 async function getOrders() {
-    // try {
+    try {
         const data = {
             token: token
         }
@@ -53,33 +53,36 @@ async function getOrders() {
                 const user_li = document.getElementsByClassName("user_li");
                 for (let i=0; i<user_li.length; i++) {
                     user_li[i].addEventListener("click", async function() {
-                        await Swal.fire({
+                        const result = await Swal.fire({
                             title: 'Delete it?',
                             text: "You won't be able to revert this!",
                             icon: 'warning',
                             showCancelButton: true,
+                            allowOutsideClick: false,
                             confirmButtonColor: '#3085d6',
                             cancelButtonColor: '#d33',
                             confirmButtonText: 'Yes, delete it!'
                         })
-                        const deleteData = {
-                            id: orders[i].id
-                        }
-                        console.log(deleteData)
-                        const res = await fetch(`/api/1.0/trade/deleteOrder`,{
-                            method: "POST",
-                            body: JSON.stringify(deleteData),
-                            headers: {
-                                'Content-Type': 'application/json'
+                        if (result.value) {
+                            const deleteData = {
+                                id: orders[i].id
                             }
-                        });
-                        const resJson1 = (await res.json()).data;
-                        if (resJson1.message) {
-                            Swal.fire(
-                                'Deleted!',
-                                'The order had been deleted.',
-                                'success'
-                            )
+                            const res = await fetch(`/api/1.0/trade/deleteOrder`,{
+                                method: "POST",
+                                body: JSON.stringify(deleteData),
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            const resJson1 = (await res.json()).data;
+                            if (resJson1.message) {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'The order had been deleted.',
+                                    'success'
+                                )
+                            }
+                            user_li[i].remove();
                         }
                     })
                 }
@@ -91,9 +94,9 @@ async function getOrders() {
                 })
             }
         }
-    // } catch (err) {
-    //     console.log("Orders fetch failed, err");
-    // }
+    } catch (err) {
+        console.log("Orders fetch failed, err");
+    }
 }
 
 

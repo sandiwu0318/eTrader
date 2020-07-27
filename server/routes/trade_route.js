@@ -4,7 +4,8 @@ const {wrapAsync} = require("../../utils/util");
 const {
     setOrder,
     matchPriceOrders,
-    matchIndicatorOrders
+    matchIndicatorOrders,
+    deleteOrder
     
 } = require("../controllers/trade_controller");
 
@@ -17,6 +18,9 @@ router.route("/trade/matchPriceOrders")
 
 router.route("/trade/matchIndicatorOrders")
     .get(wrapAsync(matchIndicatorOrders));
+
+router.route("/trade/deleteOrder")
+    .post(wrapAsync(deleteOrder));
 
 
 module.exports = router;

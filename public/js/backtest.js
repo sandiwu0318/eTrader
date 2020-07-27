@@ -461,7 +461,7 @@ backtestBtn.addEventListener("click",
                 });
             } else {
                 createButton("btn", "saveBtn", "test_form", "Save")
-                createButton("btn", "setOrderBtn", "test_form", "Set order with this strategy")
+                createButton("btn", "setOrderBtn", "test_form", "Set orders")
                 showResult("result_graph","result_ul", resJson);
                 getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson.investmentReturn)}</h2>`;
                 getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson.ROI*10000)/100)}%</h2>`;
@@ -693,7 +693,7 @@ viewHistoryBtn.addEventListener("click", async function (e) {
             });
             const resJson1 = (await res1.json()).data;
             console.log(resJson1)
-            createButton("btn", "setOrderBtn", "test_form", "Set order with this strategy")
+            createButton("btn", "setOrderBtn", "test_form", "Set orders")
             showResult("result_graph","result_ul", resJson1);
             getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
             getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;

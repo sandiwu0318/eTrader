@@ -108,14 +108,14 @@ const getWatchlist = async function (token, symbolOnly) {
     const result = await query(selectStr, token);
     let results = [];
     if (result[0].watchlist === null) {
-        results = [];
+        return {error: "You don't have any watchlist yet"};
     } else {
         if (symbolOnly === 1) {
             return result;
         }
         let watchlist = result[0].watchlist.split(",");
         if (watchlist.length === 1 && watchlist[0] === "") {
-            return;
+            return {error: "You don't have any watchlist yet"};
         }
         for (let i of watchlist) {
             const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];

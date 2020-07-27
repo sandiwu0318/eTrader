@@ -22,7 +22,6 @@ const setOrder = async function (token, symbol, category, value, indicatorPeriod
         const result = await query(selectIdStr, token);
         const user_id = result[0].id;
         if (sub_action === "sell" || sub_action === "short cover") {
-            console.log([result[0].id, symbol, action]);
             const selectOrdersStr = "SELECT * FROM orders WHERE user_id = ? AND symbol = ? AND action = ? AND success = 1";
             const OrderResult = await query(selectOrdersStr, [user_id, symbol, action]);
             switch(sub_action){
@@ -216,10 +215,24 @@ const matchIndicatorOrders = async function () {
     }
 };
 
+const deleteOrder = async function (id) {
+    try {
+        const deleteStr = "DELETE FROM orders WHERE id = ?";
+        await transaction();
+        await query(deleteStr, id);
+        await commit();
+        return {message: "success"};
+    } catch(error) {
+        await rollback();
+        return {error};
+    }
+};
+
 
 
 module.exports = {
     setOrder,
     matchPriceOrders,
-    matchIndicatorOrders
+    matchIndicatorOrders,
+    deleteOrder
 };

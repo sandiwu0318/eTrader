@@ -26,7 +26,9 @@ async function renderData(symbol, frequency){
     removeChild("show_symbol");
     removeChild("news_ul");
     removeChild("trade");
-
+    if (getElement("#news_title")) {
+        removeItem("news_title");
+    }
     if (frequency === "1d") {
         socket.connect();
         socket.emit("symbol", symbol);
@@ -111,6 +113,7 @@ async function renderData(symbol, frequency){
     const resJson2 = (await res2.json()).data;
     const news = document.createElement("h2");
     news.innerText = "News";
+    news.id = "news_title";
     getElement(".news_container").insertBefore(news, getElement("#news_ul"));
     resJson2.map(i => createListWithLink(`${i.title} | ${i.author} | ${i.time.substr(0,10)}`,i.link));
 

@@ -6,7 +6,7 @@ if (token !== null) {
     getOrders();
 }
 async function getOrders() {
-    try {
+    // try {
         const data = {
             token: token
         }
@@ -26,6 +26,7 @@ async function getOrders() {
             })
         } else {
             const orders = resJson.orders;
+            console.log(orders)
             if (orders.length !== 0) {
                 let newOrders = []
                 orders.forEach(i => {
@@ -49,6 +50,39 @@ async function getOrders() {
                     newOrders.push(data);
                 });
                 newOrders.map(i => createList("#orders_ul", "user_li",Object.values(i)));
+                const user_li = document.getElementsByClassName("user_li");
+                for (let i=0; i<user_li.length; i++) {
+                    user_li[i].addEventListener("click", async function() {
+                        await Swal.fire({
+                            title: 'Delete it?',
+                            text: "You won't be able to revert this!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, delete it!'
+                        })
+                        const deleteData = {
+                            id: orders[i].id
+                        }
+                        console.log(deleteData)
+                        const res = await fetch(`/api/1.0/trade/deleteOrder`,{
+                            method: "POST",
+                            body: JSON.stringify(deleteData),
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const resJson1 = (await res.json()).data;
+                        if (resJson1.message) {
+                            Swal.fire(
+                                'Deleted!',
+                                'The order had been deleted.',
+                                'success'
+                            )
+                        }
+                    })
+                }
             } else {
                 Swal.fire({
                     text: "You don't have any orders yet",
@@ -57,9 +91,9 @@ async function getOrders() {
                 })
             }
         }
-    } catch (err) {
-        console.log("Orders fetch failed, err");
-    }
+    // } catch (err) {
+    //     console.log("Orders fetch failed, err");
+    // }
 }
 
 

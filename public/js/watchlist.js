@@ -2,9 +2,11 @@ import {createList, checkLogin, removeChild, getSymbols, searchSymbol} from "./u
 window.scrollTo(0, 0);
 const socket = io();
 socket.on("watchlist", (data) => {
+    console.log(data)
     if (data.error) {
+        swal.close();
         Swal.fire({
-            text: resJson.error,
+            text: data.error,
             icon: 'warning',
             confirmButtonText: 'Ok'
         })

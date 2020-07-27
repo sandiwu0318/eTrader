@@ -490,7 +490,7 @@ body {
 
 .li_div {
     width: 35%;
-    width: 10rem;
+    width: 15%;
     margin: 0.5rem 0rem 0.5rem 5rem;
     font-weight: 100;
 }
@@ -562,6 +562,14 @@ body {
 .orders_titles .title,
 #orders_ul .li_div {
     margin: 0.5rem 0rem 0.5rem 3rem;
+}
+
+#orders_ul .user_li {
+    cursor: pointer;
+}
+
+#orders_ul .user_li:hover {
+    background-color: #3fa089
 }
 
 .pie_container {
@@ -657,10 +665,6 @@ body {
 
 .hide {
     display: none;
-}
-
-#setOrderBtn {
-    width: 20rem;
 }
 
 .saved_li {

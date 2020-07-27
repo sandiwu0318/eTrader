@@ -1,7 +1,7 @@
 require("dotenv").config();
 const CryptoJS = require("crypto-js");
 const crypto = require("crypto");
-const { ALPHAVANTAGE_API_KEY } = process.env;
+const { FINNHUB_API_KEY } = process.env;
 const axios = require("axios");
 const _ = require("lodash");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
@@ -118,16 +118,17 @@ const getWatchlist = async function (token, symbolOnly) {
             return {error: "You don't have any watchlist yet"};
         }
         for (let i of watchlist) {
-            const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
+            const current = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${i}&token=${FINNHUB_API_KEY}`)).data;
             if (current === undefined) {
                 return {error: "Please wait for a bit"};
             }
             const result = {
-                symbol: current["01. symbol"],
-                price: current["05. price"],
-                volume: current["06. volume"],
-                change: current["09. change"],
-                changePercent: current["10. change percent"],
+                symbol: i,
+                "opening price": current["o"],
+                "high price": current["h"],
+                "low price": current["l"],
+                "current price": current["c"],
+                "previous closing price": current["pc"],
             };
             results.push(result);
         }
@@ -196,11 +197,11 @@ const getPortfolios = async function (token) {
         });
     });
     for (let i of portfolio) {
-        const current = (await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${i.symbol}&apikey=${ALPHAVANTAGE_API_KEY}`)).data["Global Quote"];
+        const current = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${i.symbol}&token=${FINNHUB_API_KEY}`)).data;
         if (current === undefined) {
             return {error: "Please wait for a bit"};
         }
-        i.current = current["05. price"];
+        i.current = current["c"];
         i.changePercent = (i.current - i.price) / i.price;
     }
     return portfolio;

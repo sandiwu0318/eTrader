@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { ALPHAVANTAGE_API_KEY } = process.env;
+const { FINNHUB_API_KEY } = process.env;
 const {RSI, SMA, EMA, WMA, CrossUp, CrossDown} = require("technicalindicators");
 const BB = require("technicalindicators").BollingerBands;
 const axios = require("axios");
@@ -83,7 +83,7 @@ const matchPriceOrders = async function () {
         }
         for (let order of orders) {
             const symbol = order.symbol;
-            const markets = await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHAVANTAGE_API_KEY}`);
+            const markets = await axios.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`);
             const marketPrice = markets.data["Global Quote"]["05. price"];
             if (order.price >= marketPrice) {
                 await transaction();

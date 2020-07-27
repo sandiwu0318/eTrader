@@ -26,6 +26,7 @@ async function getPortfolios() {
         });
         const resJson = (await res.json()).data;
         if (resJson.error) {
+            swal.close();
             Swal.fire({
                 text: resJson.error,
                 icon: 'warning',

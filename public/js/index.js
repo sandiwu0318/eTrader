@@ -25,7 +25,6 @@ async function renderData(symbol, frequency){
     removeChild("intro");
     removeChild("show_symbol");
     removeChild("news_ul");
-    removeChild("trade");
     if (getElement("#news_title")) {
         removeItem("news_title");
     }
@@ -49,11 +48,11 @@ async function renderData(symbol, frequency){
     }
 
     //Basic info
+    getElement("#show_symbol").innerText = symbol;
     const res1 = await fetch(`/api/1.0/stock/getBasicInfo?symbol=${symbol}`);
     const resJson1 = (await res1.json()).data;
     const basicInfofilter = Object.keys(resJson1).slice(0,-2).filter(i => resJson1[i] !== null);
     const basicInfoData = basicInfofilter.map(i => [i, resJson1[i]]).reduce((a,b) => a.concat(b));
-    getElement("#show_symbol").innerText = symbol;
     createTitle("#basicInfo_ul", "Basic Info");
     createList("#basicInfo_ul", "basic_info", basicInfoData);
     
@@ -118,15 +117,6 @@ async function renderData(symbol, frequency){
     resJson2.map(i => createListWithLink(`${i.title} | ${i.author} | ${i.time.substr(0,10)}`,i.link));
 
     //Add trade button
-    if (getElement("#tradeForm") !== null) {
-        removeItem("tradeForm");
-    }
-    createForm("tradeForm", "trade");
-    createSelect("input", "action", ["buy", "sell", "short", "short cover"], "tradeForm");
-    createInput("price", "price", "Price", "tradeForm");
-    createInput("volume", "volume", "volume", "tradeForm");
-    createSelect("input", "expiration", ["1 day", "90 days"], "tradeForm");
-    createButton("btn", "tradeBtn", "tradeForm", "Set Order");
     let watchlist;
     if (token) {
         const data = {
@@ -165,40 +155,50 @@ async function renderData(symbol, frequency){
                 const volume = getElement("#volume").value;
                 const symbol = getElement("#show_symbol").innerText.split(" ")[0];
                 const period = getElement("#expiration").value;
-                try {
-                    let data = {
-                        sub_action: sub_action,
-                        value: price,
-                        volume: volume,
-                        symbol: symbol,
-                        period: period,
-                        token: token,
-                        category: "price",
-                        cross: null,
-                        indicatorPeriod: null,
-                    }
-                    if (sub_action === "buy" || sub_action === "sell") {
-                        data.action = "long";
-                    } else {
-                        data.action = "short";
-                    }
-                    const res4 = await fetch(`/api/1.0/trade/setOrder`,{
-                        method: "POST",
-                        body: JSON.stringify(data),
-                        headers: {
-                            'Content-Type': 'application/json'
+                if (sub_action && price && volume && symbol && period) {
+                    try {
+                        let data = {
+                            sub_action: sub_action,
+                            value: price,
+                            volume: volume,
+                            symbol: symbol,
+                            period: period,
+                            token: token,
+                            category: "price",
+                            cross: null,
+                            indicatorPeriod: null,
                         }
-                    });
-                    const resJson4 = (await res4.json()).data;
+                        if (sub_action === "buy" || sub_action === "sell") {
+                            data.action = "long";
+                        } else {
+                            data.action = "short";
+                        }
+                        const res4 = await fetch(`/api/1.0/trade/setOrder`,{
+                            method: "POST",
+                            body: JSON.stringify(data),
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const resJson4 = (await res4.json()).data;
+                        Swal.fire({
+                            title: "Success",
+                            text: resJson4.message,
+                            icon: "success",
+                            confirmButtonText: "Ok"
+                        })
+                    } catch (err) {
+                        console.log("set order fetch failed, err");
+                    }
+                } else {
                     Swal.fire({
-                        title: "Success",
-                        text: resJson4.message,
-                        icon: "success",
-                        confirmButtonText: "Ok"
+                        title: "Error",
+                        text: "Please make sure you filled out all the input",
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
                     })
-                } catch (err) {
-                    console.log("set order fetch failed, err");
                 }
+                
             }
         }
     )
@@ -244,7 +244,6 @@ if (symbol && frequency) {
     renderData(symbol, frequency);
     localStorage.removeItem('symbol');
     localStorage.removeItem('frequency');
-
 } else {
     renderData("AMZN", "1d")
 }
@@ -255,8 +254,18 @@ searchBtn.addEventListener("click", function () {
         //Chart
         const symbol = getElement("#symbol_search").value.split(" ")[0];
         const frequency = getElement("#frequency").value;
+        if (symbols.includes(symbol)) {
+            console.log(symbols)
+            renderData(symbol, frequency);
+        } else {
+            Swal.fire({
+                title: "Error",
+                text: "Please confirm you entered the right symbol",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
+        }
         
-        renderData(symbol, frequency);
     } catch (err) {
         console.log("info fetch failed, err");
     }
@@ -274,4 +283,17 @@ function setWatchlistBtn(watchlist,symbol,btn) {
     }
 }
 
-getSymbols();
+
+
+let symbols = [];
+async function SymbolList() {
+    symbols = await getSymbols();
+}
+SymbolList();
+
+
+const expiration = getElement("#expiration");
+expiration.addEventListener("mouseover", () => {
+    const expiration_info = getElement("#expiration_info");
+    expiration_info.style.display = "inline-block"
+})

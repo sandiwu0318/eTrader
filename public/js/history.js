@@ -54,5 +54,10 @@ async function getHistory() {
     // }
 }
 
-getSymbols();
+let symbols;
+async function SymbolList() {
+    symbols = await getSymbols();
+}
+
+SymbolList();
 searchSymbol();

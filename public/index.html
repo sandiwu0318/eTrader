@@ -11,14 +11,6 @@
     <link rel="bookmark" href="/img/favicon.ico"/>
 </head>
 <body>
-    <!-- <div class="loader">
-        <div class="loader__bar"></div>
-        <div class="loader__bar"></div>
-        <div class="loader__bar"></div>
-        <div class="loader__bar"></div>
-        <div class="loader__bar"></div>
-        <div class="loader__ball"></div>
-    </div> -->
     <div class="search_container">
         <a href="/" id="logo"><img class="search_item" id="logo_img" src="img/logo.jpeg"></a>
         <div class="search_item item">
@@ -49,7 +41,24 @@
     </nav>
     <div class="content_container">
         <div id="show_symbol"></div>
-        <div id="trade"></div>
+        <div id="trade">
+            <form id="tradeForm">
+                <select class="input" id="action">
+                    <option value="buy">buy</option>
+                    <option value="sell">sell</option>
+                    <option value="short">short</option>
+                    <option value="short cover">short cover</option>
+                </select>
+                <input type="number" step="0.01" class="input price" id="price" placeholder="Price">
+                <input type="number" class="input volume" id="volume" placeholder="volume">
+                <select class="input" id="expiration">
+                    <option disabled>Expiration</option>
+                    <option value="1 day">1 day</option>
+                    <option value="90 days">90 days</option>
+                </select>
+                <button class="btn" id="tradeBtn">Set Order</button>
+            </form>
+        </div>
         <div class="content_item financial_graph" id="priceChart"></div>
         <div class="content_item">
             <ul id="basicInfo_ul"></ul>

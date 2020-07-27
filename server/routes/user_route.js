@@ -3,7 +3,7 @@ const {wrapAsync} = require("../../utils/util");
 
 const {
     signUp,
-    nativeSignIn,
+    signIn,
     addRemoveWatchlist,
     getWatchlist,
     getOrders,
@@ -13,8 +13,8 @@ const {
 router.route("/user/signUp")
     .post(wrapAsync(signUp));
 
-router.route("/user/nativeSignIn")
-    .post(wrapAsync(nativeSignIn));
+router.route("/user/signIn")
+    .post(wrapAsync(signIn));
 
 router.route("/user/addRemoveWatchlist")
     .post(wrapAsync(addRemoveWatchlist));

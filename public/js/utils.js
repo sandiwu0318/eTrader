@@ -256,11 +256,15 @@ function autocomplete(inp, arr) {
     });
 }
 
+let symbols;
 async function getSymbols() {
     const res = (await fetch(`/api/1.0/stock/symbolList`));
     const resJson = (await res.json()).data;
+    const symbolResult = resJson.map(i => i.symbol);
     const symbolList = resJson.map(i => `${i.symbol} (${i.name})`);
+    symbols = symbolResult;
     autocomplete(getElement("#symbol_search"), symbolList);
+    return symbolResult;
 }
 
 async function getInputSymbols() {
@@ -278,9 +282,18 @@ function searchSymbol() {
     searchBtn.addEventListener("click", function () {
         const symbol = getElement("#symbol_search").value.split(" ")[0];
         const frequency = getElement("#frequency").value;
-        localStorage.setItem("symbol", symbol);
-        localStorage.setItem("frequency", frequency);
-        window.location = "/";
+        if (symbols.includes(symbol)) {
+            localStorage.setItem("symbol", symbol);
+            localStorage.setItem("frequency", frequency);
+            window.location = "/";
+        } else {
+            Swal.fire({
+                title: "Error",
+                text: "Please confirm you entered the right symbol",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
+        }
     })
 }
 

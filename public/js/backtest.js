@@ -17,131 +17,156 @@ showGraphBtn.addEventListener("click",
         if (getElement("#saveBtn")) {
             removeItem("saveBtn");
         }
-        const data = {
+        let data = {
             periods: getDataByClass("period"),
             symbol: getDataByClass("symbol")[0],
             indicator: getElement(".indicator").value,
             indicatorPeriod: parseInt(getDataByClass("indicatorPeriod")[1]),
         }
-        try {
-            const res = await fetch("/api/1.0/backtest/getData", {
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const resJson = (await res.json()).data;
-            if (resJson.error) {
+        if (!symbols.includes(data.symbol)) {
+            Swal.fire({
+                title: "Error",
+                text: "Please confirm you entered the right symbol",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
+        } else if ((data.periods.length === 2 && data.symbol) && ((data.indicator !== "price" && data.indicatorPeriod) || (data.indicator === "price"))) {
+            if (data.indicator !== "price" && (new Date(data.periods[1]).getTime() - new Date(data.periods[0]).getTime() < data.indicatorPeriod*1000*60*60*24)) {
                 Swal.fire({
-                    title: "Error!",
-                    text: resJson.error,
-                    icon: "error",
-                    confirmButtonText: "Ok"
-                });
+                    title: "Error",
+                    text: "Date range needs to be longer than indicator period",
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
             } else {
-                function showGraph(id, response) {
-                    let plotData = [];
-                    const priceTrace = {
-                        x: response.times.map(i => i.substr(0,10)),
-                        y: response.prices,
-                        type: "scatter",
-                        name: "Price",
-                        yaxis: "y1",
-                        marker: {color: "#3fa089"}
-                    };
-                    let layout = {
-                        title: response.symbol,
-                        xaxis: {
-                            title: "Date",
-                            type: "cateogry",
-                        },
-                        yaxis1: {
-                            title: "Price",
-                            side: "left",
-                            showline: false,
-                            showgrid: false,
+                try {
+                    const res = await fetch("/api/1.0/backtest/getData", {
+                        method: "POST",
+                        body: JSON.stringify(data),
+                        headers: {
+                            'Content-Type': 'application/json'
                         }
-                    }
-                    plotData.push(priceTrace);
-                    if (response.indicator === "BB") {
-                        const indicatorTrace1 = {
-                            x: response.times.map(i => i.substr(0,10)),
-                            y: response.values.map(i => i.lower),
-                            type: "scatter",
-                            name: "LowerBB",
-                            yaxis: "y1",
-                            marker: {color: "rgba(0, 86, 98, 0.5)"},
-                        };
-                        const indicatorTrace2 = {
-                            x: response.times.map(i => i.substr(0,10)),
-                            y: response.values.map(i => i.middle),
-                            type: "scatter",
-                            name: "MiddleBB",
-                            yaxis: "y1",
-                            fill: "tonexty",
-                            marker: {color: "rgba(0, 86, 98, 0.5)"},
-                            fillcolor: "rgba(153, 183, 187,0.3)",
-                            opacity: 0.5
-                        };
-                        const indicatorTrace3 = {
-                            x: response.times.map(i => i.substr(0,10)),
-                            y: response.values.map(i => i.upper),
-                            type: "scatter",
-                            name: "UpperBB",
-                            yaxis: "y1",
-                            fill: "tonexty",
-                            marker: {color: "rgba(0, 86, 98, 0.5)"},
-                            fillcolor: "rgba(153, 183, 187,0.3)",
-                            opacity: 0.5
-                        };
-                        plotData.push(indicatorTrace1, indicatorTrace2, indicatorTrace3);
-                    } else if (response.indicator !== "price") {
-                        let indicatorTrace = {
-                            x: response.times.map(i => i.substr(0,10)),
-                            y: response.values,
-                            type: "scatter",
-                            name: response.indicator,
-                            yaxis: "y1",
-                        };
-                        switch (response.indicator) {
-                            case "RSI": {
-                                layout.yaxis2 = {
-                                    title: response.indicator,
-                                    side: "right",
+                    });
+                    const resJson = (await res.json()).data;
+                    if (resJson.error) {
+                        Swal.fire({
+                            title: "Error!",
+                            text: resJson.error,
+                            icon: "error",
+                            confirmButtonText: "Ok"
+                        });
+                    } else {
+                        function showGraph(id, response) {
+                            let plotData = [];
+                            const priceTrace = {
+                                x: response.times.map(i => i.substr(0,10)),
+                                y: response.prices,
+                                type: "scatter",
+                                name: "Price",
+                                yaxis: "y1",
+                                marker: {color: "#3fa089"}
+                            };
+                            let layout = {
+                                title: response.symbol,
+                                xaxis: {
+                                    title: "Date",
+                                    type: "cateogry",
+                                },
+                                yaxis1: {
+                                    title: "Price",
+                                    side: "left",
                                     showline: false,
-                                    overlaying: "y",
+                                    showgrid: false,
                                 }
-                                indicatorTrace.yaxis = "y2";
-                                indicatorTrace.marker = {color: "rgba(0, 86, 98, 0.7)"};
-                                break;
                             }
-                            case "SMA": {
-                                indicatorTrace.marker = {color: "rgba(0, 98, 0, 0.7)"};
-                                break;
+                            plotData.push(priceTrace);
+                            if (response.indicator === "BB") {
+                                const indicatorTrace1 = {
+                                    x: response.times.map(i => i.substr(0,10)),
+                                    y: response.values.map(i => i.lower),
+                                    type: "scatter",
+                                    name: "LowerBB",
+                                    yaxis: "y1",
+                                    marker: {color: "rgba(0, 86, 98, 0.5)"},
+                                };
+                                const indicatorTrace2 = {
+                                    x: response.times.map(i => i.substr(0,10)),
+                                    y: response.values.map(i => i.middle),
+                                    type: "scatter",
+                                    name: "MiddleBB",
+                                    yaxis: "y1",
+                                    fill: "tonexty",
+                                    marker: {color: "rgba(0, 86, 98, 0.5)"},
+                                    fillcolor: "rgba(153, 183, 187,0.3)",
+                                    opacity: 0.5
+                                };
+                                const indicatorTrace3 = {
+                                    x: response.times.map(i => i.substr(0,10)),
+                                    y: response.values.map(i => i.upper),
+                                    type: "scatter",
+                                    name: "UpperBB",
+                                    yaxis: "y1",
+                                    fill: "tonexty",
+                                    marker: {color: "rgba(0, 86, 98, 0.5)"},
+                                    fillcolor: "rgba(153, 183, 187,0.3)",
+                                    opacity: 0.5
+                                };
+                                plotData.push(indicatorTrace1, indicatorTrace2, indicatorTrace3);
+                            } else if (response.indicator !== "price") {
+                                let indicatorTrace = {
+                                    x: response.times.map(i => i.substr(0,10)),
+                                    y: response.values,
+                                    type: "scatter",
+                                    name: response.indicator,
+                                    yaxis: "y1",
+                                };
+                                switch (response.indicator) {
+                                    case "RSI": {
+                                        layout.yaxis2 = {
+                                            title: response.indicator,
+                                            side: "right",
+                                            showline: false,
+                                            overlaying: "y",
+                                        }
+                                        indicatorTrace.yaxis = "y2";
+                                        indicatorTrace.marker = {color: "rgba(0, 86, 98, 0.7)"};
+                                        break;
+                                    }
+                                    case "SMA": {
+                                        indicatorTrace.marker = {color: "rgba(0, 98, 0, 0.7)"};
+                                        break;
+                                    }
+                                    case "EMA": {
+                                        indicatorTrace.marker = {color: "rgba(71, 146, 71, 0.7)"};
+                                        break;
+                                    }
+                                    case "WMA": {
+                                        indicatorTrace.marker = {color: "rgba(15, 68, 15, 0.7)"};
+                                        break;
+                                    }
+                                }
+                                plotData.push(indicatorTrace);
                             }
-                            case "EMA": {
-                                indicatorTrace.marker = {color: "rgba(71, 146, 71, 0.7)"};
-                                break;
-                            }
-                            case "WMA": {
-                                indicatorTrace.marker = {color: "rgba(15, 68, 15, 0.7)"};
-                                break;
-                            }
+                            const div = document.createElement("div");
+                            div.id = id;
+                            div.className = "graph";
+                            getElement("#graph_container").appendChild(div);
+                            Plotly.newPlot(id, plotData, layout);
                         }
-                        plotData.push(indicatorTrace);
+                        showGraph("chart", resJson);
+                        scrollTo(0, 500);
                     }
-                    const div = document.createElement("div");
-                    div.id = id;
-                    div.className = "graph";
-                    getElement("#graph_container").appendChild(div);
-                    Plotly.newPlot(id, plotData, layout);
+                } catch (err) {
+                    console.log("price fetch failed, err");
                 }
-                showGraph("chart", resJson);
-                scrollTo(0, 500);
             }
-        } catch (err) {
-            console.log("price fetch failed, err");
+        } else {
+            Swal.fire({
+                title: "Error",
+                text: "Please make sure you filled out all the input",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
         }
     }
 )
@@ -416,16 +441,16 @@ backtestBtn.addEventListener("click",
             periods: getDataByClass("period"),
             symbol: getDataByClass("symbol")[0],
             action: getElement(".action").value,
-            volume: parseInt(getElement(".volume").value),
+            volume: getElement(".volume").value,
             indicator: indicator,
-            indicatorPeriod: parseInt(document.getElementsByClassName("indicatorPeriod")[1].value),
+            indicatorPeriod: document.getElementsByClassName("indicatorPeriod")[1].value,
         };
         if (indicator.substr(1 ,2) === "MA") {
             indicator_test = "MA_test";
             const values = getDataByClass(indicator_test).slice(1);
-            data.actionValue = [parseInt(values[0]), parseInt(values[2])],
+            data.actionValue = values[0],
             data.actionCross = values[1],
-            data.exitValue = [parseInt(values[3]), parseInt(values[5])],
+            data.exitValue = values[2],
             data.exitCross = values[4]
         } else if (indicator === "BB") {
             indicator_test = "BB_test";
@@ -437,9 +462,9 @@ backtestBtn.addEventListener("click",
         } else {
             indicator_test = `${indicator}_test`;
             const values = getDataByClass(indicator_test).slice(1);
-            data.actionValue = parseInt(values[1]),
+            data.actionValue = values[1],
             data.actionCross = values[0],
-            data.exitValue = parseInt(values[3]),
+            data.exitValue = values[3],
             data.exitCross = values[2]
         }
         try {
@@ -451,7 +476,6 @@ backtestBtn.addEventListener("click",
                 }
             });
             const resJson = (await res.json()).data;
-            console.log(resJson)
             if (resJson.error) {
                 Swal.fire({
                     title: "Error!",
@@ -480,7 +504,6 @@ backtestBtn.addEventListener("click",
                     data3.token = token;
                     data3.investmentReturn = resJson.investmentReturn;
                     data3.ROI = resJson.ROI;
-                    console.log(data3)
                     const res3 = await fetch("/api/1.0/backtest/saveBacktestResult", {
                         method: "POST",
                         body: JSON.stringify(data3),
@@ -489,7 +512,6 @@ backtestBtn.addEventListener("click",
                         }
                     });
                     const resJson3 = (await res3.json()).data;
-                    console.log(resJson3)
                     if (!getElement("#saved_ul")) {
                         const ul = document.createElement("ul");
                         ul.id = "saved_ul";
@@ -520,7 +542,6 @@ backtestBtn.addEventListener("click",
                         });
                         
                         const resJson1 = (await res1.json()).data;
-                        console.log(resJson1)
                         createButton("btn", "setOrderBtn", "test_form", "Set order with this strategy")
                         showResult("result_graph","result_ul", resJson1);
                         getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
@@ -607,7 +628,7 @@ const setOrder= function (data) {
 }
 
 const indicator = getElement(".indicator");
-indicator.addEventListener("change", () => {    
+indicator.addEventListener("change", () => {
     const indicatorPeriods = document.getElementsByClassName("indicatorPeriod");
     for (let i of indicatorPeriods) {
         i.style.display = "inline-block"
@@ -646,7 +667,6 @@ viewHistoryBtn.addEventListener("click", async function (e) {
         }
     });
     const resJson = (await res.json()).data;
-    console.log(resJson)
     if (getElement("#saved_ul")) {
         removeChild("saved_ul");
         createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
@@ -668,11 +688,9 @@ viewHistoryBtn.addEventListener("click", async function (e) {
         e.preventDefault();
         window.location = "/backtest.html";
     })
-    console.log(resJson)
     const saved_lis = document.getElementsByClassName("saved_li");
     for (let i =0; i<saved_lis.length; i++) {
         saved_lis[i].addEventListener("click", async function() {
-            console.log(saved_lis[i])
             removeChild("profit");
             removeChild("ROI");
             removeChild("result_container");
@@ -680,10 +698,6 @@ viewHistoryBtn.addEventListener("click", async function (e) {
                 removeItem("setOrderBtn");
             }
             const newData = Object.assign({}, resJson[i]);
-            if (newData.indicator.substr(1 ,2) === "MA") {
-                newData.actionValue = resJson[i].actionValue[0];
-                newData.exitValue = resJson[i].exitValue[0];
-            }
             const res1 = await fetch("/api/1.0/backtest/testWithIndicator", {
                 method: "POST",
                 body: JSON.stringify(newData),
@@ -692,7 +706,6 @@ viewHistoryBtn.addEventListener("click", async function (e) {
                 }
             });
             const resJson1 = (await res1.json()).data;
-            console.log(resJson1)
             createButton("btn", "setOrderBtn", "test_form", "Set orders")
             showResult("result_graph","result_ul", resJson1);
             getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
@@ -717,6 +730,43 @@ container.addEventListener("mouseout", function() {
 });
 
 
-getSymbols();
+const MA_action_actionValue = getElement("#MA_actionValue_input");
+const MA_exit_actionValue = getElement("#MA_actionValue");
+MA_action_actionValue.addEventListener("input", (e) => {
+    MA_exit_actionValue.value = e.target.value;
+})
+const MA_action_exitValue = getElement("#MA_exitValue_input");
+const MA_exit_exitValue = getElement("#MA_exitValue");
+MA_action_exitValue.addEventListener("input", (e) => {
+    MA_exit_exitValue.value = e.target.value;
+})
+
+
+const action = getElement(".action");
+action.addEventListener("change", () => {
+    if (action.value === "short") {
+        getElement("#RSI_actionValue_input").placeholder = "ex. 70";
+        getElement("#RSI_exitValue_input").placeholder = "ex. 30";
+        getElement("#BB_actionValue").selectedIndex = 2;
+        getElement("#BB_exitValue").selectedIndex = 2;
+        getElement("#MA_actionValue_input").placeholder = "ex. 14";
+        getElement("#MA_exitValue_input").placeholder = "ex. 6";
+    } else {
+        getElement("#RSI_actionValue_input").placeholder = "ex. 30";
+        getElement("#RSI_exitValue_input").placeholder = "ex. 70";
+        getElement("#BB_actionValue").selectedIndex = 0;
+        getElement("#BB_exitValue").selectedIndex = 0;
+        getElement("#MA_actionValue_input").placeholder = "ex. 6";
+        getElement("#MA_exitValue_input").placeholder = "ex. 14";
+    }
+})
+
+
+let symbols;
+async function SymbolList() {
+    symbols = await getSymbols();
+}
+
+SymbolList();
 getInputSymbols();
 searchSymbol();

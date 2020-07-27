@@ -63,6 +63,7 @@ const getData = async function (periods, symbol, indicator, indicatorPeriod) {
 
 const testWithIndicator = async function (periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross) {
     try {
+        console.log(actionValue);
         const selectStr = "SELECT DISTINCT(time), price, volume FROM stock_price WHERE symbol=? AND time >= ? AND time <= ? ORDER BY time";
         const response = await query(selectStr, [symbol, periods[0], periods[1]]);
         let indicatorValue;
@@ -84,6 +85,9 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
                 period: parseInt(exitValue)
             };
         }
+        console.log(indicator);
+        console.log(calculateValue1);
+        console.log(calculateValue2);
         switch(indicator) {
         case "price": {
             indicatorValue = response.map(i => i.price);
@@ -333,6 +337,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
             data: filterData,
             chart: indicatorResult
         };
+        // console.log(singleData);
         return singleData;
     } catch(error) {
         console.log(error);

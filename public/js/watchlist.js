@@ -43,5 +43,10 @@ window.onbeforeunload = function() {
 }
 
 
-getSymbols();
+let symbols;
+async function SymbolList() {
+    symbols = await getSymbols();
+}
+
+SymbolList();
 searchSymbol();

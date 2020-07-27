@@ -19,7 +19,6 @@ const signUp = async (name, email, password, expire) => {
         sha.update(email + password + loginAt);
         const accessToken = sha.digest("hex");
         const user = {
-            provider: "native",
             email: email,
             password: CryptoJS.AES.encrypt(password, email).toString(),
             name: name,
@@ -43,7 +42,7 @@ const signUp = async (name, email, password, expire) => {
     }
 };
 
-const nativeSignIn = async (email, password, expire) => {
+const signIn = async (email, password, expire) => {
     try {
         await transaction();
         const users = await query("SELECT * FROM user WHERE email = ?", [email]);
@@ -211,7 +210,7 @@ const getPortfolios = async function (token) {
 
 module.exports = {
     signUp,
-    nativeSignIn,
+    signIn,
     addRemoveWatchlist,
     getWatchlist,
     getOrders,

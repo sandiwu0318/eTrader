@@ -97,5 +97,10 @@ async function getOrders() {
 }
 
 
-getSymbols();
+let symbols;
+async function SymbolList() {
+    symbols = await getSymbols();
+}
+
+SymbolList();
 searchSymbol();

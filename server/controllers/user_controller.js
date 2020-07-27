@@ -6,10 +6,10 @@ const signUp = async (req, res) => {
     res.status(200).json({data: signUp});
 };
 
-const nativeSignIn = async (req, res) => {
+const signIn = async (req, res) => {
     const { email, password, expire } = req.body;
-    const nativeSignIn = await User.nativeSignIn(email, password, expire);
-    res.status(200).json({data: nativeSignIn});
+    const signIn = await User.signIn(email, password, expire);
+    res.status(200).json({data: signIn});
 };
 
 const addRemoveWatchlist = async (req, res) => {
@@ -38,7 +38,7 @@ const getPortfolios = async (req, res) => {
 
 module.exports = {
     signUp,
-    nativeSignIn,
+    signIn,
     addRemoveWatchlist,
     getWatchlist,
     getOrders,

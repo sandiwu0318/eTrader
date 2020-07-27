@@ -4,6 +4,13 @@ const token = localStorage.getItem("token");
 checkLogin(token);
 if (token !== null) {
     getPortfolios();
+    Swal.fire({
+        title: "Loading",
+        allowOutsideClick: false,
+        onBeforeOpen: () => {
+            Swal.showLoading()
+        },
+    });
 }
 async function getPortfolios() {
     try {
@@ -25,6 +32,7 @@ async function getPortfolios() {
                 confirmButtonText: 'Ok'
             })
         } else {
+            swal.close();
             const portfolios = resJson;
             if (portfolios.length !== 0) {
                 portfolios.forEach(i => {

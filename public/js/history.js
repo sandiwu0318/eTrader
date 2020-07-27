@@ -6,7 +6,7 @@ if (token !== null) {
     getHistory();
 }
 async function getHistory() {
-    try {
+    // try {
         const data = {
             token: token
         }
@@ -26,19 +26,16 @@ async function getHistory() {
             })
         } else {
             const history = resJson.history;
+            console.log(history)
             if (history.length !== 0) {
                 let newHistory = []
                 history.forEach(i => {
                     const indicator = i.category;
-                    const value = i[indicator];
-                    const data = {
+                    let data = {
                         symbol: i.symbol,
                         action: i.sub_action,
                         volume: i.volume,
-                        indicator: indicator,
-                        value: value,
-                        indicatorPeriod: i.indicatorPeriod || "-",
-                        cross: i.cross || "-",
+                        price: i.price,
                         date: i.success_date.substr(0, 10)
                     }
                     newHistory.push(data);
@@ -52,9 +49,9 @@ async function getHistory() {
                 })
             }
         }
-    } catch (err) {
-        console.log("History fetch failed, err");
-    }
+    // } catch (err) {
+    //     console.log("History fetch failed, err");
+    // }
 }
 
 getSymbols();

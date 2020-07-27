@@ -25,15 +25,25 @@ async function renderData(symbol, frequency){
     removeChild("intro");
     removeChild("show_symbol");
     removeChild("news_ul");
+    removeChild("trade");
 
     if (frequency === "1d") {
         socket.connect();
         socket.emit("symbol", symbol);
+        swal.close();
     } else {
         socket.disconnect();
+        Swal.fire({
+            title: "Loading",
+            allowOutsideClick: false,
+            onBeforeOpen: () => {
+                Swal.showLoading()
+            },
+        });
         const res = await fetch(`/api/1.0/stock/getPrices?symbol=${symbol}&frequency=${frequency}`);
         const resJson = (await res.json()).data;
         createChart(resJson, frequency);
+        swal.close();
     }
 
     //Basic info
@@ -242,6 +252,7 @@ searchBtn.addEventListener("click", function () {
         //Chart
         const symbol = getElement("#symbol_search").value.split(" ")[0];
         const frequency = getElement("#frequency").value;
+        
         renderData(symbol, frequency);
     } catch (err) {
         console.log("info fetch failed, err");

@@ -10,6 +10,7 @@ socket.on("watchlist", (data) => {
         })
     } else {
         removeChild("watchlist_ul");
+        swal.close();
         data.map(i => createList("#watchlist_ul", "user_li", Object.values(i)));
     }
 });
@@ -18,6 +19,13 @@ const token = localStorage.getItem("token");
 checkLogin(token);
 if (token !== null) {
     getWatchlist();
+    Swal.fire({
+        title: "Loading",
+        allowOutsideClick: false,
+        onBeforeOpen: () => {
+            Swal.showLoading()
+        },
+    });
 }
 
 async function getWatchlist() {

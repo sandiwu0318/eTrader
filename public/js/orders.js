@@ -30,20 +30,24 @@ async function getOrders() {
                 let newOrders = []
                 orders.forEach(i => {
                     const indicator = i.category;
-                    const value = i[indicator];
-                    const data = {
+                    let data = {
                         symbol: i.symbol,
                         action: i.sub_action,
                         volume: i.volume,
                         indicator: indicator,
-                        value: value,
+                        value: 0,
                         indicatorPeriod: i.indicatorPeriod || "-",
                         cross: i.cross || "-",
                         deadline: i.deadline
                     }
+                    if (indicator.substr(1 ,2) === "MA") {
+                        data.value = i["MA"];
+                        data.indicatorPeriod = "-";
+                    } else {
+                        data.value = i[indicator];
+                    }
                     newOrders.push(data);
                 });
-                console.log(data)
                 newOrders.map(i => createList("#orders_ul", "user_li",Object.values(i)));
             } else {
                 Swal.fire({

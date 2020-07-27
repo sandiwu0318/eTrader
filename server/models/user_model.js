@@ -129,6 +129,7 @@ const getWatchlist = async function (token, symbolOnly) {
                 "low price": current["l"],
                 "current price": current["c"],
                 "previous closing price": current["pc"],
+                "%": `${Math.floor((current["c"] / current["pc"] -1)*10000)/100}%`,
             };
             results.push(result);
         }

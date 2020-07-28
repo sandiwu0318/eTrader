@@ -18,7 +18,17 @@ async function getOrders() {
             }
         });
         const resJson = (await res.json()).data;
-        if (resJson.error) {
+        if (data.error === "Wrong authentication") {
+            swal.close();
+            await Swal.fire({
+                title: "Please login again",
+                icon: "error",
+                confirmButtonText: "Ok",
+                timer: "1000"
+            });
+            localStorage.setItem("page", window.location.href);
+            window.location = "/login.html";
+        } else if (resJson.error) {
             Swal.fire({
                 text: resJson.error,
                 icon: 'warning',

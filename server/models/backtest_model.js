@@ -365,6 +365,9 @@ const saveBacktestResult = async function (token, periods, symbol, action, volum
         const today = new Date();
         const selectStr = "SELECT id FROM user WHERE access_token = ?";
         const result = await query(selectStr, token);
+        if (result.length === 0) {
+            return {error: "Wrong authentication"};
+        }
         let data = {
             user_id: result[0].id,
             periods: JSON.stringify(periods),
@@ -404,6 +407,9 @@ const getSavedResults = async function (token) {
     try {
         const selectStr = "SELECT id FROM user WHERE access_token = ?";
         const result = await query(selectStr, token);
+        if (result.length === 0) {
+            return {error: "Wrong authentication"};
+        }
         const selectTestsStr = "SELECT * FROM backtest_result WHERE USER_ID = ? ORDER BY id DESC";
         const results = await query(selectTestsStr, result[0].id);
         results.forEach(i => {

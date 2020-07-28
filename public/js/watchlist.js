@@ -2,14 +2,23 @@ import {createList, checkLogin, removeChild, getSymbols, searchSymbol} from "./u
 window.scrollTo(0, 0);
 const socket = io();
 socket.on("watchlist", (data) => {
-    console.log(data)
-    if (data.error) {
+    if (data.error === "Wrong authentication") {
+        swal.close();
+        await Swal.fire({
+            title: "Please login again",
+            icon: "error",
+            confirmButtonText: "Ok",
+            timer: "1000"
+        });
+        localStorage.setItem("page", window.location.href);
+        window.location = "/login.html";
+    } else if (resJson.error) {
         swal.close();
         Swal.fire({
-            text: data.error,
+            text: resJson.error,
             icon: 'warning',
             confirmButtonText: 'Ok'
-        })
+        }) 
     } else {
         removeChild("watchlist_ul");
         swal.close();

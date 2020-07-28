@@ -79,6 +79,9 @@ const addRemoveWatchlist = async function (token, symbol) {
     try {
         const selectStr = "SELECT id, watchlist FROM user WHERE access_token = ?";
         const result = await query(selectStr, token);
+        if (result.length === 0) {
+            return {error: "Wrong authentication"};
+        }
         let watchlist;
         if (result[0].watchlist === null || result[0].watchlist === "") {
             watchlist = [];
@@ -105,6 +108,9 @@ const addRemoveWatchlist = async function (token, symbol) {
 const getWatchlist = async function (token, symbolOnly) {
     const selectStr = "SELECT watchlist FROM user WHERE access_token = ?";
     const result = await query(selectStr, token);
+    if (result.length === 0) {
+        return {error: "Wrong authentication"};
+    }
     let results = [];
     if (result[0].watchlist === null) {
         return {error: "You don't have any watchlist yet"};
@@ -140,6 +146,9 @@ const getWatchlist = async function (token, symbolOnly) {
 const getOrders = async function (token) {
     const getIdStr = "SELECT id FROM user WHERE access_token = ?";
     const result = (await query(getIdStr, token));
+    if (result.length === 0) {
+        return {error: "Wrong authentication"};
+    }
     const id = result[0].id;
     const selectStr = "SELECT * FROM orders WHERE user_id = ? ORDER BY success";
     const results = await query(selectStr, id);
@@ -172,6 +181,9 @@ const getOrders = async function (token) {
 const getPortfolios = async function (token) {
     const getIdStr = "SELECT id FROM user WHERE access_token = ?";
     const result = (await query(getIdStr, token));
+    if (result.length === 0) {
+        return {error: "Wrong authentication"};
+    }
     const id = result[0].id;
     const selectStr = "SELECT symbol, action, sub_action, price, volume FROM orders WHERE user_id = ? and success = 1";
     const results = await query(selectStr, id);

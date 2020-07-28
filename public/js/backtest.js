@@ -506,7 +506,6 @@ backtestBtn.addEventListener("click",
             data.exitValue = values[3],
             data.exitCross = values[2]
         }
-        console.log(data)
         if (!symbols.includes(data.symbol)) {
             Swal.fire({
                 title: "Error",
@@ -515,7 +514,6 @@ backtestBtn.addEventListener("click",
                 confirmButtonText: 'Ok'
             })
         } else if ((data.periods.length === 2 && data.symbol) && ((data.indicator !== "price" && data.indicatorPeriod) || (data.indicator === "price"))) {
-            console.log(11111111111111)
             if (data.indicator !== "price" && (new Date(data.periods[1]).getTime() - new Date(data.periods[0]).getTime() < data.indicatorPeriod*1000*60*60*24)) {
                 swal.close();
                 Swal.fire({
@@ -563,7 +561,6 @@ backtestBtn.addEventListener("click",
                             data3.token = token;
                             data3.investmentReturn = resJson.investmentReturn;
                             data3.ROI = resJson.ROI || 0;
-                            console.log(data3)
                             const res3 = await fetch("/api/1.0/backtest/saveBacktestResult", {
                                 method: "POST",
                                 body: JSON.stringify(data3),
@@ -572,7 +569,16 @@ backtestBtn.addEventListener("click",
                                 }
                             });
                             const resJson3 = (await res3.json()).data;
-                            console.log(resJson3)
+                            if (resJson3.error === "Wrong authentication") {
+                                await Swal.fire({
+                                    title: "Please login again",
+                                    icon: "error",
+                                    confirmButtonText: "Ok",
+                                    timer: "1000"
+                                });
+                                localStorage.setItem("page", window.location.href);
+                                window.location = "/login.html";
+                            }
                             if (!getElement("#saved_ul")) {
                                 const ul = document.createElement("ul");
                                 ul.id = "saved_ul";
@@ -737,6 +743,16 @@ viewHistoryBtn.addEventListener("click", async function (e) {
         }
     });
     const resJson = (await res.json()).data;
+    if (resJson.error === "Wrong authentication") {
+        await Swal.fire({
+            title: "Please login again",
+            icon: "error",
+            confirmButtonText: "Ok",
+            timer: "1000"
+        });
+        localStorage.setItem("page", window.location.href);
+        window.location = "/login.html";
+    }
     if (getElement("#saved_ul")) {
         removeChild("saved_ul");
         createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])

@@ -290,7 +290,6 @@ async function SymbolList() {
 }
 SymbolList();
 
-
 const expiration = getElement("#expiration");
 expiration.addEventListener("mouseover", () => {
     const expiration_info = getElement("#expiration_info");

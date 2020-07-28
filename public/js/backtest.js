@@ -31,6 +31,7 @@ showGraphBtn.addEventListener("click",
             indicatorPeriod: parseInt(getDataByClass("indicatorPeriod")[1]),
         }
         if (!symbols.includes(data.symbol)) {
+            swal.close();
             Swal.fire({
                 title: "Error",
                 text: "Please confirm you entered the right symbol",
@@ -39,6 +40,7 @@ showGraphBtn.addEventListener("click",
             })
         } else if ((data.periods.length === 2 && data.symbol) && ((data.indicator !== "price" && data.indicatorPeriod) || (data.indicator === "price"))) {
             if (data.indicator !== "price" && (new Date(data.periods[1]).getTime() - new Date(data.periods[0]).getTime() < data.indicatorPeriod*1000*60*60*24)) {
+                swal.close();
                 Swal.fire({
                     title: "Error",
                     text: "Date range needs to be longer than indicator period",
@@ -302,7 +304,6 @@ function showResult(div_id, ul_id, response) {
         bgcolor: '#046900',
         opacity: 0.8
     }))
-    console.log(buyArrow)
     if (response.indicator === "RSI" || response.indicator === "price") {
         if (response.action === "short") {
             indicatorActionTrace1.x = sellFilter.map(i => i.time.substr(0,10));
@@ -505,97 +506,127 @@ backtestBtn.addEventListener("click",
             data.exitValue = values[3],
             data.exitCross = values[2]
         }
-        try {
-            const res = await fetch("/api/1.0/backtest/testWithIndicator", {
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const resJson = (await res.json()).data;
-            swal.close();
-            if (resJson.error) {
+        console.log(data)
+        if (!symbols.includes(data.symbol)) {
+            Swal.fire({
+                title: "Error",
+                text: "Please confirm you entered the right symbol",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
+        } else if ((data.periods.length === 2 && data.symbol) && ((data.indicator !== "price" && data.indicatorPeriod) || (data.indicator === "price"))) {
+            console.log(11111111111111)
+            if (data.indicator !== "price" && (new Date(data.periods[1]).getTime() - new Date(data.periods[0]).getTime() < data.indicatorPeriod*1000*60*60*24)) {
+                swal.close();
                 Swal.fire({
-                    title: "Error!",
-                    text: resJson.error,
-                    icon: "error",
-                    confirmButtonText: "Ok"
-                });
+                    title: "Error",
+                    text: "Date range needs to be longer than indicator period",
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
             } else {
-                createButton("btn", "saveBtn", "test_form", "Save")
-                createButton("btn", "setOrderBtn", "test_form", "Set orders")
-                showResult("result_graph","result_ul", resJson);
-                getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson.investmentReturn)}</h2>`;
-                getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson.ROI*10000)/100)}%</h2>`;
-                if (data.indicator.substr(1 ,2) === "MA") {
-                    data.actionValue = data.actionValue[0];
-                    data.exitValue = data.exitValue[0];
-                }
-                setOrder(data);
-                scrollTo(0, 800);
-                const saveBtn = getElement("#saveBtn");
-                saveBtn.addEventListener("click", async function (e) {
-                    e.preventDefault();
-                    checkLogin(token);
-                    window.scrollTo(0, 0);
-                    let data3 = Object.assign({}, data);
-                    data3.token = token;
-                    data3.investmentReturn = resJson.investmentReturn;
-                    data3.ROI = resJson.ROI;
-                    const res3 = await fetch("/api/1.0/backtest/saveBacktestResult", {
+                try {
+                    const res = await fetch("/api/1.0/backtest/testWithIndicator", {
                         method: "POST",
-                        body: JSON.stringify(data3),
+                        body: JSON.stringify(data),
                         headers: {
                             'Content-Type': 'application/json'
                         }
                     });
-                    const resJson3 = (await res3.json()).data;
-                    if (!getElement("#saved_ul")) {
-                        const ul = document.createElement("ul");
-                        ul.id = "saved_ul";
-                        ul.className = "user_ul";
-                        getElement("#saved_results").appendChild(ul);
-                        createList(`#saved_ul`, "title_li titles", ["Created","Start", "End", "Symbol", "Indicator", "Action", "ROI"])
-                    }
-                    createList(`#saved_ul`, "user_li saved_li", [resJson3.created_date.substr(0, 10), resJson3.periods[0],resJson3.periods[1], resJson3.symbol, resJson3.indicator, resJson3.action, `${Math.floor(resJson3.ROI*10000)/100}%`]);
-                    const saved_lis = document.getElementsByClassName("saved_li");
-                    saved_lis[saved_lis.length-1].addEventListener("click", async function() {
-                        removeChild("profit");
-                        removeChild("ROI");
-                        removeChild("result_container");
-                        if (getElement("#setOrderBtn")) {
-                            removeItem("setOrderBtn");
-                        }
-                        const newData = Object.assign({}, resJson3);
-                        delete newData.id;
-                        delete newData.user_id;
-                        delete newData.investmentReturn;
-                        delete newData.ROI;
-                        const res1 = await fetch("/api/1.0/backtest/testWithIndicator", {
-                            method: "POST",
-                            body: JSON.stringify(newData),
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
+                    const resJson = (await res.json()).data;
+                    swal.close();
+                    if (resJson.error) {
+                        Swal.fire({
+                            title: "Error!",
+                            text: resJson.error,
+                            icon: "error",
+                            confirmButtonText: "Ok"
                         });
-                        
-                        const resJson1 = (await res1.json()).data;
-                        createButton("btn", "setOrderBtn", "test_form", "Set order with this strategy")
-                        showResult("result_graph","result_ul", resJson1);
-                        getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
-                        getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
-                        if (newData.indicator.substr(1 ,2) === "MA") {
-                            newData.actionValue = resJson3.actionValue[0];
-                            newData.exitValue = resJson3.exitValue[0];
+                    } else {
+                        createButton("btn", "saveBtn", "test_form", "Save")
+                        createButton("btn", "setOrderBtn", "test_form", "Set orders")
+                        showResult("result_graph","result_ul", resJson);
+                        getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson.investmentReturn)}</h2>`;
+                        getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson.ROI*10000)/100)}%</h2>`;
+                        if (data.indicator.substr(1 ,2) === "MA") {
+                            data.actionValue = data.actionValue[0];
+                            data.exitValue = data.exitValue[0];
                         }
-                        setOrder(newData);
-                        window.scrollTo(0, 500);
-                    })
-                })
-            }
-        } catch (err) {
-            console.log("price fetch failed", err);
+                        setOrder(data);
+                        scrollTo(0, 800);
+                        const saveBtn = getElement("#saveBtn");
+                        saveBtn.addEventListener("click", async function (e) {
+                            e.preventDefault();
+                            checkLogin(token);
+                            window.scrollTo(0, 0);
+                            let data3 = Object.assign({}, data);
+                            data3.token = token;
+                            data3.investmentReturn = resJson.investmentReturn;
+                            data3.ROI = resJson.ROI || 0;
+                            console.log(data3)
+                            const res3 = await fetch("/api/1.0/backtest/saveBacktestResult", {
+                                method: "POST",
+                                body: JSON.stringify(data3),
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            const resJson3 = (await res3.json()).data;
+                            console.log(resJson3)
+                            if (!getElement("#saved_ul")) {
+                                const ul = document.createElement("ul");
+                                ul.id = "saved_ul";
+                                ul.className = "user_ul";
+                                getElement("#saved_results").appendChild(ul);
+                                createList(`#saved_ul`, "title_li titles", ["Created","Start", "End", "Symbol", "Indicator", "Action", "ROI"])
+                            }
+                            createList(`#saved_ul`, "user_li saved_li", [resJson3.created_date.substr(0, 10), resJson3.periods[0],resJson3.periods[1], resJson3.symbol, resJson3.indicator, resJson3.action, `${Math.floor(resJson3.ROI*10000)/100}%`]);
+                            const saved_lis = document.getElementsByClassName("saved_li");
+                            saved_lis[saved_lis.length-1].addEventListener("click", async function() {
+                                removeChild("profit");
+                                removeChild("ROI");
+                                removeChild("result_container");
+                                if (getElement("#setOrderBtn")) {
+                                    removeItem("setOrderBtn");
+                                }
+                                const newData = Object.assign({}, resJson3);
+                                delete newData.id;
+                                delete newData.user_id;
+                                delete newData.investmentReturn;
+                                delete newData.ROI;
+                                const res1 = await fetch("/api/1.0/backtest/testWithIndicator", {
+                                    method: "POST",
+                                    body: JSON.stringify(newData),
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    }
+                                });
+                                
+                                const resJson1 = (await res1.json()).data;
+                                createButton("btn", "setOrderBtn", "test_form", "Set order with this strategy")
+                                showResult("result_graph","result_ul", resJson1);
+                                getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
+                                getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
+                                if (newData.indicator.substr(1 ,2) === "MA") {
+                                    newData.actionValue = resJson3.actionValue[0];
+                                    newData.exitValue = resJson3.exitValue[0];
+                                }
+                                setOrder(newData);
+                                window.scrollTo(0, 500);
+                            })
+                        })
+                    }
+                } catch (err) {
+                    console.log("price fetch failed", err);
+                }
+            }    
+        } else {
+            Swal.fire({
+                title: "Error",
+                text: "Please make sure you filled out all the input",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
         }
     }
 )

@@ -58,9 +58,8 @@ async function getOrders() {
                             text: "You won't be able to revert this!",
                             icon: 'warning',
                             showCancelButton: true,
-                            allowOutsideClick: false,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
+                            confirmButtonColor: '#3fa089',
+                            cancelButtonColor: 'rgb(105, 105, 105)',
                             confirmButtonText: 'Yes, delete it!'
                         })
                         if (result.value) {

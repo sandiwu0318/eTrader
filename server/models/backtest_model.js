@@ -261,10 +261,12 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         let filterData = [];
         switch(action) {
         case "long": {
-            while (allArr.findIndex(i => i.action === "buy") !== -1) {
-                const buyIndex = allArr.findIndex(i => i.action === "buy");
-                let originBuyIndex = 0;
-                let buyData = {};
+            let originBuyIndex = 0;
+            let buyData = {};
+            let originSellIndex = 0;
+            let sellData = {};
+            while (allArr.findIndex(i => i.action === "buy" && i.index > originSellIndex) !== -1) {
+                const buyIndex = allArr.findIndex(i => i.action === "buy" && i.index > originSellIndex);
                 if (buyIndex !== -1) {
                     originBuyIndex = allArr[buyIndex]["index"];
                     buyData = {
@@ -275,9 +277,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
                     };
                     allArr.splice(0, buyIndex+1);
                 }
-                const sellIndex = allArr.findIndex(i => i.action === "sell");
-                let originSellIndex = 0;
-                let sellData = {};
+                const sellIndex = allArr.findIndex(i => i.action === "sell" && i.index > originBuyIndex);
                 if (sellIndex !== -1) {
                     originSellIndex = allArr[sellIndex]["index"];
                     sellData = {
@@ -296,10 +296,12 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
             break;
         }
         case "short": {
-            while (allArr.findIndex(i => i.action === "sell") !== -1) {
-                const sellIndex = allArr.findIndex(i => i.action === "sell");
-                let originSellIndex = 0;
-                let sellData = {};
+            let originSellIndex = 0;
+            let sellData = {};
+            let originBuyIndex = 0;
+            let buyData = {};
+            while (allArr.findIndex(i => i.action === "sell" && i.index > originBuyIndex) !== -1) {
+                const sellIndex = allArr.findIndex(i => i.action === "sell" && i.index > originBuyIndex);
                 if (sellIndex !== -1) {
                     originSellIndex = allArr[sellIndex]["index"];
                     sellData = {
@@ -310,10 +312,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
                     };
                     allArr.splice(0, sellIndex+1);
                 }
-                const buyIndex = allArr.findIndex(i => i.action === "buy");
-                let originBuyIndex = 0;
-                    
-                let buyData = {};
+                const buyIndex = allArr.findIndex(i => i.action === "buy" && i.index > originSellIndex);
                 if (buyIndex !== -1) {
                     originBuyIndex = allArr[buyIndex]["index"];
                     buyData = {

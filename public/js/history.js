@@ -30,13 +30,13 @@ async function getHistory() {
             if (history.length !== 0) {
                 let newHistory = []
                 history.forEach(i => {
-                    const indicator = i.category;
                     let data = {
                         symbol: i.symbol,
                         action: i.sub_action,
                         volume: i.volume,
                         price: i.price,
-                        date: i.success_date.substr(0, 10)
+                        date: i.success_date.substr(0, 10),
+                        money: i.investmentReturn
                     }
                     newHistory.push(data);
                 });

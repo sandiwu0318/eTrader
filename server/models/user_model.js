@@ -158,7 +158,6 @@ const getOrders = async function (token) {
     history.filter(i => i.sub_action === "sell" || i.sub_action === "short cover").forEach(i => {
         i.investmentReturn = i.volume * i.price;
     });
-    console.log(history);
     orders.forEach(i => {
         delete i.success;
         delete i.action;

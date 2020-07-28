@@ -21,7 +21,6 @@ const socket = async (io) => {
                 clearInterval(socket.watchlist);
             }
             socket.watchlist = setInterval(async () => {
-                // console.log(socket);
                 socket.emit("intraday", await getWatchlist(token));
             }, 20000);
             socket.on("disconnect", () => {

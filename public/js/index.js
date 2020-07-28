@@ -132,7 +132,7 @@ async function renderData(symbol, frequency){
             }
         });
         const resJson3 = (await res3.json()).data;
-        if (resJson3.length === 0) {
+        if (resJson3.length === 0 || resJson3.error === "You don't have any watchlist yet") {
             watchlist = []
         } else {
             watchlist = resJson3[0].watchlist.split(",");

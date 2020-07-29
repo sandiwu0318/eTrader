@@ -122,10 +122,6 @@ function createChart(data, frequency) {
         xaxis: {
             title: "Date",
             type: "date",
-            // rangebreaks: [{
-            //     pattern: "day of week",
-            //     bounds: ["sat", "mon"]
-            // }],
         },
         yaxis1: {
             title: "Price",
@@ -136,7 +132,7 @@ function createChart(data, frequency) {
             title: "Volume",
             side: "right",
             overlaying: "y",
-            range: [0, Math.max(...volumes)*2],
+            range: [0, Math.max(...volumes)*1.5],
             showline: false,
             showgrid: false,
         }
@@ -260,11 +256,10 @@ let symbols;
 async function getSymbols() {
     const res = (await fetch(`/api/1.0/stock/symbolList`));
     const resJson = (await res.json()).data;
-    const symbolResult = resJson.map(i => i.symbol);
     const symbolList = resJson.map(i => `${i.symbol} (${i.name})`);
-    symbols = symbolResult;
+    symbols = resJson.map(i => i.symbol);
     autocomplete(getElement("#symbol_search"), symbolList);
-    return symbolResult;
+    return resJson;
 }
 
 async function getInputSymbols() {

@@ -1,7 +1,7 @@
 import {createList, checkLogin, removeChild, getSymbols, searchSymbol} from "./utils.js";
 window.scrollTo(0, 0);
 const socket = io();
-socket.on("watchlist", (data) => {
+socket.on("watchlist", async (data) => {
     if (data.error === "Wrong authentication") {
         swal.close();
         await Swal.fire({
@@ -12,17 +12,18 @@ socket.on("watchlist", (data) => {
         });
         localStorage.setItem("page", window.location.href);
         window.location = "/login.html";
-    } else if (resJson.error) {
+    } else if (data.error) {
         swal.close();
         Swal.fire({
-            text: resJson.error,
+            text: data.error,
             icon: 'warning',
             confirmButtonText: 'Ok'
-        }) 
+        })
+        location.href="/";
     } else {
-        removeChild("watchlist_ul");
+        removeChild("watchlist_ul_content");
         swal.close();
-        data.map(i => createList("#watchlist_ul", "user_li", Object.values(i)));
+        data.map(i => createList("#watchlist_ul_content", "user_li", Object.values(i)));
     }
 });
 

@@ -79,6 +79,7 @@ app.use(function(err, req, res, next) {
 // const Job3 = new CronJob("0 0 0 * * 1-5", function() {
 //     dailyGetNews();
 //     dailyGetPrices();
+//     dailyGetBasicInfo();
 // },
 // null,
 // true,

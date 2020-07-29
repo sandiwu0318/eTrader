@@ -4,6 +4,18 @@ window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
 
+let symbols = [];
+symbols = getSymbols();
+
+Swal.fire({
+    title: "Loading",
+    allowOutsideClick: false,
+    onBeforeOpen: () => {
+        Swal.showLoading()
+    },
+});
+
+let previosClosing = 0;
 const socket = io();
 socket.on("intraday", (data) => {
     if (data.error) {
@@ -15,6 +27,19 @@ socket.on("intraday", (data) => {
         socket.disconnect();
     } else {
         createChart(data, "1d");
+        const currentPrice = data.prices[data.prices.length-1];
+        getElement("#current_price").innerText = Math.floor(currentPrice*100)/100;
+        if (previosClosing !== 0) {
+            if (currentPrice - previosClosing > 0) {
+                getElement("#change").innerText = `+${Math.floor((currentPrice - previosClosing)*100)/100} (+${Math.floor((currentPrice / previosClosing -1)*10000)/100}%)`;
+                getElement("#change").classList.add("green");
+                getElement("#change").classList.remove("red");
+            } else {
+                getElement("#change").innerText = `${Math.floor((currentPrice - previosClosing)*100)/100} (${Math.floor((currentPrice / previosClosing -1)*10000)/100}%)`;
+                getElement("#change").classList.add("red");
+                getElement("#change").classList.remove("green");
+            }
+        }
     }
 });
 async function renderData(symbol, frequency){
@@ -28,35 +53,69 @@ async function renderData(symbol, frequency){
     if (getElement("#news_title")) {
         removeItem("news_title");
     }
-    
-    if (frequency === "1d") {
-        socket.connect();
-        socket.emit("symbol", symbol);
-        swal.close();
-    } else {
-        socket.disconnect();
-        Swal.fire({
-            title: "Loading",
-            allowOutsideClick: false,
-            onBeforeOpen: () => {
-                Swal.showLoading()
-            },
-        });
-        const res = await fetch(`/api/1.0/stock/getPrices?symbol=${symbol}&frequency=${frequency}`);
-        const resJson = (await res.json()).data;
-        createChart(resJson, frequency);
-        swal.close();
-    }
 
+    //Watchlist
+    let watchlist;
+    if (token) {
+        const data = {
+            token: token,
+            symbolOnly: 1
+        }
+        const res3 = await fetch(`/api/1.0/user/getWatchlist`,{
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const resJson3 = (await res3.json()).data;
+        if (resJson3.error === "Wrong authentication") {
+            await Swal.fire({
+                title: "Please login again",
+                icon: "error",
+                confirmButtonText: "Ok",
+                timer: "1000"
+            });
+            localStorage.setItem("page", window.location.href);
+            window.location = "/login.html";
+        }
+        if (resJson3.length === 0 || resJson3.error === "You don't have any watchlist yet") {
+            watchlist = []
+        } else {
+            watchlist = resJson3[0].watchlist.split(",");
+        }
+    } else {
+        watchlist = []
+    }
+    const watchlistBtn = getElement("#watchListBtn");
+    setWatchlistBtn(watchlist,symbol,watchlistBtn);
+    watchlistBtn.addEventListener("mouseover", () => {
+        if (watchlistBtn.classList.contains("added")) {
+            watchlistBtn.innerText = "\u2661 Watchlist";
+        } else {
+            watchlistBtn.innerText = "\u2665 Watchlist";
+        }
+    })
+    watchlistBtn.addEventListener("mouseout", () => {
+        if (watchlistBtn.classList.contains("added")) {
+            watchlistBtn.innerText = "\u2665 Watchlist";
+        } else {
+            watchlistBtn.innerText = "\u2661 Watchlist";
+        }
+    })
+    
     //Basic info
     getElement("#show_symbol").innerText = symbol;
+    symbols = await getSymbols();
+    const index = symbols.findIndex(i => i.symbol === symbol);
+    getElement("#show_company").innerText = symbols[index].name;
     const res1 = await fetch(`/api/1.0/stock/getBasicInfo?symbol=${symbol}`);
     const resJson1 = (await res1.json()).data;
+    previosClosing = resJson1["Previous Closing"]
     const basicInfofilter = Object.keys(resJson1).slice(0,-2).filter(i => resJson1[i] !== null);
     const basicInfoData = basicInfofilter.map(i => [i, resJson1[i]]).reduce((a,b) => a.concat(b));
     createTitle("#basicInfo_ul", "Basic Info");
     createList("#basicInfo_ul", "basic_info", basicInfoData);
-    
     //Financials
     if (resJson1.financialChart) {
         const financials_yearly = resJson1.financialChart.yearly;
@@ -89,6 +148,17 @@ async function renderData(symbol, frequency){
         const financialsData = [revenueTrace, earningTrace];
         Plotly.newPlot(id, financialsData, financialsLayout);
     }
+
+    if (frequency === "1d") {
+        socket.connect();
+        socket.emit("symbol", symbol);
+        
+    } else {
+        socket.disconnect();
+        const res = await fetch(`/api/1.0/stock/getPrices?symbol=${symbol}&frequency=${frequency}`);
+        const resJson = (await res.json()).data;
+        createChart(resJson, frequency);
+    }
     
     //Profile
     delete resJson1.profile.zip;
@@ -107,6 +177,7 @@ async function renderData(symbol, frequency){
             list[i].className = "li_title li_div";
         }
     }
+    swal.close();
 
     //News
     const res2 = await fetch(`/api/1.0/stock/getNews?symbol=${symbol}`);
@@ -118,32 +189,6 @@ async function renderData(symbol, frequency){
     resJson2.map(i => createListWithLink(`${i.title} | ${i.author} | ${i.time.substr(0,10)}`,i.link));
 
     //Add trade button
-    let watchlist;
-    if (token) {
-        const data = {
-            token: token,
-            symbolOnly: 1
-        }
-        const res3 = await fetch(`/api/1.0/user/getWatchlist`,{
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        const resJson3 = (await res3.json()).data;
-        if (resJson3.length === 0 || resJson3.error === "You don't have any watchlist yet") {
-            watchlist = []
-        } else {
-            watchlist = resJson3[0].watchlist.split(",");
-        }
-    } else {
-        watchlist = []
-    }
-    const btn = getElement("#watchListBtn");
-    setWatchlistBtn(watchlist,symbol,btn);
-    const form = getElement("#tradeForm");
-    form.appendChild(btn);
     let tradeBtn = getElement("#tradeBtn");
     tradeBtn.addEventListener("click",
         async function (e){
@@ -156,39 +201,59 @@ async function renderData(symbol, frequency){
                 const symbol = getElement("#show_symbol").innerText.split(" ")[0];
                 const period = getElement("#expiration").value;
                 if (sub_action && price && volume && symbol && period) {
-                    try {
-                        let data = {
-                            sub_action: sub_action,
-                            value: price,
-                            volume: volume,
-                            symbol: symbol,
-                            period: period,
-                            token: token,
-                            category: "price",
-                            cross: null,
-                            indicatorPeriod: null,
-                        }
-                        if (sub_action === "buy" || sub_action === "sell") {
-                            data.action = "long";
-                        } else {
-                            data.action = "short";
-                        }
-                        const res4 = await fetch(`/api/1.0/trade/setOrder`,{
-                            method: "POST",
-                            body: JSON.stringify(data),
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                        const resJson4 = (await res4.json()).data;
+                    if (volume%1 !== 0) {
+                        swal.close();
                         Swal.fire({
-                            title: "Success",
-                            text: resJson4.message,
-                            icon: "success",
-                            confirmButtonText: "Ok"
+                            title: "Error",
+                            text: "Amount needs to be an integer",
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
                         })
-                    } catch (err) {
-                        console.log("set order fetch failed, err");
+                    } else {
+                        try {
+                            let data = {
+                                sub_action: sub_action,
+                                value: price,
+                                volume: volume,
+                                symbol: symbol,
+                                period: period,
+                                token: token,
+                                category: "price",
+                                cross: null,
+                                indicatorPeriod: null,
+                            }
+                            if (sub_action === "buy" || sub_action === "sell") {
+                                data.action = "long";
+                            } else {
+                                data.action = "short";
+                            }
+                            const res4 = await fetch(`/api/1.0/trade/setOrder`,{
+                                method: "POST",
+                                body: JSON.stringify(data),
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            const resJson4 = (await res4.json()).data;
+                            if (resJson4.error === "Wrong authentication") {
+                                await Swal.fire({
+                                    title: "Please login again",
+                                    icon: "error",
+                                    confirmButtonText: "Ok",
+                                    timer: "1000"
+                                });
+                                localStorage.setItem("page", window.location.href);
+                                window.location = "/login.html";
+                            }
+                            Swal.fire({
+                                title: "Success",
+                                text: resJson4.message,
+                                icon: "success",
+                                confirmButtonText: "Ok"
+                            })
+                        } catch (err) {
+                            console.log("set order fetch failed, err");
+                        }
                     }
                 } else {
                     Swal.fire({
@@ -221,7 +286,16 @@ async function renderData(symbol, frequency){
                     }
                 });
                 const resJson5 = (await res5.json()).data;
-                if (resJson5.error) {
+                if (resJson5.error === "Wrong authentication") {
+                    await Swal.fire({
+                        title: "Please login again",
+                        icon: "error",
+                        confirmButtonText: "Ok",
+                        timer: "1000"
+                    });
+                    localStorage.setItem("page", window.location.href);
+                    window.location = "/login.html";
+                } else if (resJson5.error) {
                     Swal.fire({
                         title: "Error",
                         text: resJson.error,
@@ -229,9 +303,9 @@ async function renderData(symbol, frequency){
                         confirmButtonText: 'Ok'
                     })
                 } else {
-                    const btn = getElement("#watchListBtn");
+                    const watchlistBtn = getElement("#watchListBtn");
                     const watchlist = resJson5.watchlist;
-                    setWatchlistBtn(watchlist,symbol,btn);
+                    setWatchlistBtn(watchlist,symbol,watchlistBtn);
                 }
             }
         }
@@ -250,11 +324,11 @@ if (symbol && frequency) {
 
 const searchBtn = getElement("#searchBtn");
 searchBtn.addEventListener("click", function () {
-    try {
+    // try {
         //Chart
         const symbol = getElement("#symbol_search").value.split(" ")[0];
         const frequency = getElement("#frequency").value;
-        if (symbols.includes(symbol)) {
+        if (symbols.map(i => i.symbol).includes(symbol)) {
             renderData(symbol, frequency);
         } else {
             Swal.fire({
@@ -265,9 +339,9 @@ searchBtn.addEventListener("click", function () {
             })
         }
         
-    } catch (err) {
-        console.log("info fetch failed, err");
-    }
+    // } catch (err) {
+    //     console.log("info fetch failed, err");
+    // }
 })
 
 
@@ -275,20 +349,13 @@ searchBtn.addEventListener("click", function () {
 function setWatchlistBtn(watchlist,symbol,btn) {
     if (watchlist.includes(symbol)) {
         btn.className = "btn added";
-        btn.innerText = "- Watchlist";
+        btn.innerText = "\u2665 Watchlist";
     } else {
         btn.className = "btn not_added";
-        btn.innerText = "+ Watchlist";
+        btn.innerText = "\u2661 Watchlist";
     }
 }
 
-
-
-let symbols = [];
-async function SymbolList() {
-    symbols = await getSymbols();
-}
-SymbolList();
 
 const expiration = getElement("#expiration");
 expiration.addEventListener("mouseover", () => {

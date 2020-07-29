@@ -207,7 +207,7 @@ body {
 
 #tradeForm {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 #trade {
@@ -292,7 +292,6 @@ body {
     width: 15%;
     margin: 0.5rem 5rem 0.5rem 0rem;
     font-weight: 100;
-    /* text-align: right; */
 }
 
 .li_title {
@@ -318,13 +317,55 @@ body {
     margin-left: 5rem;
 }
 
-#show_symbol {
+#result_title,
+#result_price {
+    display: flex;
     width: 78%;
     margin: 2rem auto;
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 2.3rem;
+    font-weight: 500;
+    justify-content: flex-start;
+    align-items: flex-end;
 }
 
+#result_title div,
+#result_price div{
+    margin: 0 0.5rem;
+}
+
+#show_symbol {
+    line-height: 1.8rem;
+}
+
+#current_price {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 2.8rem;
+}
+
+
+#show_company,
+#change {
+    font-size: 1.3rem;
+    font-weight: 300;
+    line-height: 1.8rem;
+}
+
+#change {
+    line-height: 2rem;
+}
+
+#watchListBtn {
+    margin-left: 4rem;
+}
+
+.red {
+    color: #920000;
+}
+
+.green {
+    color: rgb(4, 105, 0);
+}
 
 /* ------Watchlist Page------- */
 
@@ -334,7 +375,7 @@ body {
     display: flex;
     justify-content: space-evenly;
     padding: 0.2rem 0.5rem;
-    border-bottom: 1px solid rgb(180, 180, 180);
+    border-top: 1px solid rgb(180, 180, 180);
 }
 
 .buy_li {
@@ -436,8 +477,12 @@ body {
     cursor: pointer;
 }
 
+#backtest_container {
+    display: none;
+}
+
 #viewHistoryBtn {
-    width: 10rem;
+    width: 13rem;
     margin-left: 3rem;
     background-color: #3fa089;
     color: white;
@@ -453,16 +498,42 @@ body {
 #graph_container {
     margin: 2rem;
 }
+
 #profit,
 #ROI,
 #result_graph {
-    width: 80%;
+    width: 90%;
     margin: 2rem auto;
 }
 
-.indicatorPeriod {
-    display: none;
+.title,
+.title_li,
+.user_li {
+    justify-content: space-around;
 }
+
+#result_ul .li_div {
+    margin: 0.5rem 1rem;
+}
+
+#saved_ul,
+#result_ul,
+#orders_ul,
+#history_ul,
+#portfolio_ul,
+#watchlist_ul {
+    width: 90%;
+    margin: 1rem auto;
+    border: 0.05rem solid #b4b4b4;
+    border-radius: 0.5rem;
+}
+
+.titles {
+    background-color: rgb(180, 180, 180);
+    border: 0.05rem solid #b4b4b4;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
 
 .graph {
     height: 400px;
@@ -481,7 +552,7 @@ body {
     background-color: #3fa089;
 }
 
-#saved_results {
+#saved_ul {
     text-align: right;
 }
 
@@ -528,6 +599,16 @@ body {
     margin: 0;
     display: inline-block;
     font-weight: 300;
+}
+
+#goBackBtn {
+    margin: 1rem 7rem;
+}
+
+#setOrderBtn,
+#tradeBtn {
+    background-color: #3fa089;
+    color: white;
 }
 
 

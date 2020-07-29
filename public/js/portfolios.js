@@ -83,6 +83,7 @@ async function getPortfolios() {
                     icon: "warning",
                     confirmButtonText: "Ok"
                 })
+                location.href="/";
             }
         }
     } catch (err) {

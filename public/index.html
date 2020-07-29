@@ -40,7 +40,16 @@
         <div class="nav_item"><a href="/backtest.html">Backtest</a></div>
     </nav>
     <div class="content_container">
-        <div id="show_symbol"></div>
+        <div id="result_title">
+            <div id="show_symbol"></div>
+            <div id="show_company"></div>
+            <button class="btn" id="watchListBtn"></button>
+        </div>
+        <div id="result_price">
+            <div id="current_price"></div>
+            <div id="change"></div>
+        </div>
+        <div class="content_item financial_graph" id="priceChart"></div>
         <div id="trade">
             <form id="tradeForm">
                 <select class="input" id="action">
@@ -57,10 +66,8 @@
                     <option value="90 days">90 days</option>
                 </select>
                 <button class="btn" id="tradeBtn">Set Order</button>
-                <button class="btn" id="watchListBtn">+ Watchlist</button>
             </form>
         </div>
-        <div class="content_item financial_graph" id="priceChart"></div>
         <div class="content_item">
             <ul id="basicInfo_ul"></ul>
         </div>

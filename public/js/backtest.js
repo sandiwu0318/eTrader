@@ -14,16 +14,6 @@ showGraphBtn.addEventListener("click",
                 Swal.showLoading()
             },
         });
-        removeChild("result_container");
-        removeChild("profit");
-        removeChild("ROI");
-        removeChild("graph_container");
-        if (getElement("#setOrderBtn")) {
-            removeItem("setOrderBtn");
-        }
-        if (getElement("#saveBtn")) {
-            removeItem("saveBtn");
-        }
         let data = {
             periods: getDataByClass("period"),
             symbol: getDataByClass("symbol")[0],
@@ -48,6 +38,16 @@ showGraphBtn.addEventListener("click",
                     confirmButtonText: 'Ok'
                 })
             } else {
+                removeChild("result_container");
+                removeChild("profit");
+                removeChild("ROI");
+                removeChild("graph_container");
+                if (getElement("#setOrderBtn")) {
+                    removeItem("setOrderBtn");
+                }
+                if (getElement("#saveBtn")) {
+                    removeItem("saveBtn");
+                }
                 try {
                     const res = await fetch("/api/1.0/backtest/getData", {
                         method: "POST",
@@ -163,6 +163,7 @@ showGraphBtn.addEventListener("click",
                             getElement("#graph_container").appendChild(div);
                             Plotly.newPlot(id, plotData, layout);
                         }
+                        getElement("#backtest_container").style.display = "block";
                         showGraph("chart", resJson);
                         scrollTo(0, 500);
                     }
@@ -464,16 +465,6 @@ backtestBtn.addEventListener("click",
                 Swal.showLoading()
             },
         });
-        removeChild("result_container");
-        removeChild("graph_container");
-        removeChild("profit");
-        removeChild("ROI");
-        if (getElement("#setOrderBtn")) {
-            removeItem("setOrderBtn");
-        }
-        if (getElement("#saveBtn")) {
-            removeItem("saveBtn");
-        }
         const indicator = getElement(".indicator").value;
         let indicator_test;
         let data = {
@@ -513,7 +504,7 @@ backtestBtn.addEventListener("click",
                 icon: 'error',
                 confirmButtonText: 'Ok'
             })
-        } else if ((data.periods.length === 2 && data.symbol) && ((data.indicator !== "price" && data.indicatorPeriod) || (data.indicator === "price"))) {
+        } else if ((data.periods.length === 2 && data.symbol) && data.volume && data.actionValue && data.exitValue && ((data.indicator !== "price" && data.indicatorPeriod) || (data.indicator === "price"))) {
             if (data.indicator !== "price" && (new Date(data.periods[1]).getTime() - new Date(data.periods[0]).getTime() < data.indicatorPeriod*1000*60*60*24)) {
                 swal.close();
                 Swal.fire({
@@ -522,7 +513,25 @@ backtestBtn.addEventListener("click",
                     icon: 'error',
                     confirmButtonText: 'Ok'
                 })
+            } else if (data.volume%1 !== 0) {
+                swal.close();
+                Swal.fire({
+                    title: "Error",
+                    text: "Amount needs to be an integer",
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
             } else {
+                removeChild("result_container");
+                removeChild("graph_container");
+                removeChild("profit");
+                removeChild("ROI");
+                if (getElement("#setOrderBtn")) {
+                    removeItem("setOrderBtn");
+                }
+                if (getElement("#saveBtn")) {
+                    removeItem("saveBtn");
+                }
                 try {
                     const res = await fetch("/api/1.0/backtest/testWithIndicator", {
                         method: "POST",
@@ -541,8 +550,8 @@ backtestBtn.addEventListener("click",
                             confirmButtonText: "Ok"
                         });
                     } else {
-                        createButton("btn", "saveBtn", "test_form", "Save")
-                        createButton("btn", "setOrderBtn", "test_form", "Set orders")
+                        createButton("btn", "saveBtn", "backtest_container", "Save")
+                        createButton("btn", "setOrderBtn", "backtest_container", "Set orders")
                         showResult("result_graph","result_ul", resJson);
                         getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson.investmentReturn)}</h2>`;
                         getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson.ROI*10000)/100)}%</h2>`;
@@ -609,7 +618,7 @@ backtestBtn.addEventListener("click",
                                 });
                                 
                                 const resJson1 = (await res1.json()).data;
-                                createButton("btn", "setOrderBtn", "test_form", "Set order with this strategy")
+                                createButton("btn", "setOrderBtn", "test_form", "Set orders")
                                 showResult("result_graph","result_ul", resJson1);
                                 getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
                                 getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
@@ -755,8 +764,10 @@ viewHistoryBtn.addEventListener("click", async function (e) {
     }
     if (getElement("#saved_ul")) {
         removeChild("saved_ul");
+        createButton("btn", "goBackBtn", "saved_results", "Go back");
         createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
     } else {
+        createButton("btn", "goBackBtn", "saved_results", "Go back");
         const ul = document.createElement("ul");
         ul.id = "saved_ul";
         ul.className = "user_ul";
@@ -767,7 +778,6 @@ viewHistoryBtn.addEventListener("click", async function (e) {
     removeChild("profit");
     removeChild("ROI");
     removeChild("result_container");
-    createButton("btn", "goBackBtn", "test_form", "Go back");
     resJson.forEach(i => createList(`#saved_ul`, "user_li saved_li", [i.created_date.substr(0, 10), i.periods[0],i.periods[1], i.symbol, i.indicator, i.action, `${Math.floor(i.ROI*10000)/100}%`]));
     const goBackBtn = getElement("#goBackBtn");
     goBackBtn.addEventListener("click", function(e) {

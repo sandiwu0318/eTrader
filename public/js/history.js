@@ -6,7 +6,7 @@ if (token !== null) {
     getHistory();
 }
 async function getHistory() {
-    // try {
+    try {
         const data = {
             token: token
         }
@@ -57,10 +57,11 @@ async function getHistory() {
                     confirmButtonText: "Ok"
                 })
             }
+            location.href="/";
         }
-    // } catch (err) {
-    //     console.log("History fetch failed, err");
-    // }
+    } catch (err) {
+        console.log("History fetch failed, err");
+    }
 }
 
 let symbols;

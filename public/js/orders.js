@@ -101,6 +101,7 @@ async function getOrders() {
                     icon: "warning",
                     confirmButtonText: "Ok"
                 })
+                location.href="/";
             }
         }
     } catch (err) {

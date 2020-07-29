@@ -139,7 +139,6 @@ const getWatchlist = async function (token, symbolOnly) {
             results.push(result);
         }
     }
-    
     return results;
 };
 

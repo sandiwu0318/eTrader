@@ -1,4 +1,4 @@
-import {createList, checkLogin, getSymbols, searchSymbol} from "./utils.js";
+import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest} from "./utils.js";
 window.scrollTo(0, 0);
 const token = localStorage.getItem("token");
 checkLogin(token);
@@ -56,8 +56,8 @@ async function getHistory() {
                     icon: "warning",
                     confirmButtonText: "Ok"
                 })
+                location.href="/";
             }
-            location.href="/";
         }
     } catch (err) {
         console.log("History fetch failed, err");
@@ -71,3 +71,4 @@ async function SymbolList() {
 
 SymbolList();
 searchSymbol();
+hoverBacktest(token);

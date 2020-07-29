@@ -1,4 +1,4 @@
-import {createList, checkLogin, getSymbols, searchSymbol, removeItem} from "./utils.js";
+import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest} from "./utils.js";
 window.scrollTo(0, 0);
 const token = localStorage.getItem("token");
 checkLogin(token);
@@ -117,3 +117,4 @@ async function SymbolList() {
 
 SymbolList();
 searchSymbol();
+hoverBacktest(token);

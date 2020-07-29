@@ -37,7 +37,9 @@
         <div class="nav_item"><a href="/portfolios.html">Portfolios</a></div>
         <div class="nav_item"><a href="/orders.html">Orders</a></div>
         <div class="nav_item"><a href="/history.html">History</a></div>
-        <div class="nav_item"><a href="/backtest.html">Backtest</a></div>
+        <div class="nav_item" id="backtest_nav"><a href="/backtest.html">Backtest</a>
+            <div id="viewHistory_nav">Saved</div>
+        </div>
     </nav>
     <div class="content_container">
         <div id="result_title">
@@ -59,13 +61,13 @@
                     <option value="short cover">short cover</option>
                 </select>
                 <input type="number" min="0.01" step="0.01" class="input price" id="price" placeholder="Price">
-                <input type="number" min="1" class="input volume" id="volume" placeholder="Amount">
+                <input type="number" min="1" class="input volume" id="volume" placeholder="Quantity">
                 <select class="input" id="expiration">
                     <option disabled>Expiration</option>
                     <option value="1 day">1 day</option>
                     <option value="90 days">90 days</option>
                 </select>
-                <button class="btn" id="tradeBtn">Set Order</button>
+                <button class="btn" id="tradeBtn">Place Order</button>
             </form>
         </div>
         <div class="content_item">

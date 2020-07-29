@@ -37,7 +37,9 @@
         <div class="nav_item"><a href="/portfolios.html">Portfolios</a></div>
         <div class="nav_item"><a href="/orders.html">Orders</a></div>
         <div class="nav_item"><a href="/history.html">History</a></div>
-        <div class="nav_item"><a class="current" href="/backtest.html">Backtest</a></div>
+        <div class="nav_item" id="backtest_nav"><a class="current" href="/backtest.html">Backtest</a>
+            <div id="viewHistory_nav">Saved</div>
+        </div>
     </nav>
     <div id="saved_results">
     </div>
@@ -46,7 +48,6 @@
             <label class="test_label">Date Range</label>
             <input type="date" class="test_input period"/>
             <input type="date" class="test_input period"/>
-            <button type="button" class="btn" id="viewHistoryBtn">View saved results</button>
             <br>
             <label class="test_label">Stock Symbol</label>
             <div class="autocomplete input_symbol_search">
@@ -100,7 +101,7 @@
                     <option value="short">short</option>
                 </select>
                 <br>
-                <label class="test_label">Amount</label>
+                <label class="test_label">Quantity</label>
                 <input type="number" min="1" class="test_input volume"/>
                 <br>
                 <div class="price_test hide">

@@ -37,8 +37,14 @@
         <div class="nav_item"><a class="current" href="/portfolios.html">Portfolios</a></div>
         <div class="nav_item"><a href="/orders.html">Orders</a></div>
         <div class="nav_item"><a href="/history.html">History</a></div>
-        <div class="nav_item"><a href="/backtest.html">Backtest</a></div>
+        <div class="nav_item" id="backtest_nav"><a href="/backtest.html">Backtest</a>
+            <div id="viewHistory_nav">Saved</div>
+        </div>
     </nav>
+    <div class="pie_container">
+        <div class="pie_item graph" id="expensePie"></div>
+        <div class="pie_item graph" id="returnPie"></div>
+    </div>
     <div>
         <ul id="portfolio_ul" class="user_ul">
             <div class="titles">
@@ -51,10 +57,7 @@
             </div>
         </ul>
     </div>
-    <div class="pie_container">
-        <div class="pie_item graph" id="expensePie"></div>
-        <div class="pie_item graph" id="returnPie"></div>
-    </div>
+    
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script type="module" src="js/portfolios.js"></script>

@@ -167,6 +167,18 @@ body {
     color: rgb(66, 66, 66)
 }
 
+#backtest_nav {
+    position: relative;
+}
+
+#viewHistory_nav {
+    position: absolute;
+    padding: 0.5rem 1.7rem 0.5rem 0.5rem;
+    background-color: white;
+    display: none;
+    cursor: pointer;
+    text-align: center;
+}
 
 /* ------Main Content------- */
 
@@ -432,7 +444,7 @@ body {
 
 .test_case {
     margin: 2rem auto;
-    width: 85%;
+    width: 70%;
 }
 
 .test_input,
@@ -554,6 +566,10 @@ body {
 
 #saved_ul {
     text-align: right;
+}
+
+#saved_ul .li_div {
+    margin-right: 3rem; 
 }
 
 #indicator_info_icon {

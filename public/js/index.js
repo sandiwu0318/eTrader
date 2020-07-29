@@ -1,4 +1,4 @@
-import {getElement, createTitle, createList, createListWithLink, createForm, removeItem, removeChild, createChart, showLoginBtn, checkLogin, createInput, createSelect, createButton, getSymbols} from "./utils.js";
+import {getElement, createTitle, createList, createListWithLink, removeItem, removeChild, createChart, showLoginBtn, checkLogin, getSymbols, hoverBacktest} from "./utils.js";
 //Get Price
 window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
@@ -362,3 +362,5 @@ expiration.addEventListener("mouseover", () => {
     const expiration_info = getElement("#expiration_info");
     expiration_info.style.display = "inline-block"
 })
+
+hoverBacktest(token);

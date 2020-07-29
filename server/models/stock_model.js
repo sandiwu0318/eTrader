@@ -12,20 +12,20 @@ const getIntradayPrices = async function (symbol) {
         let period2;
         if ((hours === 13 && minutes >= 30) || (hours >=14 && hours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
             console.log("1");
-            period1 = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 13, 30)).getTime()/1000;
+            period1 = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 13, 29)).getTime()/1000;
             period2 = Math.floor(today.getTime()/1000);
         } else if (today.getDay() === 0) {
             console.log("2");
-            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 13, 30)).getTime()/1000);
-            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 20)).getTime()/1000);
+            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 13, 29)).getTime()/1000);
+            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 20, 1)).getTime()/1000);
         } else if (today.getDay() === 1) {
             console.log("3");
-            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 13, 30)).getTime()/1000);
-            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 20)).getTime()/1000);
+            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 13, 29)).getTime()/1000);
+            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 20, 1)).getTime()/1000);
         } else {
             console.log("4");
-            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 13, 30)).getTime()/1000);
-            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 20)).getTime()/1000);
+            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 13, 29)).getTime()/1000);
+            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 20, 1)).getTime()/1000);
         }
         const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${period1}&period2=${period2}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
         let data;
@@ -378,6 +378,64 @@ const dailyGetNews = async function () {
     }
 };
 
+
+const dailyGetBasicInfo = async function () {
+    try {
+        const selectStr = "SELECT DISTINCT(symbol) FROM stock_basicInfo";
+        await transaction();
+        const results = await query(selectStr, []);
+        console.log(results);
+        await commit();
+        const symbols = results.map(i => i.symbol);
+        for (let a of symbols) {
+            const config = {
+                "headers":{
+                    "x-rapidapi-host":RAPID_API_HOST,
+                    "x-rapidapi-key":RAPID_API_KEY,
+                    "useQueryString":true
+                }, "params":{
+                    "symbol":a,
+                    "region":"US"
+                }
+            };
+            setTimeout(() => console.log(1), 1000);
+            const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary", config);
+            const getData = function(category, name) {
+                return response.data[category][name];
+            };
+            let data = {
+                symbol: a,
+                prevClose: getData("price", "regularMarketPreviousClose").raw,
+                dayRange: `${getData("price", "regularMarketDayLow").raw} - ${getData("price", "regularMarketDayHigh").raw}`,
+                averageVolume: getData("price", "averageDailyVolume3Month").raw,
+                annualReturn: getData("summaryDetail", "ytdReturn").raw,
+                beta: getData("summaryDetail", "beta").raw,
+                marketCap: getData("defaultKeyStatistics", "enterpriseValue").raw,
+                eps: getData("defaultKeyStatistics", "trailingEps").raw,
+                peRation: getData("price", "regularMarketPrice").raw / getData("defaultKeyStatistics", "trailingEps").raw || null,
+                dividend: getData("summaryDetail", "dividendYield").raw,
+                financialChart: JSON.stringify(getData("earnings", "financialsChart")),
+                profile: JSON.stringify(response.data.summaryProfile),
+            };
+            const deleteStr = "DELETE FROM stock_basicInfo WHERE symbol = ?";
+            const insertStr = "INSERT INTO stock_basicInfo SET ?";
+            await transaction();
+            await query(deleteStr, [a]);
+            await query(insertStr, [data]);
+            await commit();
+            data.financialChart = getData("earnings", "financialsChart");
+            data.profile = response.data.summaryProfile;
+        }
+        return;
+    } catch(error) {
+        await rollback();
+        console.log(error);
+        return "Error when retrieving stock basic info every day";
+    }
+
+};
+
+
 module.exports = {
     getIntradayPrices,
     getPrices,
@@ -388,5 +446,6 @@ module.exports = {
     getApiNews,
     symbolList,
     dailyGetPrices,
-    dailyGetNews
+    dailyGetNews,
+    dailyGetBasicInfo
 };

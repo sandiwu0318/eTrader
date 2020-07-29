@@ -11,7 +11,8 @@ const {
     getApiNews,
     symbolList,
     dailyGetPrices,
-    dailyGetNews
+    dailyGetNews,
+    dailyGetBasicInfo
 } = require("../controllers/stock_controller");
 
 router.route("/stock/getIntradayPrices")
@@ -43,5 +44,9 @@ router.route("/stock/dailyGetPrices")
 
 router.route("/stock/dailyGetNews")
     .get(wrapAsync(dailyGetNews));
+
+
+router.route("/stock/dailyGetBasicInfo")
+    .get(wrapAsync(dailyGetBasicInfo));
 
 module.exports = router;

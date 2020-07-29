@@ -59,6 +59,11 @@ const dailyGetNews = async (req, res) => {
     res.status(200).json({data: dailyGetNews});
 };
 
+const dailyGetBasicInfo = async (req, res) => {
+    const dailyGetBasicInfo = await Stock.dailyGetBasicInfo();
+    res.status(200).json({data: dailyGetBasicInfo});
+};
+
 
 module.exports = {
     getIntradayPrices,
@@ -70,5 +75,6 @@ module.exports = {
     getApiNews,
     symbolList,
     dailyGetPrices,
-    dailyGetNews
+    dailyGetNews,
+    dailyGetBasicInfo
 };

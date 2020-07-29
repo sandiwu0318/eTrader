@@ -198,10 +198,14 @@ function autocomplete(inp, arr) {
         a.setAttribute("class", "autocomplete-items");
         this.parentNode.appendChild(a);
         for (i = 0; i < arr.length; i++) {
-            if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+            if (arr[i].toUpperCase().indexOf(val.toUpperCase())!== -1) {
+                const index = arr[i].toUpperCase().indexOf(val.toUpperCase());
                 b = document.createElement("DIV");
-                b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-                b.innerHTML += arr[i].substr(val.length);
+                if (index !== 0) {
+                    b.innerHTML += arr[i].substr(0, index);
+                }
+                b.innerHTML += "<strong>" + arr[i].substr(index, val.length) + "</strong>";
+                b.innerHTML += arr[i].substr(index+val.length, arr[i].length);
                 b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
                 b.addEventListener("click", function(e) {
                     inp.value = this.getElementsByTagName("input")[0].value;
@@ -265,11 +269,9 @@ async function getSymbols() {
 async function getInputSymbols() {
     const res = (await fetch(`/api/1.0/stock/symbolList`));
     const resJson = (await res.json()).data;
-    const symbolList = resJson.map(i => `${i.symbol}`);
+    const symbolList = resJson.map(i => `${i.symbol} (${i.name})`);
     autocomplete(getElement("#input_symbol_search"), symbolList);
 }
-
-
 
 
 function searchSymbol() {

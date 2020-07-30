@@ -1,4 +1,4 @@
-import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest} from "./utils.js";
+import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest, getElement} from "./utils.js";
 window.scrollTo(0, 0);
 const token = localStorage.getItem("token");
 checkLogin(token);
@@ -6,7 +6,7 @@ if (token !== null) {
     getOrders();
 }
 async function getOrders() {
-    try {
+    // try {
         const data = {
             token: token
         }
@@ -34,6 +34,10 @@ async function getOrders() {
                 icon: 'warning',
                 confirmButtonText: 'Ok'
             })
+            const reminder = document.createElement("div");
+            reminder.className = "reminder";
+            reminder.innerText = "You can place orders with prices or indicators."
+            getElement("#orders_ul").appendChild(reminder);
         } else {
             const orders = resJson.orders;
             if (orders.length !== 0) {
@@ -58,10 +62,15 @@ async function getOrders() {
                     }
                     newOrders.push(data);
                 });
-                newOrders.map(i => createList("#orders_ul", "user_li",Object.values(i)));
+                newOrders.map(i => {
+                    const arr = Object.values(i)
+                    arr.push("\u2716");
+                    createList("#orders_ul", "user_li",arr);
+                })
                 const user_li = document.getElementsByClassName("user_li");
-                for (let i=0; i<user_li.length; i++) {
-                    user_li[i].addEventListener("click", async function() {
+                const icons = document.getElementsByClassName("icon");
+                for (let i=0; i<icons.length; i++) {
+                    icons[i].addEventListener("click", async function() {
                         const result = await Swal.fire({
                             title: 'Delete it?',
                             text: "You won't be able to revert this!",
@@ -100,12 +109,15 @@ async function getOrders() {
                     icon: "warning",
                     confirmButtonText: "Ok"
                 })
-                location.href="/";
+                const reminder = document.createElement("div");
+                reminder.className = "reminder";
+                reminder.innerText = "You can place orders with prices or indicators."
+                getElement("#orders_ul").appendChild(reminder);
             }
         }
-    } catch (err) {
-        console.log("Orders fetch failed, err");
-    }
+    // } catch (err) {
+    //     console.log("Orders fetch failed, err");
+    // }
 }
 
 

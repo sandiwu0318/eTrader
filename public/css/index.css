@@ -378,11 +378,14 @@ body {
 
 .red {
     color: #920000;
+    padding: 3px 5px;
 }
 
 .red_flash {
     background-color: #920000;
     color: white;
+    border-radius: 3px;
+    padding: 3px 5px;
     animation-duration: 1s;
     animation-name: red_flash;
     animation-iteration-count: infinite;
@@ -400,11 +403,14 @@ body {
 
 .green {
     color: #046900;
+    padding: 3px 5px;
 }
 
 .green_flash {
     background-color: #046900;
     color: white;
+    border-radius: 3px;
+    padding: 3px 5px;
     animation-duration: 1s;
     animation-name: green_flash;
     animation-iteration-count: infinite;

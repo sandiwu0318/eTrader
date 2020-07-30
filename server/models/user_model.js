@@ -42,25 +42,23 @@ const signUp = async (name, email, password, expire) => {
     }
 };
 
-const signIn = async (email, password, expire) => {
+const signIn = async (email, password) => {
     try {
         await transaction();
         const users = await query("SELECT * FROM user WHERE email = ?", [email]);
         const user = users[0];
+        const accessToken = users[0].access_token;
         if (users.length == 0) {
             await commit();
             return {error: "Please sign up first"};
-        } 
+        }
         if (CryptoJS.AES.decrypt(user.password, email).toString(CryptoJS.enc.Utf8) !== password){
             await commit();
             return {error: "Password is wrong"};
         }
         const loginAt = new Date();
-        const sha = crypto.createHash("sha256");
-        sha.update(email + password + loginAt);
-        const accessToken = sha.digest("hex");
-        const queryStr = "UPDATE user SET access_token = ?, access_expired = ?, last_login = ? WHERE id = ?";
-        await query(queryStr, [accessToken, expire, loginAt, user.id]);
+        const queryStr = "UPDATE user SET last_login = ? WHERE id = ?";
+        await query(queryStr, [loginAt, user.id]);
         delete user.password;
         delete user.access_expired;
         delete user.access_token;

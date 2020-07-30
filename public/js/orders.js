@@ -36,7 +36,6 @@ async function getOrders() {
             })
         } else {
             const orders = resJson.orders;
-            console.log(orders)
             if (orders.length !== 0) {
                 let newOrders = []
                 orders.forEach(i => {

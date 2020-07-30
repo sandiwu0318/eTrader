@@ -858,10 +858,6 @@ action.addEventListener("change", () => {
                 showResult("result_graph","result_ul", resJson1);
                 getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
                 getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
-                if (newData.indicator.substr(1 ,2) === "MA") {
-                    newData.actionValue = parseInt(newData.actionValue[0]);
-                    newData.exitValue = parseInt(newData.exitValue[0]);
-                }
                 setOrder(newData);
                 window.scrollTo(0, 500);
             })

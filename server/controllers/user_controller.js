@@ -7,8 +7,8 @@ const signUp = async (req, res) => {
 };
 
 const signIn = async (req, res) => {
-    const { email, password, expire } = req.body;
-    const signIn = await User.signIn(email, password, expire);
+    const { email, password } = req.body;
+    const signIn = await User.signIn(email, password);
     res.status(200).json({data: signIn});
 };
 

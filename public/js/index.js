@@ -32,10 +32,18 @@ socket.on("intraday", (data) => {
         if (previosClosing !== 0) {
             if (currentPrice - previosClosing > 0) {
                 getElement("#change").innerText = `+${(currentPrice - previosClosing).toFixed(2)} (+${((currentPrice / previosClosing -1)*100).toFixed(2)}%)`;
+                getElement("#change").classList.add("green_flash");
+                setTimeout(() => {
+                    getElement("#change").classList.remove("green_flash");
+                }, 900);
                 getElement("#change").classList.add("green");
                 getElement("#change").classList.remove("red");
             } else {
                 getElement("#change").innerText = `${(currentPrice - previosClosing).toFixed(2)} (${((currentPrice / previosClosing -1)*100).toFixed(2)}%)`;
+                getElement("#change").classList.add("red_flash");
+                setTimeout(() => {
+                    getElement("#change").classList.remove("red_flash");
+                }, 900);
                 getElement("#change").classList.add("red");
                 getElement("#change").classList.remove("green");
             }

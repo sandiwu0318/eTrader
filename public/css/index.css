@@ -378,8 +378,44 @@ body {
     color: #920000;
 }
 
+.red_flash {
+    background-color: #920000;
+    color: white;
+    animation-duration: 1s;
+    animation-name: red_flash;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
+}
+@keyframes red_flash {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0.2;
+    }
+}
+
 .green {
-    color: rgb(4, 105, 0);
+    color: #046900;
+}
+
+.green_flash {
+    background-color: #046900;
+    color: white;
+    animation-duration: 1s;
+    animation-name: green_flash;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
+}
+@keyframes green_flash {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0.2;
+    }
 }
 
 /* ------Watchlist Page------- */

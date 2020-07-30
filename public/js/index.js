@@ -57,6 +57,8 @@ async function renderData(symbol, frequency){
     removeChild("basicInfo_ul");
     removeChild("intro");
     removeChild("show_symbol");
+    removeChild("financials_Yearly");
+    removeChild("financials_Quarterly");
     removeChild("news_ul");
     if (getElement("#news_title")) {
         removeItem("news_title");
@@ -126,10 +128,13 @@ async function renderData(symbol, frequency){
     createList("#basicInfo_ul", "basic_info", basicInfoData);
     //Financials
     if (resJson1.financialChart) {
+        getElement("#financials").style.display = "flex";
         const financials_yearly = resJson1.financialChart.yearly;
         const financials_quarterly = resJson1.financialChart.quarterly;
         financialGraph("financials_Yearly", financials_yearly);
         financialGraph("financials_Quarterly", financials_quarterly);
+    } else {
+        getElement("#financials").style.display = "none";
     }
     function financialGraph(id, data) {
         const revenueTrace = {
@@ -167,18 +172,20 @@ async function renderData(symbol, frequency){
         const resJson = (await res.json()).data;
         createChart(resJson, frequency);
     }
-    
+    console.log(resJson1)
     //Profile
-    delete resJson1.profile.zip;
-    delete resJson1.profile.companyOfficers;
-    delete resJson1.profile.maxAge;
-    const longIntro = resJson1.profile.longBusinessSummary;
-    delete resJson1.profile.longBusinessSummary;
-    const profileData = Object.keys(resJson1.profile).map(i => [i, resJson1.profile[i]]).reduce((a,b) => a.concat(b));
-    createTitle("#profile_ul", "Profile");
-    createList("#profile_ul", "profile", profileData);
-    createTitle("#intro", "Company Intro");
-    createList("#intro", "intro", [longIntro]);
+    if (resJson1.profile) {
+        delete resJson1.profile.zip;
+        delete resJson1.profile.companyOfficers;
+        delete resJson1.profile.maxAge;
+        const longIntro = resJson1.profile.longBusinessSummary;
+        delete resJson1.profile.longBusinessSummary;
+        const profileData = Object.keys(resJson1.profile).map(i => [i, resJson1.profile[i]]).reduce((a,b) => a.concat(b));
+        createTitle("#profile_ul", "Profile");
+        createList("#profile_ul", "profile", profileData);
+        createTitle("#intro", "Company Intro");
+        createList("#intro", "intro", [longIntro]);
+    }
     const list = document.getElementsByClassName("li_div");
     for (let i = 0; i<list.length; i++) {
         if (i%2 === 0) {

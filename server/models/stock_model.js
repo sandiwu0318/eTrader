@@ -113,34 +113,40 @@ const getBasicInfo = async function (symbol) {
         await transaction();
         const result = await query(selectStr, [symbol]);
         await commit();
+        let data;
         if (result.length === 0) {
-            const basicInfo = await getApiBasicInfo(symbol);
-            return basicInfo;
+            data = await getApiBasicInfo(symbol);
         } else {
-            return {
-                Symbol: result[0].symbol,
-                "Previous Closing": result[0].prevClose,
-                "Day Range": result[0].dayRange,
-                "Average Volume": result[0].averageVolume,
-                "Annual Return": result[0].annualReturn,
-                "Beta": result[0].beta,
-                "Market Cap": result[0].marketCap,
-                "EPS": result[0].eps,
-                "PE Ration": result[0].peRation,
-                "Dividend": result[0].dividend,
-                financialChart: JSON.parse(result[0].financialChart),
-                profile: {
-                    Sector: JSON.parse(result[0].profile).sector,
-                    Industry: JSON.parse(result[0].profile).industry,
-                    Country: JSON.parse(result[0].profile).country,
-                    City: JSON.parse(result[0].profile).city,
-                    State: JSON.parse(result[0].profile).state,
-                    Employees: JSON.parse(result[0].profile).fullTimeEmployees,
-                    Website: JSON.parse(result[0].profile).website,
-                    longBusinessSummary: JSON.parse(result[0].profile).longBusinessSummary
-                }
+            data = result[0];
+        }
+        const finalData = {
+            Symbol: data.symbol,
+            "Previous Closing": data.prevClose,
+            "Day Range": data.dayRange,
+            "Average Volume": data.averageVolume,
+            "Annual Return": data.annualReturn,
+            "Beta": data.beta,
+            "Market Cap": data.marketCap,
+            "EPS": data.eps,
+            "PE Ration": data.peRation,
+            "Dividend": data.dividend,
+        };
+        if (data.financialChart) {
+            finalData.financialChart = JSON.parse(data.financialChart);
+        }
+        if (data.profile) {
+            finalData.profile = {
+                Sector: JSON.parse(data.profile).sector || null,
+                Industry: JSON.parse(data.profile).industry || null,
+                Country: JSON.parse(data.profile).country || null,
+                City: JSON.parse(data.profile).city || null,
+                State: JSON.parse(data.profile).state || null,
+                Employees: JSON.parse(data.profile).fullTimeEmployees || null,
+                Website: JSON.parse(data.profile).website || null,
+                longBusinessSummary: JSON.parse(data.profile).longBusinessSummary || null
             };
         }
+        return finalData;
     } catch(error) {
         await rollback();
         console.log(error);
@@ -221,28 +227,34 @@ const getApiBasicInfo = async function (symbol) {
         };
         const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary", config);
         const getData = function(category, name) {
-            return response.data[category][name];
+            if (response.data[category]) {
+                return response.data[category][name] || null;
+            }
+            return null;
         };
         let data = {
             symbol: symbol,
-            prevClose: getData("price", "regularMarketPreviousClose").raw,
-            dayRange: `${getData("price", "regularMarketDayLow").raw} - ${getData("price", "regularMarketDayHigh").raw}`,
-            averageVolume: getData("price", "averageDailyVolume3Month").raw,
-            annualReturn: getData("summaryDetail", "ytdReturn").raw,
-            beta: getData("summaryDetail", "beta").raw,
-            marketCap: getData("defaultKeyStatistics", "enterpriseValue").raw,
-            eps: getData("defaultKeyStatistics", "trailingEps").raw,
+            prevClose: getData("price", "regularMarketPreviousClose").raw || null,
+            dayRange: `${getData("price", "regularMarketDayLow").raw} - ${getData("price", "regularMarketDayHigh").raw}` || null,
+            averageVolume: getData("price", "averageDailyVolume3Month").raw  || null,
+            annualReturn: getData("summaryDetail", "ytdReturn").raw || null,
+            beta: getData("summaryDetail", "beta").raw || null,
+            marketCap: getData("defaultKeyStatistics", "enterpriseValue").raw || null,
+            eps: getData("defaultKeyStatistics", "trailingEps").raw || null,
             peRation: getData("price", "regularMarketPrice").raw / getData("defaultKeyStatistics", "trailingEps").raw || null,
-            dividend: getData("summaryDetail", "dividendYield").raw,
-            financialChart: JSON.stringify(getData("earnings", "financialsChart")),
-            profile: JSON.stringify(response.data.summaryProfile),
+            dividend: getData("summaryDetail", "dividendYield").raw || null,
+            
         };
+        if (getData("earnings", "financialsChart")) {
+            data.financialChart = JSON.stringify(getData("earnings", "financialsChart"));
+        }
+        if (response.data.summaryProfile) {
+            data.profile = JSON.stringify(response.data.summaryProfile);
+        }
         const insertStr = "INSERT INTO stock_basicInfo SET ?";
         await transaction();
         await query(insertStr, [data]);
         await commit();
-        data.financialChart = getData("earnings", "financialsChart");
-        data.profile = response.data.summaryProfile;
         return data;
     } catch(error) {
         await rollback();
@@ -401,30 +413,32 @@ const dailyGetBasicInfo = async function () {
             setTimeout(() => console.log(1), 1000);
             const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary", config);
             const getData = function(category, name) {
-                return response.data[category][name];
+                return response.data[category][name] || null;
             };
             let data = {
                 symbol: a,
-                prevClose: getData("price", "regularMarketPreviousClose").raw,
-                dayRange: `${getData("price", "regularMarketDayLow").raw} - ${getData("price", "regularMarketDayHigh").raw}`,
-                averageVolume: getData("price", "averageDailyVolume3Month").raw,
-                annualReturn: getData("summaryDetail", "ytdReturn").raw,
-                beta: getData("summaryDetail", "beta").raw,
-                marketCap: getData("defaultKeyStatistics", "enterpriseValue").raw,
-                eps: getData("defaultKeyStatistics", "trailingEps").raw,
+                prevClose: getData("price", "regularMarketPreviousClose").raw || null,
+                dayRange: `${getData("price", "regularMarketDayLow").raw} - ${getData("price", "regularMarketDayHigh").raw}` || null,
+                averageVolume: getData("price", "averageDailyVolume3Month").raw || null,
+                annualReturn: getData("summaryDetail", "ytdReturn").raw || null,
+                beta: getData("summaryDetail", "beta").raw || null,
+                marketCap: getData("defaultKeyStatistics", "enterpriseValue").raw || null,
+                eps: getData("defaultKeyStatistics", "trailingEps").raw || null,
                 peRation: getData("price", "regularMarketPrice").raw / getData("defaultKeyStatistics", "trailingEps").raw || null,
-                dividend: getData("summaryDetail", "dividendYield").raw,
-                financialChart: JSON.stringify(getData("earnings", "financialsChart")),
-                profile: JSON.stringify(response.data.summaryProfile),
+                dividend: getData("summaryDetail", "dividendYield").raw || null,
             };
+            if (getData("earnings", "financialsChart")) {
+                data.financialChart = JSON.stringify(getData("earnings", "financialsChart"));
+            }
+            if (response.data.summaryProfile) {
+                data.profile = JSON.stringify(response.data.summaryProfile);
+            }
             const deleteStr = "DELETE FROM stock_basicInfo WHERE symbol = ?";
             const insertStr = "INSERT INTO stock_basicInfo SET ?";
             await transaction();
             await query(deleteStr, [a]);
             await query(insertStr, [data]);
             await commit();
-            data.financialChart = getData("earnings", "financialsChart");
-            data.profile = response.data.summaryProfile;
         }
         return;
     } catch(error) {

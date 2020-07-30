@@ -28,14 +28,14 @@ socket.on("intraday", (data) => {
     } else {
         createChart(data, "1d");
         const currentPrice = data.prices[data.prices.length-1];
-        getElement("#current_price").innerText = Math.floor(currentPrice*100)/100;
+        getElement("#current_price").innerText = currentPrice.toFixed(2);
         if (previosClosing !== 0) {
             if (currentPrice - previosClosing > 0) {
-                getElement("#change").innerText = `+${Math.floor((currentPrice - previosClosing)*100)/100} (+${Math.floor((currentPrice / previosClosing -1)*10000)/100}%)`;
+                getElement("#change").innerText = `+${(currentPrice - previosClosing).toFixed(2)} (+${((currentPrice / previosClosing -1)*100).toFixed(2)}%)`;
                 getElement("#change").classList.add("green");
                 getElement("#change").classList.remove("red");
             } else {
-                getElement("#change").innerText = `${Math.floor((currentPrice - previosClosing)*100)/100} (${Math.floor((currentPrice / previosClosing -1)*10000)/100}%)`;
+                getElement("#change").innerText = `${(currentPrice - previosClosing).toFixed(2)} (${((currentPrice / previosClosing -1)*100).toFixed(2)}%)`;
                 getElement("#change").classList.add("red");
                 getElement("#change").classList.remove("green");
             }

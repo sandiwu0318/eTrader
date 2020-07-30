@@ -554,7 +554,7 @@ backtestBtn.addEventListener("click",
                         createButton("btn", "setOrderBtn", "backtest_container", "Set orders")
                         showResult("result_graph","result_ul", resJson);
                         getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson.investmentReturn)}</h2>`;
-                        getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson.ROI*10000)/100)}%</h2>`;
+                        getElement("#ROI").innerHTML = `<h2>ROI: ${(resJson.ROI*100).toFixed(2)}%</h2>`;
                         if (data.indicator.substr(1 ,2) === "MA") {
                             data.actionValue = data.actionValue[0];
                             data.exitValue = data.exitValue[0];
@@ -595,7 +595,7 @@ backtestBtn.addEventListener("click",
                                 getElement("#saved_results").appendChild(ul);
                                 createList(`#saved_ul`, "title_li titles", ["Created","Start", "End", "Symbol", "Indicator", "Action", "ROI"])
                             }
-                            createList(`#saved_ul`, "user_li saved_li", [resJson3.created_date.substr(0, 10), resJson3.periods[0],resJson3.periods[1], resJson3.symbol, resJson3.indicator, resJson3.action, `${Math.floor(resJson3.ROI*10000)/100}%`]);
+                            createList(`#saved_ul`, "user_li saved_li", [resJson3.created_date.substr(0, 10), resJson3.periods[0],resJson3.periods[1], resJson3.symbol, resJson3.indicator, resJson3.action, `${(resJson3.ROI*100).toFixed(2)}%`]);
                             const saved_lis = document.getElementsByClassName("saved_li");
                             saved_lis[saved_lis.length-1].addEventListener("click", async function() {
                                 removeChild("profit");
@@ -621,7 +621,7 @@ backtestBtn.addEventListener("click",
                                 createButton("btn", "setOrderBtn", "test_form", "Set orders")
                                 showResult("result_graph","result_ul", resJson1);
                                 getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
-                                getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
+                                getElement("#ROI").innerHTML = `<h2>ROI: ${(resJson1.ROI*100).toFixed(2)}%</h2>`;
                                 if (newData.indicator.substr(1 ,2) === "MA") {
                                     newData.actionValue = resJson3.actionValue[0];
                                     newData.exitValue = resJson3.exitValue[0];
@@ -779,92 +779,6 @@ action.addEventListener("change", () => {
         getElement("#MA_exitValue_input").placeholder = "ex. 14";
     }
 })
-
-// function hoverBacktest(token) {
-    // const backtest_nav = getElement("#backtest_nav");
-    // const viewHistory_nav = getElement("#viewHistory_nav");
-    // backtest_nav.addEventListener("mouseover", () => {
-    //     viewHistory_nav.style.display = "block";
-    // })
-    // backtest_nav.addEventListener("mouseout", () => {
-    //     viewHistory_nav.style.display = "none";
-    // })
-    // viewHistory_nav.addEventListener("click", async function (e) {
-    //     e.preventDefault();
-    //     checkLogin(token);
-    //     window.scrollTo(0, 0);
-    //     const data = {
-    //         token: token
-    //     }
-    //     const res = await fetch("/api/1.0/backtest/getSavedResults", {
-    //         method: "POST",
-    //         body: JSON.stringify(data),
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         }
-    //     });
-    //     const resJson = (await res.json()).data;
-    //     if (resJson.error === "Wrong authentication") {
-    //         await Swal.fire({
-    //             title: "Please login again",
-    //             icon: "error",
-    //             confirmButtonText: "Ok",
-    //             timer: "1000"
-    //         });
-    //         localStorage.setItem("page", window.location.href);
-    //         window.location = "/login.html";
-    //     }
-    //     if (getElement("#saved_ul")) {
-    //         removeChild("saved_ul");
-    //         createButton("btn", "goBackBtn", "saved_results", "Go back");
-    //         createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
-    //     } else {
-    //         createButton("btn", "goBackBtn", "saved_results", "Go back");
-    //         const ul = document.createElement("ul");
-    //         ul.id = "saved_ul";
-    //         ul.className = "user_ul";
-    //         getElement("#saved_results").appendChild(ul);
-    //         createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
-    //     }
-    //     removeChild("test_form");
-    //     removeChild("profit");
-    //     removeChild("ROI");
-    //     removeChild("result_container");
-    //     resJson.forEach(i => createList(`#saved_ul`, "user_li saved_li", [i.created_date.substr(0, 10), i.periods[0],i.periods[1], i.symbol, i.indicator, i.action, `${Math.floor(i.ROI*10000)/100}%`]));
-    //     const goBackBtn = getElement("#goBackBtn");
-    //     goBackBtn.addEventListener("click", function(e) {
-    //         e.preventDefault();
-    //         window.location = "/backtest.html";
-    //     })
-    //     const saved_lis = document.getElementsByClassName("saved_li");
-    //     for (let i =0; i<saved_lis.length; i++) {
-    //         saved_lis[i].addEventListener("click", async function() {
-    //             removeChild("profit");
-    //             removeChild("ROI");
-    //             removeChild("result_container");
-    //             if (getElement("#setOrderBtn")) {
-    //                 removeItem("setOrderBtn");
-    //             }
-    //             const newData = Object.assign({}, resJson[i]);
-    //             const res1 = await fetch("/api/1.0/backtest/testWithIndicator", {
-    //                 method: "POST",
-    //                 body: JSON.stringify(newData),
-    //                 headers: {
-    //                     'Content-Type': 'application/json'
-    //                 }
-    //             });
-    //             const resJson1 = (await res1.json()).data;
-    //             createButton("btn", "setOrderBtn", "test_form", "Set orders")
-    //             showResult("result_graph","result_ul", resJson1);
-    //             getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
-    //             getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
-    //             setOrder(newData);
-    //             window.scrollTo(0, 500);
-    //         })
-    //     }
-    // })
-// }
-
 
 let symbols;
 async function SymbolList() {

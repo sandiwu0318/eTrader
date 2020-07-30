@@ -42,6 +42,21 @@
         </div>
     </nav>
     <div>
+        <form autocomplete="off" id="history_sort">
+            <div class="test_label" id="total_asset"></div>
+            <div class="test_label" id="current_asset"></div>
+            <div>
+                <label class="test_label" id="sort_label">Sort by</label>
+                <select class="test_input" id="sort_input">
+                    <option value="symbol">Stock</option>
+                    <option value="action">Action</option>
+                    <option value="indicator">Indicator</option>
+                    <option value="date">Success Date</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    <div>
         <ul id="history_ul" class="user_ul">
             <div class="titles">
                 <div class="title">Stock</a></div>

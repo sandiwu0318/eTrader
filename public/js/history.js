@@ -1,10 +1,13 @@
-import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest, getElement} from "./utils.js";
+import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest, getElement, removeChild} from "./utils.js";
 window.scrollTo(0, 0);
 const token = localStorage.getItem("token");
 checkLogin(token);
 if (token !== null) {
     getHistory();
 }
+
+
+let newHistory = []
 async function getHistory() {
     // try {
         const data = {
@@ -41,7 +44,6 @@ async function getHistory() {
         } else {
             const history = resJson.history;
             if (history.length !== 0) {
-                let newHistory = []
                 history.forEach(i => {
                     let data = {
                         symbol: i.symbol,
@@ -55,6 +57,21 @@ async function getHistory() {
                     newHistory.push(data);
                 });
                 newHistory.map(i => createList("#history_ul", "user_li", Object.values(i)));
+                const total = newHistory.reduce((a, b) => a + b.money, 0);
+                const initial = 1000000000;
+                const current = initial + total;
+                const change = ((current/initial -1)*100).toFixed(2);
+                function toThousands(num) {
+                    var num = (num || 0).toString(), result = "";
+                    while (num.length > 3) {
+                    result = "," + num.slice(-3) + result;
+                    num = num.slice(0, num.length - 3);
+                    }
+                    if (num) { result = num + result; }
+                    return result;
+                }
+                getElement("#total_asset").innerText = `Initial Asset: $ ${toThousands(initial)}`;
+                getElement("#current_asset").innerText = `Total Asset: $ ${toThousands(current)} (${change}%)`;
             } else {
                 Swal.fire({
                     text: "You don't have any history yet",
@@ -71,6 +88,28 @@ async function getHistory() {
     //     console.log("History fetch failed, err");
     // }
 }
+
+const sort_input = getElement("#sort_input");
+sort_input.addEventListener("change", () => {
+    const label = sort_input.value;
+    const user_li = document.getElementsByClassName("user_li");
+    let i = 0;
+    while (user_li.length > 0) {
+        user_li[0].remove();
+    }
+    newHistory.sort(function(a, b) {
+        var nameA = a[label].toUpperCase();
+        var nameB = b[label].toUpperCase();
+        if (nameA < nameB) {
+            return -1;
+        }
+        if (nameA > nameB) {
+            return 1;
+        }
+        return 0;
+    });
+    newHistory.map(i => createList("#history_ul", "user_li", Object.values(i)));
+})
 
 let symbols;
 async function SymbolList() {

@@ -132,7 +132,7 @@ const getWatchlist = async function (token, symbolOnly) {
                 "low price": current["l"],
                 "current price": current["c"],
                 "previous closing price": current["pc"],
-                "%": `${Math.floor((current["c"] / current["pc"] -1)*10000)/100}%`,
+                "%": `${((current["c"] / current["pc"] -1)*100).toFixed(2)}%`,
             };
             results.push(result);
         }
@@ -147,7 +147,7 @@ const getOrders = async function (token) {
         return {error: "Wrong authentication"};
     }
     const id = result[0].id;
-    const selectStr = "SELECT * FROM orders WHERE user_id = ? ORDER BY success";
+    const selectStr = "SELECT * FROM orders WHERE user_id = ? ORDER BY success, symbol";
     const results = await query(selectStr, id);
     if (results.length === 0) {
         return {error: "You haven't created any orders yet"};

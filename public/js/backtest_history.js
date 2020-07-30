@@ -110,7 +110,7 @@ async function backtest_history() {
     removeChild("profit");
     removeChild("ROI");
     removeChild("result_container");
-    resJson.forEach(i => createList(`#saved_ul`, "user_li saved_li", [i.created_date.substr(0, 10), i.periods[0],i.periods[1], i.symbol, i.indicator, i.action, `${Math.floor(i.ROI*10000)/100}%`]));
+    resJson.forEach(i => createList(`#saved_ul`, "user_li saved_li", [i.created_date.substr(0, 10), i.periods[0],i.periods[1], i.symbol, i.indicator, i.action, `${(i.ROI*100).toFixed(2)}%`]));
     const goBackBtn = getElement("#goBackBtn");
     goBackBtn.addEventListener("click", function(e) {
         e.preventDefault();
@@ -137,7 +137,7 @@ async function backtest_history() {
             createButton("btn", "setOrderBtn", "test_form", "Set orders")
             showResult("result_graph","result_ul", resJson1);
             getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
-            getElement("#ROI").innerHTML = `<h2>ROI: ${(Math.floor(resJson1.ROI*10000)/100)}%</h2>`;
+            getElement("#ROI").innerHTML = `<h2>ROI: ${(resJson1.ROI*100).toFixed(2)}%</h2>`;
             setOrder(newData);
             window.scrollTo(0, 500);
         })

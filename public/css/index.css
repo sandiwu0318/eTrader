@@ -429,7 +429,7 @@ body {
 
 .orders_titles .title,
 #orders_ul .li_div {
-    margin: 0.5rem 3rem 0.5rem 0rem;
+    margin: 0.5rem 2rem 0.5rem 0rem;
     text-align: right;
 }
 
@@ -646,7 +646,7 @@ body {
 #login_form {
     display: block;
     width: 50%;
-    margin: 10rem auto;
+    margin: 7rem auto;
     margin-bottom: 0;
     text-align: left;
 }
@@ -770,4 +770,28 @@ body {
     width: 70%;
     margin: 1rem auto;
     text-align: center;
+}
+
+#sort_label,
+#total_asset,
+#current_asset {
+    width: 7rem;
+    margin: 0rem;
+    font-size: 1.2rem;
+}
+#total_asset,
+#current_asset {
+    width: 33%;
+}
+
+
+#sort_input {
+    width: 10rem;
+    margin: 0rem;
+}
+
+#history_sort {
+    margin: 1rem 5rem 0rem 5rem;
+    display: flex;
+    justify-content: space-between;
 }

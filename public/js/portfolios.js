@@ -55,9 +55,9 @@ async function getPortfolios() {
                 portfolios.forEach(i => {
                     i.expense = i.volume * i.price;
                     i.return = (i.current - i.price) * i.volume;
-                    i.price = Math.floor(i.price*100)/100;
-                    i.current = Math.floor(i.current*100)/100;
-                    i.changePercent = `${Math.floor(i.changePercent*10000)/100}%`;
+                    i.price = i.price.toFixed(2);
+                    i.current = i.current.toFixed(2);
+                    i.changePercent = `${(i.changePercent*100).toFixed(2)}%`;
                 })
                 function showGraph(graphid, values, title) {
                     const pieData = [{

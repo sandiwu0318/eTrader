@@ -421,14 +421,6 @@ body {
     text-align: right;
 }
 
-#orders_ul .user_li {
-    cursor: pointer;
-}
-
-#orders_ul .user_li:hover {
-    background-color: #3fa089
-}
-
 .pie_container {
     display: flex;
     justify-content: space-evenly;
@@ -436,6 +428,15 @@ body {
 
 .pie_item {
     margin: 10rem;
+}
+
+#delete_title,
+.icon {
+    width: 3rem;
+}
+
+.icon {
+    cursor: pointer;
 }
 
 
@@ -750,4 +751,11 @@ body {
 
 #signUpDiv {
     display: flex;
+}
+
+
+.reminder {
+    width: 70%;
+    margin: 1rem auto;
+    text-align: center;
 }

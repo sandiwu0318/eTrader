@@ -1,4 +1,4 @@
-import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest} from "./utils.js";
+import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest, getElement} from "./utils.js";
 window.scrollTo(0, 0);
 const token = localStorage.getItem("token");
 checkLogin(token);
@@ -6,7 +6,7 @@ if (token !== null) {
     getHistory();
 }
 async function getHistory() {
-    try {
+    // try {
         const data = {
             token: token
         }
@@ -34,6 +34,10 @@ async function getHistory() {
                 icon: 'warning',
                 confirmButtonText: 'Ok'
             })
+            const reminder = document.createElement("div");
+            reminder.className = "reminder";
+            reminder.innerHTML = "You can place orders with prices or indicators.<br>Already placed orders? When the deal is done, it will be shown here."
+            getElement("#history_ul").appendChild(reminder);
         } else {
             const history = resJson.history;
             if (history.length !== 0) {
@@ -57,12 +61,15 @@ async function getHistory() {
                     icon: "warning",
                     confirmButtonText: "Ok"
                 })
-                location.href="/";
+                const reminder = document.createElement("div");
+                reminder.className = "reminder";
+                reminder.innerHTML = "You can place orders with prices or indicators.<br>Already placed orders? When the deal is done, it will be shown here."
+                getElement("#history_ul").appendChild(reminder);
             }
         }
-    } catch (err) {
-        console.log("History fetch failed, err");
-    }
+    // } catch (err) {
+    //     console.log("History fetch failed, err");
+    // }
 }
 
 let symbols;

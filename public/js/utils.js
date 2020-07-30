@@ -53,6 +53,9 @@ function createList(ulId, className, text) {
         div.innerText = i;
         div.className = "li_div";
         li.appendChild(div);
+        if(i === "\u2716") {
+            div.className = "li_div icon";
+        }
     })
     ul.appendChild(li);
 }
@@ -197,8 +200,9 @@ function autocomplete(inp, arr) {
         a.setAttribute("id", this.id + "autocomplete-list");
         a.setAttribute("class", "autocomplete-items");
         this.parentNode.appendChild(a);
+        let count = 0;
         for (i = 0; i < arr.length; i++) {
-            if (arr[i].toUpperCase().indexOf(val.toUpperCase())!== -1) {
+            if (arr[i].toUpperCase().indexOf(val.toUpperCase())!== -1 && count <= 10) {
                 const index = arr[i].toUpperCase().indexOf(val.toUpperCase());
                 b = document.createElement("DIV");
                 if (index !== 0) {
@@ -212,6 +216,7 @@ function autocomplete(inp, arr) {
                     closeAllLists();
                 });
                 a.appendChild(b);
+                count +=1;
             }
         }
     });

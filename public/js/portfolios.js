@@ -1,4 +1,4 @@
-import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest} from "./utils.js";
+import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest, getElement, removeItem} from "./utils.js";
 window.scrollTo(0, 0);
 const token = localStorage.getItem("token");
 checkLogin(token);
@@ -36,12 +36,18 @@ async function getPortfolios() {
             localStorage.setItem("page", window.location.href);
             window.location = "/login.html";
         } else if (resJson.error) {
+            removeItem("expensePie");
+            removeItem("returnPie");
             swal.close();
             Swal.fire({
                 text: resJson.error,
                 icon: 'warning',
                 confirmButtonText: 'Ok'
             })
+            const reminder = document.createElement("div");
+            reminder.className = "reminder";
+            reminder.innerHTML = "You can place orders with prices or indicators. <br>Already placed orders? Your portfolio will be shown when the deal is done."
+            getElement("#portfolio_ul").appendChild(reminder);
         } else {
             swal.close();
             const portfolios = resJson;
@@ -78,12 +84,17 @@ async function getPortfolios() {
                 })
                 portfolios.filter(i => i.volume !== 0).map(i => createList("#portfolio_ul", "user_li",Object.values(i)));
             } else {
+                removeItem("expensePie");
+                removeItem("returnPie");
                 Swal.fire({
                     text: "You don't have any portfolios yet",
                     icon: "warning",
                     confirmButtonText: "Ok"
                 })
-                location.href="/";
+                const reminder = document.createElement("div");
+                reminder.className = "reminder";
+                reminder.innerText = "You can place orders with prices or indicators. Already placed orders? Your portfolio will be shown when the deal is done."
+                getElement("#portfolio_ul").appendChild(reminder);
             }
         }
     } catch (err) {

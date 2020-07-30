@@ -1,4 +1,4 @@
-import {createList, checkLogin, removeChild, getSymbols, searchSymbol, hoverBacktest} from "./utils.js";
+import {createList, checkLogin, removeChild, getSymbols, searchSymbol, hoverBacktest, removeItem, getElement} from "./utils.js";
 window.scrollTo(0, 0);
 const socket = io();
 socket.on("watchlist", async (data) => {
@@ -19,7 +19,10 @@ socket.on("watchlist", async (data) => {
             icon: 'warning',
             confirmButtonText: 'Ok'
         })
-        location.href="/";
+        const reminder = document.createElement("div");
+        reminder.className = "reminder";
+        reminder.innerText = "You can search for stocks you like in the search bar and add to your watchlist."
+        getElement("#watchlist_ul").appendChild(reminder);
     } else {
         removeChild("watchlist_ul_content");
         swal.close();

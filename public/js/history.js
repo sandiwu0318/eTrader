@@ -42,6 +42,7 @@ async function getHistory() {
                     let data = {
                         symbol: i.symbol,
                         action: i.sub_action,
+                        indicator: i.category,
                         volume: i.volume,
                         price: i.price,
                         date: i.success_date.substr(0, 10),

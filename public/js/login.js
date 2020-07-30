@@ -7,6 +7,9 @@ async function signInUp(action) {
         email: getElement("#email").value,
         password: getElement("#password").value
     }
+    if(action === "signUp") {
+        data.name = getElement("#name").value;
+    }
     const EmailRe = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
     if (data.email.length === 0 || data.password.length === 0) {
         Swal.fire({
@@ -78,6 +81,33 @@ let symbols;
 async function SymbolList() {
     symbols = await getSymbols();
 }
+
+const signUpLink = getElement("#signUpLink");
+console.log(signUpLink)
+const signUpDiv = getElement("#signUpDiv");
+const signInLink = getElement("#signInLink");
+const signInDiv = getElement("#signInDiv");
+const signUpInput = document.getElementsByClassName("signUpInput");
+signUpLink.addEventListener("click", () => {
+    signInBtn.style.display = "none";
+    signUpBtn.style.display = "inline-block";
+    for (let i of signUpInput) {
+        i.style.display = "inline-block";
+    }
+    signUpDiv.style.display = "none";
+    signInDiv.style.display = "flex";
+})
+
+signInLink.addEventListener("click", () => {
+    signInBtn.style.display = "inline-block";
+    signUpBtn.style.display = "none";
+    for (let i of signUpInput) {
+        i.style.display = "none";
+    }
+    signUpDiv.style.display = "flex";
+    signInDiv.style.display = "none";
+})
+
 
 SymbolList();
 searchSymbol();

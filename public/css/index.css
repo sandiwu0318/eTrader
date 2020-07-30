@@ -379,6 +379,11 @@ body {
 .red {
     color: #920000;
     padding: 3px 5px;
+    animation-duration: 1s;
+    animation-name: red;
+    animation-iteration-count: 1;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
 }
 
 .red_flash {
@@ -401,9 +406,23 @@ body {
     }
 }
 
+@keyframes red {
+    from {
+        opacity: 0.3;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .green {
     color: #046900;
     padding: 3px 5px;
+    animation-duration: 1s;
+    animation-name: green;
+    animation-iteration-count: 1;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
 }
 
 .green_flash {
@@ -423,6 +442,15 @@ body {
     }
     to {
         opacity: 0.2;
+    }
+}
+
+@keyframes green {
+    from {
+        opacity: 0.3;
+    }
+    to {
+        opacity: 1;
     }
 }
 

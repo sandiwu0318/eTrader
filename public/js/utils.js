@@ -301,12 +301,15 @@ function searchSymbol() {
 
 function hoverBacktest() {
     const backtest_nav = getElement("#backtest_nav");
+    const backtest = getElement(".backtest");
     const viewHistory_nav = getElement("#viewHistory_nav");
     backtest_nav.addEventListener("mouseover", () => {
         viewHistory_nav.style.display = "block";
+        backtest.classList.add("current");
     })
     backtest_nav.addEventListener("mouseout", () => {
         viewHistory_nav.style.display = "none";
+        backtest.classList.remove("current");
     })
 }
 

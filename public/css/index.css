@@ -156,6 +156,7 @@ body {
 .nav_item a:hover {
     color: rgb(148, 148, 148);
     border-bottom: 0.15rem solid #3fa089;
+    cursor: pointer;
 }
 
 .current {
@@ -171,8 +172,9 @@ body {
 
 #viewHistory_nav {
     position: absolute;
-    padding: 0.3rem 1rem 0.3rem 0.5rem;
+    padding: 0.3rem 2.3rem 0.3rem 0.5rem;
     background-color: white;
+    border: 1px solid rgb(190, 190, 190);
     display: none;
     cursor: pointer;
     text-align: center;
@@ -824,10 +826,16 @@ body {
 #sort_input {
     width: 10rem;
     margin: 0rem;
+    border-width: 1px;
 }
 
 #history_sort {
-    margin: 1rem 5rem 0rem 5rem;
+    margin: 1rem 7rem 0rem 5rem;
     display: flex;
     justify-content: space-between;
+}
+
+#downIcon {
+    font-size: 0.8rem;
+    margin: 0.2rem;
 }

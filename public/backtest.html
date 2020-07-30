@@ -38,7 +38,7 @@
         <div class="nav_item"><a href="/orders.html">Orders</a></div>
         <div class="nav_item"><a href="/history.html">History</a></div>
         <div class="nav_item" id="backtest_nav"><a class="current" href="/backtest.html">Backtest</a>
-            <div id="viewHistory_nav">Saved</div>
+            <div id="viewHistory_nav"><a href="/backtest_history.html">Saved</a></div>
         </div>
     </nav>
     <div id="saved_results">
@@ -46,8 +46,8 @@
     <div class="test_case">
         <form autocomplete="off" id="test_form">
             <label class="test_label">Date Range</label>
-            <input type="date" class="test_input period"/>
-            <input type="date" class="test_input period"/>
+            <input type="date" value="2019-01-01" class="test_input period"/>
+            <input type="date" value="2020-07-01" class="test_input period"/>
             <br>
             <label class="test_label">Stock Symbol</label>
             <div class="autocomplete input_symbol_search">

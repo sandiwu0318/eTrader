@@ -363,4 +363,4 @@ expiration.addEventListener("mouseover", () => {
     expiration_info.style.display = "inline-block"
 })
 
-hoverBacktest(token);
+hoverBacktest();

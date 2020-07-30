@@ -1,4 +1,4 @@
-import {createList, checkLogin, removeChild, getSymbols, searchSymbol, hoverBacktest, removeItem, getElement} from "./utils.js";
+import {createList, checkLogin, removeChild, getSymbols, searchSymbol, getElement} from "./utils.js";
 window.scrollTo(0, 0);
 const socket = io();
 socket.on("watchlist", async (data) => {
@@ -63,4 +63,3 @@ async function SymbolList() {
 
 SymbolList();
 searchSymbol();
-hoverBacktest(token);

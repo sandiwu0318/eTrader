@@ -79,4 +79,4 @@ async function SymbolList() {
 
 SymbolList();
 searchSymbol();
-hoverBacktest(token);
+hoverBacktest();

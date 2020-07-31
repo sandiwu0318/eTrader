@@ -18,15 +18,6 @@
                 <div class="autocomplete">
                     <input type="text" class="search" name="symbol" id="symbol_search" onfocus="this.value=''" placeholder="Stock search"/>
                 </div>
-                <select class="search" name="frequency" id="frequency">
-                    <option value="1d">1 Day</option>
-                    <option value="1mo">1 Month</option>
-                    <option value="3mo">3 Month</option>
-                    <option value="6mo">6 Month</option>
-                    <option value="1yr">1 Year</option>
-                    <option value="3yr">3 Year</option>
-                    <option value="max">Max</option>
-                </select>
                 <button class="search" type="button" id="searchBtn">Search</button>
             </form>
         </div>
@@ -50,9 +41,22 @@
             <div id="show_company"></div>
             <button class="btn" id="watchListBtn"></button>
         </div>
-        <div id="result_price">
-            <div id="current_price"></div>
-            <div id="change"></div>
+        <div id="result_price_div">
+            <div id="result_price">
+                <div id="current_price"></div>
+                <div id="change"></div>
+            </div>
+            <div id="chart_date_range">
+                <select class="search" name="frequency" id="frequency">
+                    <option value="1d">1 Day</option>
+                    <option value="1mo">1 Month</option>
+                    <option value="3mo">3 Month</option>
+                    <option value="6mo">6 Month</option>
+                    <option value="1yr">1 Year</option>
+                    <option value="3yr">3 Year</option>
+                    <option value="max">Max</option>
+                </select>
+            </div>
         </div>
         <div class="content_item financial_graph" id="priceChart"></div>
         <div id="trade">

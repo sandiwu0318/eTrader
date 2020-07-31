@@ -1,4 +1,4 @@
-import {getElement, getSymbols, searchSymbol} from "./utils.js";
+import {getElement, getSymbols} from "./utils.js";
 window.scrollTo(0, 0);
 
 
@@ -110,4 +110,3 @@ signInLink.addEventListener("click", () => {
 
 
 SymbolList();
-searchSymbol();

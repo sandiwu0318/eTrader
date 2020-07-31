@@ -127,7 +127,7 @@ body {
 }
 
 .autocomplete-active {
-    background-color: DodgerBlue !important;
+    background-color: #3fa089 !important;
     color: #ffffff;
 }
 
@@ -208,7 +208,7 @@ body {
 
 .content_item {
     width: 80%;
-    margin: 2rem auto;
+    margin: 1rem auto;
     border: 5px solid rgb(235, 235, 235);
     border-radius: 5px;
 }
@@ -258,7 +258,7 @@ body {
 }
 
 .btn:hover {
-    background-color: rgb(131, 131, 131);
+    background-color: #838383;
     color: white;
 }
 
@@ -346,14 +346,24 @@ body {
 }
 
 #result_title,
-#result_price {
+#result_price,
+#result_price_div {
     display: flex;
     width: 78%;
     margin: 2rem auto;
     font-size: 2.3rem;
     font-weight: 500;
     justify-content: flex-start;
-    align-items: flex-end;
+    align-items: center;
+}
+
+#result_price_div {
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+#result_price {
+    margin: 0;
 }
 
 #result_title div,
@@ -366,11 +376,15 @@ body {
 }
 
 #current_price {
+    display: inline-block;
     font-size: 3rem;
     font-weight: 700;
     line-height: 2.8rem;
 }
 
+#frequency {
+    border: 1px solid #a0a0a0;
+}
 
 #show_company,
 #change {
@@ -380,6 +394,7 @@ body {
 }
 
 #change {
+    display: inline-block;
     line-height: 2rem;
 }
 

@@ -283,10 +283,8 @@ function searchSymbol() {
     const searchBtn = getElement("#searchBtn");
     searchBtn.addEventListener("click", function () {
         const symbol = getElement("#symbol_search").value.split(" ")[0];
-        const frequency = getElement("#frequency").value;
         if (symbols.includes(symbol)) {
             localStorage.setItem("symbol", symbol);
-            localStorage.setItem("frequency", frequency);
             window.location = "/";
         } else {
             Swal.fire({

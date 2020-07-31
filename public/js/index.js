@@ -42,7 +42,7 @@ socket.on("intraday", (data) => {
         }
     }
 });
-async function renderData(symbol, frequency){
+async function renderData(symbol){
     //Chart
     Swal.fire({
         title: "Loading",
@@ -174,25 +174,6 @@ async function renderData(symbol, frequency){
         }
         const financialsData = [revenueTrace, earningTrace];
         Plotly.newPlot(id, financialsData, financialsLayout);
-    }
-
-    if (frequency === "1d") {
-        socket.connect();
-        socket.emit("symbol", symbol);
-        
-    } else {
-        socket.disconnect();
-        const res = await fetch(`/api/1.0/stock/getPrices?symbol=${symbol}&frequency=${frequency}`);
-        const resJson = (await res.json()).data;
-        if (resJson.error) {
-            Swal.fire({
-                title: "Error",
-                text: "Internal server error",
-                icon: 'error',
-                confirmButtonText: 'Ok'
-            })
-        }
-        createChart(resJson, frequency);
     }
     //Profile
     if (resJson1.profile) {
@@ -363,24 +344,46 @@ async function renderData(symbol, frequency){
     )
 }
 
-const symbol = localStorage.getItem("symbol");
-const frequency = localStorage.getItem("frequency")
-if (symbol && frequency) {
-    renderData(symbol, frequency);
-    localStorage.removeItem('symbol');
-    localStorage.removeItem('frequency');
-} else {
-    renderData("AMZN", "1d")
+async function showPrice(symbol, frequency) {
+    if (frequency === "1d") {
+        socket.connect();
+        socket.emit("symbol", symbol);
+    } else {
+        socket.disconnect();
+        const res = await fetch(`/api/1.0/stock/getPrices?symbol=${symbol}&frequency=${frequency}`);
+        const resJson = (await res.json()).data;
+        if (resJson.error) {
+            Swal.fire({
+                title: "Error",
+                text: "Internal server error",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
+        }
+        createChart(resJson, frequency);
+    }
 }
+
+const symbol = localStorage.getItem("symbol");
+async function showIndexPage(symbol) {
+    if (symbol) {
+        await renderData(symbol);
+        await showPrice(symbol, "1d");
+        localStorage.removeItem('symbol');
+    } else {
+        await renderData("AMZN");
+        await showPrice("AMZN", "1d");
+    }
+}
+showIndexPage(symbol);
 
 const searchBtn = getElement("#searchBtn");
 searchBtn.addEventListener("click", function () {
     // try {
-        //Chart
         const symbol = getElement("#symbol_search").value.split(" ")[0];
-        const frequency = getElement("#frequency").value;
         if (symbols.map(i => i.symbol).includes(symbol)) {
-            renderData(symbol, frequency);
+            renderData(symbol);
+            showPrice(symbol, "1d");
         } else {
             Swal.fire({
                 title: "Error",
@@ -406,6 +409,14 @@ function setWatchlistBtn(watchlist,symbol,btn) {
         btn.innerText = "\u2661 Watchlist";
     }
 }
+
+const frequency = getElement("#frequency");
+frequency.addEventListener("change", () => {
+    const symbol = getElement("#show_symbol").innerText;
+    const frequency_Value = frequency.value;
+    console.log(frequency_Value)
+    showPrice(symbol, frequency_Value);
+})
 
 
 const expiration = getElement("#expiration");

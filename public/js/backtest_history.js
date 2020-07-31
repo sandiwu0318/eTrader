@@ -1,4 +1,4 @@
-import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, searchSymbol, hoverBacktest} from "./utils.js";
+import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, searchSymbol, hoverBacktest, showResult} from "./utils.js";
 window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
@@ -122,28 +122,11 @@ async function backtest_history() {
         console.log(getElement("#saved_ul"))
         getElement("#saved_ul").appendChild(reminder);
     }
-    // if (getElement("#saved_ul")) {
-    //     removeChild("saved_ul");
-    //     createButton("btn", "goBackBtn", "saved_results", "Go back");
-    //     createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
-    // } else {
-    //     createButton("btn", "goBackBtn", "saved_results", "Go back");
-    //     const ul = document.createElement("ul");
-    //     ul.id = "saved_ul";
-    //     ul.className = "user_ul";
-    //     getElement("#saved_results").appendChild(ul);
-    //     createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
-    // }
     removeChild("test_form");
     removeChild("profit");
     removeChild("ROI");
     removeChild("result_container");
     resJson.forEach(i => createList(`#saved_ul`, "user_li saved_li", [i.created_date.substr(0, 10), i.periods[0],i.periods[1], i.symbol, i.indicator, i.action, `${(i.ROI*100).toFixed(2)}%`]));
-    // const goBackBtn = getElement("#goBackBtn");
-    // goBackBtn.addEventListener("click", function(e) {
-    //     e.preventDefault();
-    //     window.location = "/backtest.html";
-    // })
     const saved_lis = document.getElementsByClassName("saved_li");
     for (let i =0; i<saved_lis.length; i++) {
         saved_lis[i].addEventListener("click", async function() {

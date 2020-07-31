@@ -1,4 +1,4 @@
-import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, getSymbols, getInputSymbols, searchSymbol, hoverBacktest} from "./utils.js";
+import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, getSymbols, getInputSymbols, searchSymbol, hoverBacktest, showResult} from "./utils.js";
 window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
@@ -14,12 +14,13 @@ showGraphBtn.addEventListener("click",
                 Swal.showLoading()
             },
         });
+        const symbol = getDataByClass("symbol")[0] || "";
         let data = {
-            periods: getDataByClass("period"),
-            symbol: getDataByClass("symbol")[0].split(" ")[0],
-            indicator: getElement(".indicator").value,
-            indicatorPeriod: parseInt(getDataByClass("indicatorPeriod")[1]),
-        }
+                periods: getDataByClass("period"),
+                symbol: symbol.split(" ")[0],
+                indicator: getElement(".indicator").value,
+                indicatorPeriod: parseInt(getDataByClass("indicatorPeriod")[1]),
+            }
         if (!symbols.includes(data.symbol)) {
             swal.close();
             Swal.fire({
@@ -181,279 +182,6 @@ showGraphBtn.addEventListener("click",
         }
     }
 )
-
-//Show backtestResult
-function showResult(div_id, ul_id, response) {
-    let plotData = [];
-    const priceTrace = {
-        x: response.chart.times.map(i => i.substr(0,10)),
-        y: response.chart.prices,
-        type: "scatter",
-        name: "Price",
-        yaxis: "y1",
-        marker: {color: "#3fa089"}
-    };
-    plotData.push(priceTrace);
-    let indicatorTrace;
-    let indicatorActionTrace1;
-    let indicatorActionTrace2;
-    if (response.indicator === "BB") {
-        const indicatorTrace1 = {
-            x: response.chart.times.slice(response.indicatorPeriod-1).map(i => i.substr(0,10)),
-            y: response.chart.values.slice(response.indicatorPeriod-1).map(i => i[response.actionValue]),
-            type: "scatter",
-            name: response.actionValue,
-            yaxis: "y1",
-            marker: {color: "#920000"},
-        };
-        const indicatorTrace2 = {
-            x: response.chart.times.slice(response.indicatorPeriod-1).map(i => i.substr(0,10)),
-            y: response.chart.values.slice(response.indicatorPeriod-1).map(i => i[response.exitValue]),
-            type: "scatter",
-            name: response.exitValue,
-            yaxis: "y1",
-            marker: {color: "#046900"},
-        };
-        plotData.push(indicatorTrace1, indicatorTrace2);
-    } else if (response.indicator === "RSI" || response.indicator === "price"){
-        indicatorTrace = {
-            x: response.chart.times.map(i => i.substr(0,10)),
-            y: response.chart.values,
-            type: "scatter",
-            name: response.indicator,
-            yaxis: "y2",
-            marker: {color: "#005662"},
-        };
-        indicatorActionTrace1 = {
-            x: response.data.filter(i => i.action === "buy").map(i => i.time.substr(0,10)),
-            y: Array(response.data.length).fill(response.actionValue),
-            type: "scatter",
-            name: "Action Timing",
-            yaxis: "y2",
-            marker: {color: "#920000"},
-        };
-        indicatorActionTrace2 = {
-            x: response.data.filter(i => i.action === "sell").map(i => i.time.substr(0,10)),
-            y: Array(response.data.length).fill(response.exitValue),
-            type: "scatter",
-            name: "Exit Timing",
-            yaxis: "y2",
-            marker: {color: "#046900"},
-        };
-        if (response.action === "short") {
-            indicatorActionTrace1.marker.color = "#046900";
-            indicatorActionTrace2.marker.color = "#920000";
-        }
-    } else {
-        const indicatorTrace1 = {
-            x: response.chart.times.map(i => i.substr(0,10)),
-            y: response.chart.values.map(i => i.actionValue1),
-            type: "scatter",
-            name: `${response.indicator}${response.actionValue}`,
-            yaxis: "y1",
-            marker: {color: "#920000"},
-        };
-        const indicatorTrace2 = {
-            x: response.chart.times.map(i => i.substr(0,10)),
-            y: response.chart.values.map(i => i.actionValue2),
-            type: "scatter",
-            name: `${response.indicator}${response.exitValue}`,
-            yaxis: "y1",
-            marker: {color: "#046900"},
-        };
-        plotData.push(indicatorTrace1, indicatorTrace2);
-    }
-    const actionValue = response.actionValue;
-    const exitValue = response.exitValue;
-    const buyFilter = response.data.filter(i => i.action === "buy");
-    const sellFilter = response.data.filter(i => i.action === "sell");
-    let buyArrow = buyFilter.map(i => ({
-        x: i.time.substr(0,10),
-        y: actionValue,
-        xref: 'x',
-        yref: 'y2',
-        text: 'Buy',
-        font: {
-            color: '#ffffff'
-        },
-        showarrow: true,
-        arrowhead: 2,
-        arrowsize: 1,
-        arrowwidth: 2,
-        arrowcolor: '#636363',
-        ax: 0,
-        ay: 40,
-        bgcolor: "#920000",
-        opacity: 0.8
-    }))
-    let sellArrow = sellFilter.map(i => ({
-        x: i.time.substr(0,10),
-        y: exitValue,
-        xref: 'x',
-        yref: 'y2',
-        text: 'Sell',
-        font: {
-            color: '#ffffff'
-        },
-        showarrow: true,
-        arrowhead: 2,
-        arrowsize: 1,
-        arrowwidth: 2,
-        arrowcolor: '#636363',
-        ax: 0,
-        ay: -40,
-        bgcolor: '#046900',
-        opacity: 0.8
-    }))
-    if (response.indicator === "RSI" || response.indicator === "price") {
-        if (response.action === "short") {
-            indicatorActionTrace1.x = sellFilter.map(i => i.time.substr(0,10));
-            indicatorActionTrace2.x = buyFilter.map(i => i.time.substr(0,10));
-            buyArrow.forEach(i => {
-                i.y = exitValue;
-            })
-            sellArrow.forEach(i => {
-                i.y = actionValue;
-            })
-        }
-        if (response.indicator === "RSI") {
-            plotData.push(indicatorTrace,indicatorActionTrace1,indicatorActionTrace2);    
-        } else {
-            indicatorActionTrace1.yaxis = "y1";
-            indicatorActionTrace2.yaxis = "y1";
-            buyArrow.forEach(i => {
-                i.yref = 'y1';
-            })
-            sellArrow.forEach(i => {
-                i.yref = 'y1';
-            })
-            plotData.push(indicatorActionTrace1,indicatorActionTrace2);    
-        }
-    }
-    if (response.indicator == "BB") {
-        switch(response.action) {
-        case "long": {
-            buyArrow.forEach(i => {
-                i.y = buyFilter[buyArrow.indexOf(i)].indicatorValue[response.actionValue];
-                i.yref = 'y1';
-            })
-            sellArrow.forEach(i => {
-                i.y = sellFilter[sellArrow.indexOf(i)].indicatorValue[response.exitValue];
-                i.yref = 'y1';
-            })
-            break;
-        }
-        case "short": {
-            sellArrow.forEach(i => {
-                i.y = sellFilter[sellArrow.indexOf(i)].indicatorValue[response.actionValue];
-                i.yref = 'y1';
-            })
-            buyArrow.forEach(i => {
-                i.y = buyFilter[buyArrow.indexOf(i)].indicatorValue[response.exitValue];
-                i.yref = 'y1';
-            })
-            break;
-        }
-        }
-    }
-    if (response.indicator.substr(1, 2) === "MA") {
-        switch(response.action) {
-            case "long": {
-                buyArrow.forEach(i => {
-                    i.y = buyFilter[buyArrow.indexOf(i)].indicatorValue["actionValue1"];
-                    i.yref = 'y1';
-                })
-                sellArrow.forEach(i => {
-                    i.y = sellFilter[sellArrow.indexOf(i)].indicatorValue["actionValue1"];
-                    i.yref = 'y1';
-                })
-                break;
-            }
-            case "short": {
-                sellArrow.forEach(i => {
-                    i.y = sellFilter[sellArrow.indexOf(i)].indicatorValue["actionValue2"];
-                    i.yref = 'y1';
-                })
-                buyArrow.forEach(i => {
-                    i.y = buyFilter[buyArrow.indexOf(i)].indicatorValue["actionValue1"];
-                    i.yref = 'y1';
-                })
-                break;
-            }
-            }
-    }
-    if (response.indicator === "price") {
-        buyArrow.forEach(i => {
-            i.yref = 'y1';
-        })
-        sellArrow.forEach(i => {
-            i.yref = 'y1';
-        })
-        if (response.action === "short") {
-            buyArrow.forEach(i => {
-                i.y = exitValue;
-            })
-            sellArrow.forEach(i => {
-                i.y = actionValue;
-            }) 
-        }
-    }
-    let layout = {
-        title: response.symbol,
-        xaxis: {
-            title: "Date",
-            type: "cateogry",
-        },
-        yaxis1: {
-            title: "Price",
-            side: "left",
-            showline: false,
-            showgrid: false,
-        },
-        yaxis2: {
-            title: response.indicator,
-            side: "right",
-            overlaying: "y",
-            showline: false,
-        },
-        annotations: buyArrow.concat(sellArrow)
-    }
-    
-    const div = document.createElement("div");
-    div.id = div_id;
-    div.className = "graph";
-    getElement("#result_container").appendChild(div);
-    Plotly.newPlot(div_id, plotData, layout);
-
-    let resultList = response.data.map(i => ({
-        time: i.time.substr(0,10),
-        price: i.price,
-        indicator: i.indicatorValue,
-        action: i.action
-    }));
-    if (response.indicator === "BB") {
-        resultList.forEach(i => {
-            i.indicator = Object.values(response.data[resultList.indexOf(i)].indicatorValue).map(i => Math.floor(i))
-            i.indicator = i.indicator.slice(0, -1)
-        })
-    } else if (response.indicator.substr(1, 2) === "MA") {
-        resultList.forEach(i => {
-            i.indicator = Object.values(response.data[resultList.indexOf(i)].indicatorValue).map(i => Math.floor(i))
-        })
-    }
-    const ul = document.createElement("ul");
-    ul.id = ul_id;
-    ul.className = "user_ul";
-    getElement("#result_container").appendChild(ul);
-    createList(`#${ul_id}`, "title_li", ["Time", "Price", response.indicator, "Action"])
-    resultList.forEach(i => {
-        if (i.action === "buy") {
-            createList(`#${ul_id}`, "user_li buy_li", Object.values(i));
-        } else {
-            createList(`#${ul_id}`, "user_li sell_li", Object.values(i));
-        }
-    })
-}
 
 const backtestBtn = getElement("#backtestBtn");
 backtestBtn.addEventListener("click",
@@ -696,8 +424,8 @@ const setOrder= function (data) {
             data2.action = "short cover";
         }
         if (data.indicator.substr(1,2) === "MA") {
-            data1.value = [data.actionValue, data.exitValue];
-            data2.value = [data.exitValue, data.actionValue];
+            data1.value = [parseInt(data.actionValue), parseInt(data.exitValue)];
+            data2.value = [parseInt(data.exitValue), parseInt(data.actionValue)];
         }
         const res1 = await fetch("/api/1.0/trade/setOrder", {
             method: "POST",
@@ -722,7 +450,7 @@ const setOrder= function (data) {
                 icon: "success",
                 confirmButtonText: "Ok"
             });
-        } else if (resJson3.error) {
+        } else if (resJson1.error || resJson2.error) {
             await Swal.fire({
                 title: "Error",
                 icon: "Internal server error",

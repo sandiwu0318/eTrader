@@ -585,6 +585,16 @@ function showResult(div_id, ul_id, response) {
     })
 }
 
+function toThousands(num) {
+    let number = (num || 0).toString();
+    let result = "";
+    while (number.length > 3) {
+        result = "," + number.slice(-3) + result;
+        number = number.slice(0, number.length - 3);
+    }
+    if (number) { result = number + result; }
+    return result;
+};
 
 export {
     getElement,
@@ -605,5 +615,6 @@ export {
     getInputSymbols,
     searchSymbol,
     hoverBacktest,
-    showResult
+    showResult,
+    toThousands
 };

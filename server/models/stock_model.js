@@ -2,6 +2,7 @@ require("dotenv").config();
 const {RAPID_API_HOST, RAPID_API_KEY} = process.env;
 const axios = require("axios");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
+const {toThousands} = require("../../utils/util.js");
 
 const getIntradayPrices = async function (symbol) {
     try {
@@ -123,10 +124,10 @@ const getBasicInfo = async function (symbol) {
             Symbol: data.symbol,
             "Previous Closing": data.prevClose,
             "Day Range": data.dayRange,
-            "Average Volume": data.averageVolume,
+            "Average Volume": toThousands(data.averageVolume),
             "Annual Return": data.annualReturn,
             "Beta": data.beta,
-            "Market Cap": data.marketCap,
+            "Market Cap": toThousands(data.marketCap),
             "EPS": data.eps,
             "PE Ration": data.peRation,
             "Dividend": data.dividend,
@@ -141,7 +142,7 @@ const getBasicInfo = async function (symbol) {
                 Country: JSON.parse(data.profile).country || null,
                 City: JSON.parse(data.profile).city || null,
                 State: JSON.parse(data.profile).state || null,
-                Employees: JSON.parse(data.profile).fullTimeEmployees || null,
+                Employees: toThousands(JSON.parse(data.profile).fullTimeEmployees) || null,
                 Website: JSON.parse(data.profile).website || null,
                 longBusinessSummary: JSON.parse(data.profile).longBusinessSummary || null
             };

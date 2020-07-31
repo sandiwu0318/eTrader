@@ -1,4 +1,4 @@
-import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest, getElement, removeChild} from "./utils.js";
+import {createList, checkLogin, getSymbols, searchSymbol, hoverBacktest, getElement, toThousands} from "./utils.js";
 window.scrollTo(0, 0);
 const token = localStorage.getItem("token");
 checkLogin(token);
@@ -70,15 +70,6 @@ async function getHistory() {
                 const initial = 1000000000;
                 const current = initial + total;
                 const change = ((current/initial -1)*100).toFixed(2);
-                function toThousands(num) {
-                    var num = (num || 0).toString(), result = "";
-                    while (num.length > 3) {
-                    result = "," + num.slice(-3) + result;
-                    num = num.slice(0, num.length - 3);
-                    }
-                    if (num) { result = num + result; }
-                    return result;
-                }
                 getElement("#total_asset").innerText = `Initial Asset: $ ${toThousands(initial)}`;
                 getElement("#current_asset").innerText = `Total Asset: $ ${toThousands(current)} (${change}%)`;
             } else {

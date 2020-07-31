@@ -1,4 +1,4 @@
-import {createList, checkLogin, removeChild, getSymbols, searchSymbol, getElement} from "./utils.js";
+import {createList, checkLogin, removeChild, getSymbols, searchSymbol, getElement, hoverBacktest} from "./utils.js";
 window.scrollTo(0, 0);
 const socket = io();
 socket.on("watchlist", async (data) => {
@@ -12,10 +12,10 @@ socket.on("watchlist", async (data) => {
         });
         localStorage.setItem("page", window.location.href);
         window.location = "/login.html";
-    } else if (data.error) {
+    } else if (data.error === "You don't have any watchlist yet") {
         swal.close();
         Swal.fire({
-            text: data.error,
+            text: "You don't have any watchlist yet",
             icon: 'warning',
             confirmButtonText: 'Ok'
         })
@@ -23,6 +23,13 @@ socket.on("watchlist", async (data) => {
         reminder.className = "reminder";
         reminder.innerText = "You can search for stocks you like in the search bar and add to your watchlist."
         getElement("#watchlist_ul").appendChild(reminder);
+    } else if (data.error) {
+        Swal.fire({
+            title: "Error",
+            text: "Internal server error",
+            icon: 'error',
+            confirmButtonText: 'Ok'
+        })
     } else {
         removeChild("watchlist_ul_content");
         swal.close();
@@ -63,3 +70,4 @@ async function SymbolList() {
 
 SymbolList();
 searchSymbol();
+hoverBacktest();

@@ -150,7 +150,7 @@ const getBasicInfo = async function (symbol) {
     } catch(error) {
         await rollback();
         console.log(error);
-        return "Error when retrieving stock basic info";
+        return {error: "Error when retrieving stock basic info"};
     }
 };
 
@@ -175,7 +175,7 @@ const getNews = async function (symbol) {
     } catch(error) {
         await rollback();
         console.log(error);
-        return "Error when retrieving stock basic info";
+        return {error: "Error when retrieving stock basic info"};
     }
 };
 
@@ -209,7 +209,7 @@ const getApiPrices = async function (symbol) {
     } catch(error) {
         await rollback();
         console.log(error);
-        return "Error when retrieving API stock price";
+        return {error: "Error when retrieving API stock price"};
     }
 };
 
@@ -259,7 +259,7 @@ const getApiBasicInfo = async function (symbol) {
     } catch(error) {
         await rollback();
         console.log(error);
-        return "Error when retrieving API basic info";
+        return {error: "Error when retrieving API basic info"};
     }
 };
 
@@ -290,7 +290,7 @@ const getApiNews = async function (symbol) {
     } catch(error) {
         await rollback();
         console.log(error);
-        return "Error when retrieving API news";
+        return {error: "Error when retrieving API news"};
     }
 };
 
@@ -304,7 +304,7 @@ const symbolList = async function () {
     } catch(error) {
         console.log(error);
         await rollback();
-        return "Error when retrieving symbols";
+        return {error: "Error when retrieving symbols"};
     }
 };
 
@@ -328,8 +328,7 @@ const dailyGetPrices = async function () {
                     "filter":"history",
                     "period1":period1,
                     "period2":now,
-                    "symbol":"AMZN"
-                // "symbol":a
+                    "symbol": a
                 },
             };
             const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data", config);
@@ -347,7 +346,7 @@ const dailyGetPrices = async function () {
     } catch(error) {
         await rollback();
         console.log(error);
-        return "Error when retrieving stock price every day";
+        return {error: "Error when retrieving stock price every day"};
     }
 };
 
@@ -386,7 +385,7 @@ const dailyGetNews = async function () {
     } catch(error) {
         await rollback();
         console.log(error);
-        return "Error when retrieving API news";
+        return {error: "Error when retrieving API news"};
     }
 };
 
@@ -444,7 +443,7 @@ const dailyGetBasicInfo = async function () {
     } catch(error) {
         await rollback();
         console.log(error);
-        return "Error when retrieving stock basic info every day";
+        return {error: "Error when retrieving stock basic info every day"};
     }
 
 };

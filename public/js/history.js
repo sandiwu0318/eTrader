@@ -21,6 +21,7 @@ async function getHistory() {
             }
         });
         const resJson = (await res.json()).data;
+        console.log(resJson)
         if (data.error === "Wrong authentication") {
             swal.close();
             await Swal.fire({
@@ -31,9 +32,10 @@ async function getHistory() {
             });
             localStorage.setItem("page", window.location.href);
             window.location = "/login.html";
-        } else if (resJson.error) {
+        } else if (resJson.error === "You haven't created any orders yet") {
             Swal.fire({
-                text: resJson.error,
+                title: "Notice",
+                text: "You haven't created any orders yet",
                 icon: 'warning',
                 confirmButtonText: 'Ok'
             })
@@ -41,6 +43,13 @@ async function getHistory() {
             reminder.className = "reminder";
             reminder.innerHTML = "You can place orders with prices or indicators.<br>Already placed orders? When the deal is done, it will be shown here."
             getElement("#history_ul").appendChild(reminder);
+        } else if (resJson.error) {
+            Swal.fire({
+                title: "Error",
+                text: "Internal server error",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
         } else {
             const history = resJson.history;
             if (history.length !== 0) {

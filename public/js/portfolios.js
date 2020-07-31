@@ -35,7 +35,7 @@ async function getPortfolios() {
             });
             localStorage.setItem("page", window.location.href);
             window.location = "/login.html";
-        } else if (resJson.error) {
+        } else if (resJson.error === "You don't have any portfolios yet") {
             removeItem("expensePie");
             removeItem("returnPie");
             swal.close();
@@ -48,6 +48,13 @@ async function getPortfolios() {
             reminder.className = "reminder";
             reminder.innerHTML = "You can place orders with prices or indicators. <br>Already placed orders? Your portfolio will be shown when the deal is done."
             getElement("#portfolio_ul").appendChild(reminder);
+        } else if (resJson.error) {
+            Swal.fire({
+                title: "Error",
+                text: "Internal server error",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
         } else {
             swal.close();
             const portfolios = resJson;

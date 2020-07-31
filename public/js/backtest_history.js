@@ -2,7 +2,10 @@ import {getElement, getDataByClass, showLoginBtn, createList, removeChild, creat
 window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
-
+checkLogin(token);
+if (token !== null) {
+    backtest_history();
+}
 
 const setOrder= function (data) {
     const setOrderBtn = getElement("#setOrderBtn");
@@ -66,13 +69,18 @@ const setOrder= function (data) {
                 icon: "success",
                 confirmButtonText: "Ok"
             });
-        }
+        } else if (resJson.error) {
+            Swal.fire({
+                title: "Error",
+                text: "Internal server error",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
+        } 
     })
 }
 
 async function backtest_history() {
-    checkLogin(token);
-    window.scrollTo(0, 0);
     const data = {
         token: token
     }
@@ -84,6 +92,7 @@ async function backtest_history() {
         }
     });
     const resJson = (await res.json()).data;
+    console.log(resJson)
     if (resJson.error === "Wrong authentication") {
         await Swal.fire({
             title: "Please login again",
@@ -93,29 +102,48 @@ async function backtest_history() {
         });
         localStorage.setItem("page", window.location.href);
         window.location = "/login.html";
+    } else if (resJson.error) {
+        Swal.fire({
+            title: "Error",
+            text: "Internal server error",
+            icon: 'error',
+            confirmButtonText: 'Ok'
+        })
+    } else if (resJson.length === 0) {
+        Swal.fire({
+            title: "Notice",
+            text: "You haven't saved any backtesting results yet",
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+        })
+        const reminder = document.createElement("div");
+        reminder.className = "reminder";
+        reminder.innerHTML = "You can backtest with different indicators and save the results."
+        console.log(getElement("#saved_ul"))
+        getElement("#saved_ul").appendChild(reminder);
     }
-    if (getElement("#saved_ul")) {
-        removeChild("saved_ul");
-        createButton("btn", "goBackBtn", "saved_results", "Go back");
-        createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
-    } else {
-        createButton("btn", "goBackBtn", "saved_results", "Go back");
-        const ul = document.createElement("ul");
-        ul.id = "saved_ul";
-        ul.className = "user_ul";
-        getElement("#saved_results").appendChild(ul);
-        createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
-    }
+    // if (getElement("#saved_ul")) {
+    //     removeChild("saved_ul");
+    //     createButton("btn", "goBackBtn", "saved_results", "Go back");
+    //     createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
+    // } else {
+    //     createButton("btn", "goBackBtn", "saved_results", "Go back");
+    //     const ul = document.createElement("ul");
+    //     ul.id = "saved_ul";
+    //     ul.className = "user_ul";
+    //     getElement("#saved_results").appendChild(ul);
+    //     createList(`#saved_ul`, "title_li titles", ["Created", "Start", "End", "Symbol", "Indicator", "Action", "ROI"])
+    // }
     removeChild("test_form");
     removeChild("profit");
     removeChild("ROI");
     removeChild("result_container");
     resJson.forEach(i => createList(`#saved_ul`, "user_li saved_li", [i.created_date.substr(0, 10), i.periods[0],i.periods[1], i.symbol, i.indicator, i.action, `${(i.ROI*100).toFixed(2)}%`]));
-    const goBackBtn = getElement("#goBackBtn");
-    goBackBtn.addEventListener("click", function(e) {
-        e.preventDefault();
-        window.location = "/backtest.html";
-    })
+    // const goBackBtn = getElement("#goBackBtn");
+    // goBackBtn.addEventListener("click", function(e) {
+    //     e.preventDefault();
+    //     window.location = "/backtest.html";
+    // })
     const saved_lis = document.getElementsByClassName("saved_li");
     for (let i =0; i<saved_lis.length; i++) {
         saved_lis[i].addEventListener("click", async function() {
@@ -134,6 +162,14 @@ async function backtest_history() {
                 }
             });
             const resJson1 = (await res1.json()).data;
+            if (resJson.error) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Internal server error",
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
+            } 
             createButton("btn", "setOrderBtn", "test_form", "Set orders")
             showResult("result_graph","result_ul", resJson1);
             getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
@@ -146,5 +182,4 @@ async function backtest_history() {
 
 
 searchSymbol();
-backtest_history();
 hoverBacktest();

@@ -170,17 +170,24 @@ body {
     position: relative;
 }
 
-#viewHistory_nav {
+#backtest_dropdown_div {
     position: absolute;
-    padding: 0.3rem 2.3rem 0.3rem 0.5rem;
+    border-bottom: 1px solid rgb(190, 190, 190);
+    display: none;
+    z-index: 99;
+}
+
+.backtest_dropdown {
+    padding: 0.1rem 2.1rem 0.1rem 0.5rem;
     background-color: white;
     border: 1px solid rgb(190, 190, 190);
-    display: none;
+    border-top: none;
+    display: block;
     cursor: pointer;
     text-align: center;
 }
 
-#viewHistory_nav a:hover {
+.backtest_dropdown a:hover {
     border: none;
 }
 
@@ -793,7 +800,8 @@ body {
 }
 
 
-#login_intro {
+#login_intro,
+#not_found_text {
     padding: 10rem 8rem;
     width: 45%;
     font-size: 1.1rem;
@@ -801,6 +809,12 @@ body {
     background-color: #818181;
     color: white;
     text-align: left;
+}
+
+#not_found_text {
+    padding: none;
+    width: 100%;
+    height: 100vh;
 }
 
 #login_title {
@@ -872,4 +886,20 @@ body {
 #downIcon {
     font-size: 0.8rem;
     margin: 0.2rem;
+}
+
+#not_found_button {
+    background-color: #3fa089;
+    color: white;
+    width: 18rem;
+    height: 3rem;
+    cursor: pointer;
+    border: none;
+    box-shadow: 3px 3px white;
+}
+
+#not_found_button:hover {
+    background-color: #b4b4b4;
+    color: black;
+    box-shadow: 3px 3px white;
 }

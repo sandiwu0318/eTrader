@@ -7,14 +7,6 @@ showLoginBtn(token);
 let symbols = [];
 symbols = getSymbols();
 
-Swal.fire({
-    title: "Loading",
-    allowOutsideClick: false,
-    onBeforeOpen: () => {
-        Swal.showLoading()
-    },
-});
-
 let previosClosing = 0;
 const socket = io();
 socket.on("intraday", (data) => {
@@ -52,6 +44,13 @@ socket.on("intraday", (data) => {
 });
 async function renderData(symbol, frequency){
     //Chart
+    Swal.fire({
+        title: "Loading",
+        allowOutsideClick: false,
+        onBeforeOpen: () => {
+            Swal.showLoading()
+        },
+    });
     removeChild("priceChart");
     removeChild("profile_ul");
     removeChild("basicInfo_ul");
@@ -88,6 +87,13 @@ async function renderData(symbol, frequency){
             });
             localStorage.setItem("page", window.location.href);
             window.location = "/login.html";
+        } else if (resJson3.error) {
+            Swal.fire({
+                title: "Error",
+                text: "Internal server error",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
         }
         if (resJson3.length === 0 || resJson3.error === "You don't have any watchlist yet") {
             watchlist = []
@@ -121,6 +127,14 @@ async function renderData(symbol, frequency){
     getElement("#show_company").innerText = symbols[index].name;
     const res1 = await fetch(`/api/1.0/stock/getBasicInfo?symbol=${symbol}`);
     const resJson1 = (await res1.json()).data;
+    if (resJson1.error) {
+        Swal.fire({
+            title: "Error",
+            text: "Internal server error",
+            icon: 'error',
+            confirmButtonText: 'Ok'
+        })
+    }
     previosClosing = resJson1["Previous Closing"]
     const basicInfofilter = Object.keys(resJson1).slice(0,-2).filter(i => resJson1[i] !== null);
     const basicInfoData = basicInfofilter.map(i => [i, resJson1[i]]).reduce((a,b) => a.concat(b));
@@ -170,9 +184,16 @@ async function renderData(symbol, frequency){
         socket.disconnect();
         const res = await fetch(`/api/1.0/stock/getPrices?symbol=${symbol}&frequency=${frequency}`);
         const resJson = (await res.json()).data;
+        if (resJson.error) {
+            Swal.fire({
+                title: "Error",
+                text: "Internal server error",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
+        }
         createChart(resJson, frequency);
     }
-    console.log(resJson1)
     //Profile
     if (resJson1.profile) {
         delete resJson1.profile.zip;
@@ -197,6 +218,14 @@ async function renderData(symbol, frequency){
     //News
     const res2 = await fetch(`/api/1.0/stock/getNews?symbol=${symbol}`);
     const resJson2 = (await res2.json()).data;
+    if (resJson2.error) {
+        Swal.fire({
+            title: "Error",
+            text: "Internal server error",
+            icon: 'error',
+            confirmButtonText: 'Ok'
+        })
+    }
     const news = document.createElement("h2");
     news.innerText = "News";
     news.id = "news_title";
@@ -259,6 +288,13 @@ async function renderData(symbol, frequency){
                                 });
                                 localStorage.setItem("page", window.location.href);
                                 window.location = "/login.html";
+                            } else if (resJson4.error) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Internal server error",
+                                    icon: 'error',
+                                    confirmButtonText: 'Ok'
+                                })
                             }
                             Swal.fire({
                                 title: "Success",
@@ -313,7 +349,7 @@ async function renderData(symbol, frequency){
                 } else if (resJson5.error) {
                     Swal.fire({
                         title: "Error",
-                        text: resJson.error,
+                        text: "Internal server error",
                         icon: 'error',
                         confirmButtonText: 'Ok'
                     })

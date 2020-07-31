@@ -61,7 +61,7 @@ showGraphBtn.addEventListener("click",
                     if (resJson.error) {
                         Swal.fire({
                             title: "Error!",
-                            text: resJson.error,
+                            text: "Internal server error",
                             icon: "error",
                             confirmButtonText: "Ok"
                         });
@@ -545,7 +545,7 @@ backtestBtn.addEventListener("click",
                     if (resJson.error) {
                         Swal.fire({
                             title: "Error!",
-                            text: resJson.error,
+                            text: "Internal server error",
                             icon: "error",
                             confirmButtonText: "Ok"
                         });
@@ -587,6 +587,13 @@ backtestBtn.addEventListener("click",
                                 });
                                 localStorage.setItem("page", window.location.href);
                                 window.location = "/login.html";
+                            } else if (resJson3.error) {
+                                await Swal.fire({
+                                    title: "Error",
+                                    icon: "Internal server error",
+                                    confirmButtonText: "Ok",
+                                    timer: "1000"
+                                });
                             }
                             if (!getElement("#saved_ul")) {
                                 const ul = document.createElement("ul");
@@ -616,8 +623,15 @@ backtestBtn.addEventListener("click",
                                         'Content-Type': 'application/json'
                                     }
                                 });
-                                
                                 const resJson1 = (await res1.json()).data;
+                                if (resJson1.error) {
+                                    await Swal.fire({
+                                        title: "Error",
+                                        icon: "Internal server error",
+                                        confirmButtonText: "Ok",
+                                        timer: "1000"
+                                    });
+                                }
                                 createButton("btn", "setOrderBtn", "test_form", "Set orders")
                                 showResult("result_graph","result_ul", resJson1);
                                 getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
@@ -707,6 +721,13 @@ const setOrder= function (data) {
                 text: "Order places",
                 icon: "success",
                 confirmButtonText: "Ok"
+            });
+        } else if (resJson3.error) {
+            await Swal.fire({
+                title: "Error",
+                icon: "Internal server error",
+                confirmButtonText: "Ok",
+                timer: "1000"
             });
         }
     })

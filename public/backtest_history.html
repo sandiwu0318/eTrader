@@ -37,11 +37,26 @@
         <div class="nav_item"><a href="/portfolios.html">Portfolios</a></div>
         <div class="nav_item"><a href="/orders.html">Orders</a></div>
         <div class="nav_item"><a href="/history.html">History</a></div>
-        <div class="nav_item" id="backtest_nav"><a class="current" href="/backtest.html">Backtest</a>
-            <div id="viewHistory_nav"><a href="/backtest_history.html">Saved</a></div>
+        <div class="nav_item" id="backtest_nav"><a class="current backtest" href="/backtest.html">Backtest<span id="downIcon">&#9660</span></a>
+            <div id="backtest_dropdown_div">
+                <div class="backtest_dropdown" id=""><a href="/backtest.html">New</a></div>
+                <div class="backtest_dropdown" id="viewHistory_nav"><a href="/backtest_history.html">Saved</a></div>
+            </div>
         </div>
     </nav>
     <div id="saved_results">
+        <ul id="saved_ul" class="user_ul">
+            <div class="titles">
+                <div class="title">Created</a></div>
+                <div class="title">Start</a></div>
+                <div class="title">End</a></div>
+                <div class="title">Volume</a></div>
+                <div class="title">Symbol</a></div>
+                <div class="title">Indicator</a></div>
+                <div class="title">Action</a></div>
+                <div class="title">ROI</a></div>
+            </div>
+        </ul>
     </div>
     <div class="test_case">
         <form autocomplete="off" id="test_form">

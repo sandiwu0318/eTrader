@@ -2,7 +2,7 @@ require("dotenv").config();
 const {PORT_TEST, PORT, NODE_ENV, API_VERSION} = process.env;
 const port = NODE_ENV == "test" ? PORT_TEST : PORT;
 const CronJob = require("cron").CronJob;
-const {dailyGetPrices, dailyGetNews} = require("./server/controllers/stock_controller");
+const {dailyGetPrices, dailyGetNews, dailyGetBasicInfo} = require("./server/controllers/stock_controller");
 const {matchOrders} = require("./server/controllers/trade_controller");
 const {socket} = require("./server/controllers/socket_controller");
 
@@ -49,6 +49,14 @@ app.use(function(err, req, res, next) {
     console.log(err);
     res.status(500).send("Internal Server Error");
     next();
+});
+
+//404 Error page
+app.get("*", function(req, res){
+    if (req.accepts("html")) {
+        res.status(400).send("<script>location.href = \"/not_found.html\";</script>");
+        return;
+    }
 });
 
 // Function to match orders every minute

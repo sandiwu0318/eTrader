@@ -28,9 +28,9 @@ async function getOrders() {
             });
             localStorage.setItem("page", window.location.href);
             window.location = "/login.html";
-        } else if (resJson.error) {
+        } else if (resJson.error === "You haven't created any orders yet") {
             Swal.fire({
-                text: resJson.error,
+                text: "You haven't created any orders yet",
                 icon: 'warning',
                 confirmButtonText: 'Ok'
             })
@@ -38,6 +38,13 @@ async function getOrders() {
             reminder.className = "reminder";
             reminder.innerText = "You can place orders with prices or indicators."
             getElement("#orders_ul").appendChild(reminder);
+        } else if (resJson.error) {
+            Swal.fire({
+                title: "Error",
+                text: "Internal server error",
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
         } else {
             const orders = resJson.orders;
             if (orders.length !== 0) {
@@ -92,6 +99,14 @@ async function getOrders() {
                                 }
                             });
                             const resJson1 = (await res.json()).data;
+                            if (resJson1.error) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Internal server error",
+                                    icon: 'error',
+                                    confirmButtonText: 'Ok'
+                                })
+                            }
                             if (resJson1.message) {
                                 Swal.fire(
                                     'Deleted!',

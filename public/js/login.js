@@ -1,4 +1,4 @@
-import {getElement, getSymbols} from "./utils.js";
+import {getElement} from "./utils.js";
 window.scrollTo(0, 0);
 
 
@@ -77,13 +77,7 @@ signInBtn.addEventListener("click",
     }
 )
 
-let symbols;
-async function SymbolList() {
-    symbols = await getSymbols();
-}
-
 const signUpLink = getElement("#signUpLink");
-console.log(signUpLink)
 const signUpDiv = getElement("#signUpDiv");
 const signInLink = getElement("#signInLink");
 const signInDiv = getElement("#signInDiv");
@@ -107,6 +101,3 @@ signInLink.addEventListener("click", () => {
     signUpDiv.style.display = "flex";
     signInDiv.style.display = "none";
 })
-
-
-SymbolList();

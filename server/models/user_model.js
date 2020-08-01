@@ -47,7 +47,6 @@ const signIn = async (email, password) => {
         await transaction();
         const users = await query("SELECT * FROM user WHERE email = ?", [email]);
         const user = users[0];
-        const accessToken = users[0].access_token;
         if (users.length == 0) {
             await commit();
             return {error: "Please sign up first"};
@@ -56,6 +55,7 @@ const signIn = async (email, password) => {
             await commit();
             return {error: "Password is wrong"};
         }
+        const accessToken = users[0].access_token;
         const loginAt = new Date();
         const queryStr = "UPDATE user SET last_login = ? WHERE id = ?";
         await query(queryStr, [loginAt, user.id]);
@@ -169,7 +169,6 @@ const getOrders = async function (token) {
         delete i.action;
         i.deadline = i.deadline.toISOString().substr(0, 10);
     });
-    console.log(orders);
     return {
         history: history,
         orders: orders,

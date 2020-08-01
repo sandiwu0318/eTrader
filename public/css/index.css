@@ -624,6 +624,7 @@ body {
 
 #profit,
 #ROI,
+#quantity,
 #result_graph {
     width: 90%;
     margin: 2rem auto;
@@ -649,6 +650,10 @@ body {
     margin: 1rem auto;
     border: 0.05rem solid #b4b4b4;
     border-radius: 0.5rem;
+}
+
+#saved_test_case {
+    width: 90%;
 }
 
 .titles {

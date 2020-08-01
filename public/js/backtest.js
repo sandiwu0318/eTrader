@@ -40,6 +40,7 @@ showGraphBtn.addEventListener("click",
                 })
             } else {
                 removeChild("result_container");
+                removeChild("quantity");
                 removeChild("profit");
                 removeChild("ROI");
                 removeChild("graph_container");
@@ -252,6 +253,7 @@ backtestBtn.addEventListener("click",
             } else {
                 removeChild("result_container");
                 removeChild("graph_container");
+                removeChild("quantity");
                 removeChild("profit");
                 removeChild("ROI");
                 if (getElement("#setOrderBtn")) {
@@ -281,6 +283,7 @@ backtestBtn.addEventListener("click",
                         createButton("btn", "saveBtn", "backtest_container", "Save")
                         createButton("btn", "setOrderBtn", "backtest_container", "Set orders")
                         showResult("result_graph","result_ul", resJson);
+                        getElement("#quantity").innerHTML = `<h2>Quantity: ${Math.round(resJson.volume)}</h2>`;
                         getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson.investmentReturn)}</h2>`;
                         getElement("#ROI").innerHTML = `<h2>ROI: ${(resJson.ROI*100).toFixed(2)}%</h2>`;
                         if (data.indicator.substr(1 ,2) === "MA") {
@@ -333,6 +336,7 @@ backtestBtn.addEventListener("click",
                             createList(`#saved_ul`, "user_li saved_li", [resJson3.created_date.substr(0, 10), resJson3.periods[0],resJson3.periods[1], resJson3.symbol, resJson3.indicator, resJson3.action, `${(resJson3.ROI*100).toFixed(2)}%`]);
                             const saved_lis = document.getElementsByClassName("saved_li");
                             saved_lis[saved_lis.length-1].addEventListener("click", async function() {
+                                removeChild("quantity");
                                 removeChild("profit");
                                 removeChild("ROI");
                                 removeChild("result_container");
@@ -360,8 +364,9 @@ backtestBtn.addEventListener("click",
                                         timer: "1000"
                                     });
                                 }
-                                createButton("btn", "setOrderBtn", "test_form", "Set orders")
                                 showResult("result_graph","result_ul", resJson1);
+                                createButton("btn", "setOrderBtn", "backtest_container", "Set orders")
+                                getElement("#quantity").innerHTML = `<h2>Quantity: ${Math.round(resJson1.volume)}</h2>`;
                                 getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
                                 getElement("#ROI").innerHTML = `<h2>ROI: ${(resJson1.ROI*100).toFixed(2)}%</h2>`;
                                 if (newData.indicator.substr(1 ,2) === "MA") {

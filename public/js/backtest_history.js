@@ -123,6 +123,7 @@ async function backtest_history() {
         getElement("#saved_ul").appendChild(reminder);
     }
     removeChild("test_form");
+    removeChild("quantity");
     removeChild("profit");
     removeChild("ROI");
     removeChild("result_container");
@@ -130,6 +131,7 @@ async function backtest_history() {
     const saved_lis = document.getElementsByClassName("saved_li");
     for (let i =0; i<saved_lis.length; i++) {
         saved_lis[i].addEventListener("click", async function() {
+            removeChild("quantity");
             removeChild("profit");
             removeChild("ROI");
             removeChild("result_container");
@@ -155,6 +157,7 @@ async function backtest_history() {
             } 
             createButton("btn", "setOrderBtn", "test_form", "Set orders")
             showResult("result_graph","result_ul", resJson1);
+            getElement("#quantity").innerHTML = `<h2>Quantity: ${Math.round(resJson1.volume)}</h2>`;
             getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
             getElement("#ROI").innerHTML = `<h2>ROI: ${(resJson1.ROI*100).toFixed(2)}%</h2>`;
             setOrder(newData);

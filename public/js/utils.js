@@ -297,18 +297,31 @@ function searchSymbol() {
     })
 }
 
-function hoverBacktest() {
+function hoverNav() {
     const backtest_nav = getElement("#backtest_nav");
-    const backtest = getElement(".backtest");
+    const backtest_a = getElement("#backtest_a");
     const backtest_dropdown_div = getElement("#backtest_dropdown_div");
     backtest_nav.addEventListener("mouseover", () => {
         backtest_dropdown_div.style.display = "block";
-        backtest.classList.add("current");
+        backtest_a.classList.add("current");
     })
     backtest_nav.addEventListener("mouseout", () => {
         backtest_dropdown_div.style.display = "none";
         if (location.pathname !== "/backtest.html" && location.pathname !== "/backtest_history.html") {
-            backtest.classList.remove("current");
+            backtest_a.classList.remove("current");
+        }
+    })
+    const orders_nav = getElement("#orders_nav");
+    const orders_a = getElement("#orders_a");
+    const orders_dropdown_div = getElement("#orders_dropdown_div");
+    orders_nav.addEventListener("mouseover", () => {
+        orders_dropdown_div.style.display = "block";
+        orders_a.classList.add("current");
+    })
+    orders_nav.addEventListener("mouseout", () => {
+        orders_dropdown_div.style.display = "none";
+        if (location.pathname !== "/orders.html" && location.pathname !== "/history.html") {
+            orders_a.classList.remove("current");
         }
     })
 }
@@ -614,7 +627,7 @@ export {
     getSymbols,
     getInputSymbols,
     searchSymbol,
-    hoverBacktest,
+    hoverNav,
     showResult,
     toThousands
 };

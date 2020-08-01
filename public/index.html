@@ -26,12 +26,16 @@
     <nav class="main_nav">
         <div class="nav_item"><a href="/watchlist.html">Watchlist</a></div>
         <div class="nav_item"><a href="/portfolios.html">Portfolios</a></div>
-        <div class="nav_item"><a href="/orders.html">Orders</a></div>
-        <div class="nav_item"><a href="/history.html">History</a></div>
-        <div class="nav_item" id="backtest_nav"><a class="backtest" href="/backtest.html">Backtest<span id="downIcon">&#9660</span></a>
-            <div id="backtest_dropdown_div">
-                <div class="backtest_dropdown" id=""><a href="/backtest.html">New</a></div>
-                <div class="backtest_dropdown" id="viewHistory_nav"><a href="/backtest_history.html">Saved</a></div>
+        <div class="nav_item dropdown_nav" id="orders_nav"><a id="orders_a">Orders<span class="downIcon">&#9660</span></a>
+            <div class="dropdown_div" id="orders_dropdown_div">
+                <div class="orders_dropdown" id=""><a href="/orders.html">Pending</a></div>
+                <div class="orders_dropdown"><a href="/history.html">History</a></div>
+            </div>
+        </div>
+        <div class="nav_item dropdown_nav" id="backtest_nav"><a id="backtest_a">Backtest<span class="downIcon">&#9660</span></a>
+            <div class="dropdown_div" id="backtest_dropdown_div">
+                <div class="backtest_dropdown"><a href="/backtest.html">New</a></div>
+                <div class="backtest_dropdown"><a href="/backtest_history.html">Saved</a></div>
             </div>
         </div>
     </nav>

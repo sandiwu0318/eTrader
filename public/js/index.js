@@ -1,4 +1,4 @@
-import {getElement, createTitle, createList, createListWithLink, removeItem, removeChild, createChart, showLoginBtn, checkLogin, getSymbols, hoverBacktest} from "./utils.js";
+import {getElement, createTitle, createList, createListWithLink, removeItem, removeChild, createChart, showLoginBtn, checkLogin, getSymbols, hoverNav} from "./utils.js";
 //Get Price
 window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
@@ -87,7 +87,7 @@ async function renderData(symbol){
             });
             localStorage.setItem("page", window.location.href);
             window.location = "/login.html";
-        } else if (resJson3.error) {
+        } else if (resJson3.error !== "You don't have any watchlist yet") {
             Swal.fire({
                 title: "Error",
                 text: "Internal server error",
@@ -212,138 +212,9 @@ async function renderData(symbol){
     news.id = "news_title";
     getElement(".news_container").insertBefore(news, getElement("#news_ul"));
     resJson2.map(i => createListWithLink(`${i.title} | ${i.author} | ${i.time.substr(0,10)}`,i.link));
-
-    //Add trade button
-    let tradeBtn = getElement("#tradeBtn");
-    tradeBtn.addEventListener("click",
-        async function (e){
-            e.preventDefault();
-            checkLogin(token);
-            if (token !== null) {
-                const sub_action = getElement("#action").value;
-                const price = getElement("#price").value;
-                const volume = getElement("#volume").value;
-                const symbol = getElement("#show_symbol").innerText.split(" ")[0];
-                const period = getElement("#expiration").value;
-                if (sub_action && price && volume && symbol && period) {
-                    if (volume%1 !== 0) {
-                        swal.close();
-                        Swal.fire({
-                            title: "Error",
-                            text: "Amount needs to be an integer",
-                            icon: 'error',
-                            confirmButtonText: 'Ok'
-                        })
-                    } else {
-                        try {
-                            let data = {
-                                sub_action: sub_action,
-                                value: price,
-                                volume: volume,
-                                symbol: symbol,
-                                period: period,
-                                token: token,
-                                category: "price",
-                                cross: null,
-                                indicatorPeriod: null,
-                            }
-                            if (sub_action === "buy" || sub_action === "sell") {
-                                data.action = "long";
-                            } else {
-                                data.action = "short";
-                            }
-                            const res4 = await fetch(`/api/1.0/trade/setOrder`,{
-                                method: "POST",
-                                body: JSON.stringify(data),
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                }
-                            });
-                            const resJson4 = (await res4.json()).data;
-                            if (resJson4.error === "Wrong authentication") {
-                                await Swal.fire({
-                                    title: "Please login again",
-                                    icon: "error",
-                                    confirmButtonText: "Ok",
-                                    timer: "1000"
-                                });
-                                localStorage.setItem("page", window.location.href);
-                                window.location = "/login.html";
-                            } else if (resJson4.error) {
-                                Swal.fire({
-                                    title: "Error",
-                                    text: "Internal server error",
-                                    icon: 'error',
-                                    confirmButtonText: 'Ok'
-                                })
-                            }
-                            Swal.fire({
-                                title: "Success",
-                                text: resJson4.message,
-                                icon: "success",
-                                confirmButtonText: "Ok"
-                            })
-                        } catch (err) {
-                            console.log("set order fetch failed, err");
-                        }
-                    }
-                } else {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Please make sure you filled out all the input",
-                        icon: 'error',
-                        confirmButtonText: 'Ok'
-                    })
-                }
-                
-            }
-        }
-    )
-    let watchListBtn = getElement("#watchListBtn");
-    watchListBtn.addEventListener("click",
-        async function (e){
-            e.preventDefault();
-            checkLogin(token);
-            if (token !== null) {
-                const symbol = getElement("#show_symbol").innerText;
-                const data = {
-                    symbol: symbol,
-                    token: token
-                }
-                const res5 = await fetch(`/api/1.0/user/addRemoveWatchlist`,{
-                    method: "POST",
-                    body: JSON.stringify(data),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                const resJson5 = (await res5.json()).data;
-                if (resJson5.error === "Wrong authentication") {
-                    await Swal.fire({
-                        title: "Please login again",
-                        icon: "error",
-                        confirmButtonText: "Ok",
-                        timer: "1000"
-                    });
-                    localStorage.setItem("page", window.location.href);
-                    window.location = "/login.html";
-                } else if (resJson5.error) {
-                    Swal.fire({
-                        title: "Error",
-                        text: "Internal server error",
-                        icon: 'error',
-                        confirmButtonText: 'Ok'
-                    })
-                } else {
-                    const watchlistBtn = getElement("#watchListBtn");
-                    const watchlist = resJson5.watchlist;
-                    setWatchlistBtn(watchlist,symbol,watchlistBtn);
-                }
-            }
-        }
-    )
 }
 
+//Show prices
 async function showPrice(symbol, frequency) {
     if (frequency === "1d") {
         socket.connect();
@@ -364,6 +235,7 @@ async function showPrice(symbol, frequency) {
     }
 }
 
+//Search from other pages
 const symbol = localStorage.getItem("symbol");
 async function showIndexPage(symbol) {
     if (symbol) {
@@ -377,9 +249,10 @@ async function showIndexPage(symbol) {
 }
 showIndexPage(symbol);
 
+//Search button
 const searchBtn = getElement("#searchBtn");
 searchBtn.addEventListener("click", function () {
-    // try {
+    try {
         const symbol = getElement("#symbol_search").value.split(" ")[0];
         if (symbols.map(i => i.symbol).includes(symbol)) {
             renderData(symbol);
@@ -392,12 +265,141 @@ searchBtn.addEventListener("click", function () {
                 confirmButtonText: 'Ok'
             })
         }
-        
-    // } catch (err) {
-    //     console.log("info fetch failed, err");
-    // }
+    } catch (err) {
+        console.log("info fetch failed, err");
+    }
 })
 
+//Add to / Remove from watchlist
+let watchListBtn = getElement("#watchListBtn");
+watchListBtn.addEventListener("click",
+    async function (e){
+        e.preventDefault();
+        checkLogin(token);
+        if (token !== null) {
+            const symbol = getElement("#show_symbol").innerText;
+            const data = {
+                symbol: symbol,
+                token: token
+            }
+            const res5 = await fetch(`/api/1.0/user/addRemoveWatchlist`,{
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const resJson5 = (await res5.json()).data;
+            if (resJson5.error === "Wrong authentication") {
+                await Swal.fire({
+                    title: "Please login again",
+                    icon: "error",
+                    confirmButtonText: "Ok",
+                    timer: "1000"
+                });
+                localStorage.setItem("page", window.location.href);
+                window.location = "/login.html";
+            } else if (resJson5.error) {
+                Swal.fire({
+                    title: "Error",
+                    text: "Internal server error",
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
+            } else {
+                const watchlistBtn = getElement("#watchListBtn");
+                const watchlist = resJson5.watchlist;
+                setWatchlistBtn(watchlist,symbol,watchlistBtn);
+            }
+        }
+    }
+)
+
+//Trade button
+const tradeBtn = getElement("#tradeBtn");
+tradeBtn.addEventListener("click",
+    async function (e){
+        e.preventDefault();
+        checkLogin(token);
+        if (token !== null) {
+            const sub_action = getElement("#action").value;
+            const price = getElement("#price").value;
+            const volume = getElement("#volume").value;
+            const symbol = getElement("#show_symbol").innerText.split(" ")[0];
+            const period = getElement("#expiration").value;
+            if (sub_action && price && volume && symbol && period) {
+                if (volume%1 !== 0 || volume < 0) {
+                    swal.close();
+                    Swal.fire({
+                        title: "Error",
+                        text: "Amount needs to be an integer",
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    })
+                } else {
+                    // try {
+                        let tradeData = {
+                            sub_action: sub_action,
+                            value: price,
+                            volume: volume,
+                            symbol: symbol,
+                            period: period,
+                            token: token,
+                            category: "price",
+                            cross: null,
+                            indicatorPeriod: null,
+                        }
+                        if (sub_action === "buy" || sub_action === "sell") {
+                            tradeData.action = "long";
+                        } else {
+                            tradeData.action = "short";
+                        }
+                        const res = await fetch(`/api/1.0/trade/setOrder`,{
+                            method: "POST",
+                            body: JSON.stringify(tradeData),
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const resJson = (await res.json()).data;
+                        if (resJson.error === "Wrong authentication") {
+                            await Swal.fire({
+                                title: "Please login again",
+                                icon: "error",
+                                confirmButtonText: "Ok",
+                                timer: "1000"
+                            });
+                            localStorage.setItem("page", window.location.href);
+                            window.location = "/login.html";
+                        } else if (resJson.error) {
+                            Swal.fire({
+                                title: "Error",
+                                text: "Internal server error",
+                                icon: 'error',
+                                confirmButtonText: 'Ok'
+                            })
+                        }
+                        Swal.fire({
+                            title: "Success",
+                            text: resJson.message,
+                            icon: "success",
+                            confirmButtonText: "Ok"
+                        })
+                    // } catch (err) {
+                    //     console.log("set order fetch failed, err");
+                    // }
+                }
+            } else {
+                Swal.fire({
+                    title: "Error",
+                    text: "Please make sure you filled out all the input",
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
+            } 
+        }
+    }
+)
 
 //Create watchlistBtn
 function setWatchlistBtn(watchlist,symbol,btn) {
@@ -419,10 +421,4 @@ frequency.addEventListener("change", () => {
 })
 
 
-const expiration = getElement("#expiration");
-expiration.addEventListener("mouseover", () => {
-    const expiration_info = getElement("#expiration_info");
-    expiration_info.style.display = "inline-block"
-})
-
-hoverBacktest();
+hoverNav();

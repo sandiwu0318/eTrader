@@ -166,29 +166,38 @@ body {
 
 
 
-#backtest_nav {
+#backtest_nav,
+#orders_nav {
     position: relative;
 }
 
-#backtest_dropdown_div {
+.dropdown_div {
     position: absolute;
     border-bottom: 1px solid rgb(190, 190, 190);
     display: none;
     z-index: 99;
 }
 
-.backtest_dropdown {
-    padding: 0.1rem 2.1rem 0.1rem 0.5rem;
+.backtest_dropdown,
+.orders_dropdown {
     background-color: white;
     border: 1px solid rgb(190, 190, 190);
     border-top: none;
     display: block;
     cursor: pointer;
-    text-align: center;
 }
 
-.backtest_dropdown a:hover {
+.backtest_dropdown a:hover,
+.orders_dropdown a:hover {
     border: none;
+}
+
+.backtest_dropdown {
+    padding: 0.1rem 2.1rem 0.1rem 0.5rem;
+}
+
+.orders_dropdown {
+    padding: 0.1rem 0.2rem 0.1rem 0.2rem;
 }
 
 
@@ -907,7 +916,7 @@ body {
     justify-content: space-between;
 }
 
-#downIcon {
+.downIcon {
     font-size: 0.8rem;
     margin: 0.2rem;
 }

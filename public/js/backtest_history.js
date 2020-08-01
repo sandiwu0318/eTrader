@@ -1,4 +1,4 @@
-import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, searchSymbol, hoverBacktest, showResult} from "./utils.js";
+import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, searchSymbol, hoverNav, showResult} from "./utils.js";
 window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
@@ -168,4 +168,4 @@ async function backtest_history() {
 
 
 searchSymbol();
-hoverBacktest();
+hoverNav();

@@ -1,4 +1,4 @@
-import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, getSymbols, getInputSymbols, searchSymbol, hoverBacktest, showResult} from "./utils.js";
+import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, getSymbols, getInputSymbols, searchSymbol, hoverNav, showResult} from "./utils.js";
 window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
@@ -542,4 +542,4 @@ async function SymbolList() {
 SymbolList();
 getInputSymbols();
 searchSymbol();
-hoverBacktest();
+hoverNav();

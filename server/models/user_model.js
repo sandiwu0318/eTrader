@@ -147,7 +147,7 @@ const getOrders = async function (token) {
         return {error: "Wrong authentication"};
     }
     const id = result[0].id;
-    const selectStr = "SELECT * FROM orders WHERE user_id = ? ORDER BY success, symbol";
+    const selectStr = "SELECT * FROM orders WHERE user_id = ? ORDER BY success, created_date DESC, symbol";
     const results = await query(selectStr, id);
     if (results.length === 0) {
         return {error: "You haven't created any orders yet"};
@@ -169,6 +169,7 @@ const getOrders = async function (token) {
         delete i.action;
         i.deadline = i.deadline.toISOString().substr(0, 10);
     });
+    console.log(orders);
     return {
         history: history,
         orders: orders,

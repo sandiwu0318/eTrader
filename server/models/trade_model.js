@@ -34,7 +34,8 @@ const setOrder = async function (token, symbol, category, value, indicatorPeriod
             indicatorPeriod: indicatorPeriod,
             cross: cross,
             deadline: deadline,
-            success: 0
+            success: 0,
+            created_date: new Date()
         };
         if (title.substr(1, 2) === "MA") {
             order["MA"] = `${JSON.stringify(value)}`;

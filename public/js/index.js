@@ -87,7 +87,7 @@ async function renderData(symbol){
             });
             localStorage.setItem("page", window.location.href);
             window.location = "/login.html";
-        } else if (resJson3.error !== "You don't have any watchlist yet") {
+        } else if (resJson3.error && resJson3.error !== "You don't have any watchlist yet") {
             Swal.fire({
                 title: "Error",
                 text: "Internal server error",
@@ -199,19 +199,13 @@ async function renderData(symbol){
     //News
     const res2 = await fetch(`/api/1.0/stock/getNews?symbol=${symbol}`);
     const resJson2 = (await res2.json()).data;
-    if (resJson2.error) {
-        Swal.fire({
-            title: "Error",
-            text: "Internal server error",
-            icon: 'error',
-            confirmButtonText: 'Ok'
-        })
+    if (!resJson2.error) {
+        const news = document.createElement("h2");
+        news.innerText = "News";
+        news.id = "news_title";
+        getElement(".news_container").insertBefore(news, getElement("#news_ul"));
+        resJson2.map(i => createListWithLink(`${i.title} | ${i.author} | ${i.time.substr(0,10)}`,i.link));
     }
-    const news = document.createElement("h2");
-    news.innerText = "News";
-    news.id = "news_title";
-    getElement(".news_container").insertBefore(news, getElement("#news_ul"));
-    resJson2.map(i => createListWithLink(`${i.title} | ${i.author} | ${i.time.substr(0,10)}`,i.link));
 }
 
 //Show prices

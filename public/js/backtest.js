@@ -170,7 +170,7 @@ showGraphBtn.addEventListener("click",
                         scrollTo(0, 500);
                     }
                 } catch (err) {
-                    console.log("price fetch failed, err");
+                    console.log("price fetch failed", err);
                 }
             }
         } else {
@@ -207,24 +207,24 @@ backtestBtn.addEventListener("click",
         if (indicator.substr(1 ,2) === "MA") {
             indicator_test = "MA_test";
             const values = getDataByClass(indicator_test).slice(1);
-            data.actionValue = values[0],
-            data.actionCross = values[1],
-            data.exitValue = values[2],
-            data.exitCross = values[4]
+            data.actionValue = values[0];
+            data.actionCross = values[1];
+            data.exitValue = values[2];
+            data.exitCross = values[4];
         } else if (indicator === "BB") {
             indicator_test = "BB_test";
             const values = getDataByClass(indicator_test).slice(1);
-            data.actionValue = values[1],
-            data.actionCross = values[0],
-            data.exitValue = values[3],
-            data.exitCross = values[2]
+            data.actionValue = values[1];
+            data.actionCross = values[0];
+            data.exitValue = values[3];
+            data.exitCross = values[2];
         } else {
             indicator_test = `${indicator}_test`;
             const values = getDataByClass(indicator_test).slice(1);
-            data.actionValue = values[1],
-            data.actionCross = values[0],
-            data.exitValue = values[3],
-            data.exitCross = values[2]
+            data.actionValue = values[1];
+            data.actionCross = values[0];
+            data.exitValue = values[3];
+            data.exitCross = values[2];
         }
         if (!symbols.includes(data.symbol)) {
             Swal.fire({
@@ -286,96 +286,95 @@ backtestBtn.addEventListener("click",
                         getElement("#quantity").innerHTML = `<h2>Quantity: ${Math.round(resJson.volume)}</h2>`;
                         getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson.investmentReturn)}</h2>`;
                         getElement("#ROI").innerHTML = `<h2>ROI: ${(resJson.ROI*100).toFixed(2)}%</h2>`;
-                        if (data.indicator.substr(1 ,2) === "MA") {
-                            data.actionValue = data.actionValue[0];
-                            data.exitValue = data.exitValue[0];
-                        }
                         setOrder(data);
                         scrollTo(0, 800);
                         const saveBtn = getElement("#saveBtn");
                         saveBtn.addEventListener("click", async function (e) {
                             e.preventDefault();
-                            checkLogin(token);
-                            window.scrollTo(0, 0);
-                            let data3 = Object.assign({}, data);
-                            data3.token = token;
-                            data3.investmentReturn = resJson.investmentReturn;
-                            data3.ROI = resJson.ROI || 0;
-                            const res3 = await fetch("/api/1.0/backtest/saveBacktestResult", {
-                                method: "POST",
-                                body: JSON.stringify(data3),
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                }
-                            });
-                            const resJson3 = (await res3.json()).data;
-                            if (resJson3.error === "Wrong authentication") {
-                                await Swal.fire({
-                                    title: "Please login again",
-                                    icon: "error",
-                                    confirmButtonText: "Ok",
-                                    timer: "1000"
-                                });
-                                localStorage.setItem("page", window.location.href);
-                                window.location = "/login.html";
-                            } else if (resJson3.error) {
-                                await Swal.fire({
-                                    title: "Error",
-                                    icon: "Internal server error",
-                                    confirmButtonText: "Ok",
-                                    timer: "1000"
-                                });
-                            }
-                            if (!getElement("#saved_ul")) {
-                                const ul = document.createElement("ul");
-                                ul.id = "saved_ul";
-                                ul.className = "user_ul";
-                                getElement("#saved_results").appendChild(ul);
-                                createList(`#saved_ul`, "title_li titles", ["Created","Start", "End", "Symbol", "Indicator", "Action", "ROI"])
-                            }
-                            createList(`#saved_ul`, "user_li saved_li", [resJson3.created_date.substr(0, 10), resJson3.periods[0],resJson3.periods[1], resJson3.symbol, resJson3.indicator, resJson3.action, `${(resJson3.ROI*100).toFixed(2)}%`]);
-                            const saved_lis = document.getElementsByClassName("saved_li");
-                            saved_lis[saved_lis.length-1].addEventListener("click", async function() {
-                                removeChild("quantity");
-                                removeChild("profit");
-                                removeChild("ROI");
-                                removeChild("result_container");
-                                if (getElement("#setOrderBtn")) {
-                                    removeItem("setOrderBtn");
-                                }
-                                const newData = Object.assign({}, resJson3);
-                                delete newData.id;
-                                delete newData.user_id;
-                                delete newData.investmentReturn;
-                                delete newData.ROI;
-                                const res1 = await fetch("/api/1.0/backtest/testWithIndicator", {
+                            if (!token) {
+                                checkLogin(token);    
+                            } else {
+                                window.scrollTo(0, 0);
+                                let data3 = Object.assign({}, data);
+                                data3.token = token;
+                                data3.investmentReturn = resJson.investmentReturn;
+                                data3.ROI = resJson.ROI || 0;
+                                const res3 = await fetch("/api/1.0/backtest/saveBacktestResult", {
                                     method: "POST",
-                                    body: JSON.stringify(newData),
+                                    body: JSON.stringify(data3),
                                     headers: {
                                         'Content-Type': 'application/json'
                                     }
                                 });
-                                const resJson1 = (await res1.json()).data;
-                                if (resJson1.error) {
+                                const resJson3 = (await res3.json()).data;
+                                if (resJson3.error === "Wrong authentication") {
                                     await Swal.fire({
-                                        title: "Error",
-                                        icon: "Internal server error",
+                                        title: "Please login again",
+                                        icon: "error",
                                         confirmButtonText: "Ok",
                                         timer: "1000"
                                     });
+                                    localStorage.setItem("page", window.location.href);
+                                    window.location = "/login.html";
+                                } else if (resJson3.error) {
+                                    await Swal.fire({
+                                        title: "Error",
+                                        text: "Internal server error",
+                                        icon: 'error',
+                                        confirmButtonText: 'Ok'
+                                    });
                                 }
-                                showResult("result_graph","result_ul", resJson1);
-                                createButton("btn", "setOrderBtn", "backtest_container", "Set orders")
-                                getElement("#quantity").innerHTML = `<h2>Quantity: ${Math.round(resJson1.volume)}</h2>`;
-                                getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
-                                getElement("#ROI").innerHTML = `<h2>ROI: ${(resJson1.ROI*100).toFixed(2)}%</h2>`;
-                                if (newData.indicator.substr(1 ,2) === "MA") {
-                                    newData.actionValue = resJson3.actionValue[0];
-                                    newData.exitValue = resJson3.exitValue[0];
+                                if (!getElement("#saved_ul")) {
+                                    const ul = document.createElement("ul");
+                                    ul.id = "saved_ul";
+                                    ul.className = "user_ul";
+                                    getElement("#saved_results").appendChild(ul);
+                                    createList(`#saved_ul`, "title_li titles", ["Created","Start", "End", "Symbol", "Indicator", "Action", "ROI"])
                                 }
-                                setOrder(newData);
-                                window.scrollTo(0, 500);
-                            })
+                                createList(`#saved_ul`, "user_li saved_li", [resJson3.created_date.substr(0, 10), resJson3.periods[0],resJson3.periods[1], resJson3.symbol, resJson3.indicator, resJson3.action, `${(resJson3.ROI*100).toFixed(2)}%`]);
+                                const saved_lis = document.getElementsByClassName("saved_li");
+                                saved_lis[saved_lis.length-1].addEventListener("click", async function() {
+                                    removeChild("quantity");
+                                    removeChild("profit");
+                                    removeChild("ROI");
+                                    removeChild("result_container");
+                                    if (getElement("#setOrderBtn")) {
+                                        removeItem("setOrderBtn");
+                                    }
+                                    const newData = Object.assign({}, resJson3);
+                                    delete newData.id;
+                                    delete newData.user_id;
+                                    delete newData.investmentReturn;
+                                    delete newData.ROI;
+                                    const res1 = await fetch("/api/1.0/backtest/testWithIndicator", {
+                                        method: "POST",
+                                        body: JSON.stringify(newData),
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        }
+                                    });
+                                    const resJson1 = (await res1.json()).data;
+                                    if (resJson1.error) {
+                                        Swal.fire({
+                                            title: "Error!",
+                                            text: "Internal server error",
+                                            icon: "error",
+                                            confirmButtonText: "Ok"
+                                        });
+                                    }
+                                    showResult("result_graph","result_ul", resJson1);
+                                    createButton("btn", "setOrderBtn", "backtest_container", "Set orders")
+                                    getElement("#quantity").innerHTML = `<h2>Quantity: ${Math.round(resJson1.volume)}</h2>`;
+                                    getElement("#profit").innerHTML = `<h2>Investment Return: ${Math.round(resJson1.investmentReturn)}</h2>`;
+                                    getElement("#ROI").innerHTML = `<h2>ROI: ${(resJson1.ROI*100).toFixed(2)}%</h2>`;
+                                    if (newData.indicator.substr(1 ,2) === "MA") {
+                                        newData.actionValue = resJson3.actionValue[0];
+                                        newData.exitValue = resJson3.exitValue[0];
+                                    }
+                                    setOrder(newData);
+                                    window.scrollTo(0, 500);
+                                })
+                            }
                         })
                     }
                 } catch (err) {
@@ -393,75 +392,78 @@ backtestBtn.addEventListener("click",
     }
 )
 
-const setOrder= function (data) {
+const setOrder = function (data) {
     const setOrderBtn = getElement("#setOrderBtn");
     setOrderBtn.addEventListener("click", async function (e) {
         e.preventDefault();
-        checkLogin(token);
-        let data1 = {
-            token: token,
-            symbol: data.symbol,
-            action: "long",
-            sub_action: "buy",
-            value: data.actionValue,
-            category: data.indicator,
-            cross: data.actionCross,
-            indicatorPeriod: data.indicatorPeriod,
-            volume: data.volume,
-            period: "90 days"
-        }
-        let data2 = {
-            token: token,
-            symbol: data.symbol,
-            action: "long",
-            sub_action: "sell",
-            value: data.exitValue,
-            category: data.indicator,
-            cross: data.exitCross,
-            indicatorPeriod: data.indicatorPeriod,
-            volume: data.volume,
-            period: "90 days"
-        }
-        if (data.action === "short") {
-            data1.action = "short";
-            data1.sub_action = "short";
-            data2.action = "short";
-            data2.action = "short cover";
-        }
-        if (data.indicator.substr(1,2) === "MA") {
-            data1.value = [parseInt(data.actionValue), parseInt(data.exitValue)];
-            data2.value = [parseInt(data.exitValue), parseInt(data.actionValue)];
-        }
-        const res1 = await fetch("/api/1.0/trade/setOrder", {
-            method: "POST",
-            body: JSON.stringify(data1),
-            headers: {
-                'Content-Type': 'application/json'
+        if (!token) {
+            checkLogin(token);
+        } else {
+            let data1 = {
+                token: token,
+                symbol: data.symbol,
+                action: "long",
+                sub_action: "buy",
+                value: data.actionValue,
+                category: data.indicator,
+                cross: data.actionCross,
+                indicatorPeriod: data.indicatorPeriod,
+                volume: data.volume,
+                period: "90 days"
             }
-        });
-        const res2 = await fetch("/api/1.0/trade/setOrder", {
-            method: "POST",
-            body: JSON.stringify(data2),
-            headers: {
-                'Content-Type': 'application/json'
+            let data2 = {
+                token: token,
+                symbol: data.symbol,
+                action: "long",
+                sub_action: "sell",
+                value: data.exitValue,
+                category: data.indicator,
+                cross: data.exitCross,
+                indicatorPeriod: data.indicatorPeriod,
+                volume: data.volume,
+                period: "90 days"
             }
-        });
-        const resJson1 = (await res1.json()).data;
-        const resJson2 = (await res2.json()).data;
-        if (!resJson1.error && !resJson2.error) {
-            Swal.fire({
-                title: "Success!",
-                text: "Order places",
-                icon: "success",
-                confirmButtonText: "Ok"
+            if (data.action === "short") {
+                data1.action = "short";
+                data1.sub_action = "short";
+                data2.action = "short";
+                data2.action = "short cover";
+            }
+            if (data.indicator.substr(1,2) === "MA") {
+                data1.value = [parseInt(data.actionValue), parseInt(data.exitValue)];
+                data2.value = [parseInt(data.exitValue), parseInt(data.actionValue)];
+            }
+            const res1 = await fetch("/api/1.0/trade/setOrder", {
+                method: "POST",
+                body: JSON.stringify(data1),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
-        } else if (resJson1.error || resJson2.error) {
-            await Swal.fire({
-                title: "Error",
-                icon: "Internal server error",
-                confirmButtonText: "Ok",
-                timer: "1000"
+            const res2 = await fetch("/api/1.0/trade/setOrder", {
+                method: "POST",
+                body: JSON.stringify(data2),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
+            const resJson1 = (await res1.json()).data;
+            const resJson2 = (await res2.json()).data;
+            if (!resJson1.error && !resJson2.error) {
+                Swal.fire({
+                    title: "Success!",
+                    text: "Order places",
+                    icon: "success",
+                    confirmButtonText: "Ok"
+                });
+            } else if (resJson1.error || resJson2.error) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Internal server error",
+                    icon: "error",
+                    confirmButtonText: "Ok"
+                });
+            }
         }
     })
 }

@@ -7,6 +7,7 @@ const _ = require("lodash");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 
 const setOrder = async function (token, symbol, category, value, indicatorPeriod, cross, volume, action, sub_action, period) {
+    console.log(value);
     try {
         if (category === "price") {
             indicatorPeriod = null;

@@ -358,6 +358,8 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
 
 
 const saveBacktestResult = async function (token, periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross, investmentReturn, ROI) {
+    console.log(actionValue);
+    console.log(exitValue);
     try {
         if (indicator === "price") {
             indicatorPeriod = null;
@@ -384,10 +386,6 @@ const saveBacktestResult = async function (token, periods, symbol, action, volum
             ROI: ROI,
             created_date: today
         };
-        if(indicator.substr(1, 2) === "MA") {
-            data.actionValue = JSON.stringify(actionValue);
-            data.exitValue = JSON.stringify(exitValue);
-        }
         const insertStr = "INSERT INTO backtest_result SET ?";
         await transaction();
         await query(insertStr, data);

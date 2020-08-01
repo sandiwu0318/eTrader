@@ -114,7 +114,7 @@ async function getOrders() {
                                     'success'
                                 )
                             }
-                            user_li[i].remove();
+                            user_li[i].style.display="none";
                         }
                     })
                 }

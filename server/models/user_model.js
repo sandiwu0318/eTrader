@@ -169,7 +169,6 @@ const getOrders = async function (token) {
         delete i.action;
         i.deadline = i.deadline.toISOString().substr(0, 10);
     });
-    console.log(orders);
     return {
         history: history,
         orders: orders,

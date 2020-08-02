@@ -358,8 +358,6 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
 
 
 const saveBacktestResult = async function (token, periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross, investmentReturn, ROI) {
-    console.log(actionValue);
-    console.log(exitValue);
     try {
         if (indicator === "price") {
             indicatorPeriod = null;

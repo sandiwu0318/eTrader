@@ -108,11 +108,12 @@ async function getOrders() {
                                 })
                             }
                             if (resJson1.message) {
-                                Swal.fire(
-                                    'Deleted!',
-                                    'The order had been deleted.',
-                                    'success'
-                                )
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'The order had been deleted.',
+                                    icon: 'success',
+                                    showConfirmButton: false,
+                                })
                             }
                             user_li[i].style.display="none";
                         }

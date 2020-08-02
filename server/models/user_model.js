@@ -211,7 +211,8 @@ const getPortfolios = async function (token) {
             portfolio.push(data);
         });
     });
-    for (let i of portfolio) {
+    const newportfolio = portfolio.filter(i => i.volume !== 0);
+    for (let i of newportfolio) {
         const current = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${i.symbol}&token=${FINNHUB_API_KEY}`)).data;
         if (current === undefined) {
             return {error: "Please wait for a bit"};
@@ -219,7 +220,7 @@ const getPortfolios = async function (token) {
         i.current = current["c"];
         i.changePercent = (i.current - i.price) / i.price;
     }
-    return portfolio;
+    return newportfolio;
 };
 
 

@@ -427,7 +427,7 @@ const setOrder = function (data) {
                 data1.action = "short";
                 data1.sub_action = "short";
                 data2.action = "short";
-                data2.action = "short cover";
+                data2.sub_action = "short cover";
             }
             if (data.indicator.substr(1,2) === "MA") {
                 data1.value = [parseInt(data.actionValue), parseInt(data.exitValue)];
@@ -452,7 +452,7 @@ const setOrder = function (data) {
             if (!resJson1.error && !resJson2.error) {
                 Swal.fire({
                     title: "Success!",
-                    text: "Order places",
+                    text: "Orders placed",
                     icon: "success",
                     confirmButtonText: "Ok"
                 });
@@ -524,7 +524,7 @@ action.addEventListener("change", () => {
         getElement("#RSI_exitValue_input").placeholder = "ex. 30";
         getElement("#BB_actionValue").selectedIndex = 2;
         getElement("#BB_exitValue").selectedIndex = 2;
-        getElement("#MA_exitValue_input").placeholder = "ex. 14";
+        getElement("#MA_actionValue_input").placeholder = "ex. 14";
         getElement("#MA_exitValue_input").placeholder = "ex. 6";
     } else {
         getElement("#RSI_actionValue_input").placeholder = "ex. 30";

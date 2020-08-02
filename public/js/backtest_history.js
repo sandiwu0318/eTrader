@@ -65,7 +65,7 @@ const setOrder= function (data) {
         if (!resJson1.error && !resJson2.error) {
             Swal.fire({
                 title: "Success!",
-                text: "Order places",
+                text: "Orders placed",
                 icon: "success",
                 confirmButtonText: "Ok"
             });

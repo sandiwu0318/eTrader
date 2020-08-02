@@ -59,12 +59,29 @@ async function getPortfolios() {
             swal.close();
             const portfolios = resJson;
             if (portfolios.length !== 0) {
+                for (let i of portfolios) {
+                    if (i.action === "long") {
+                        const expectedReturn = (i.current - i.price) * i.volume;
+                        if (expectedReturn > 0) {
+                            i.expectedReturn = expectedReturn;
+                        } else {
+                            i.expectedReturn = 0;
+                        }
+                    } else if (i.action === "short") {
+                        const expectedReturn = (i.price - i.current) * i.volume;
+                        if (expectedReturn > 0) {
+                            i.expectedReturn = expectedReturn;
+                        } else {
+                            i.expectedReturn = 0;
+                        }
+                    }
+                }
                 portfolios.forEach(i => {
                     i.expense = i.volume * i.price;
-                    i.return = (i.current - i.price) * i.volume;
                     i.price = i.price.toFixed(2);
                     i.current = i.current.toFixed(2);
                     i.changePercent = `${(i.changePercent*100).toFixed(2)}%`;
+                    i.expectedReturn = i.expectedReturn;
                 })
                 function showGraph(graphid, values, title) {
                     const pieData = [{
@@ -84,10 +101,14 @@ async function getPortfolios() {
                     Plotly.newPlot(graphid, pieData, pieLayout);
                 }
                 showGraph("expensePie", portfolios.map(i => i.expense), "Expenses in different stock");
-                showGraph("returnPie", portfolios.map(i => i.return), "Return in different stock");
+                const returnChartLength = portfolios.filter(i => i.expectedReturn > 0);
+                const returnChart = portfolios.map(i => i.expectedReturn);
+                if (returnChartLength.length !== 0) {
+                    showGraph("returnPie", returnChart, "Return in different stock");
+                }
                 portfolios.forEach(i => {
                     delete i.expense;
-                    delete i.return;
+                    delete i.expectedReturn;
                 })
                 portfolios.filter(i => i.volume !== 0).map(i => createList("#portfolio_ul", "user_li",Object.values(i)));
             } else {

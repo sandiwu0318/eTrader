@@ -40,6 +40,7 @@ socket.on("intraday", (data) => {
                 getElement("#change").classList.remove("green");
             }
         }
+        previosClosing = 0;
     }
 });
 async function renderData(symbol){
@@ -331,7 +332,7 @@ tradeBtn.addEventListener("click",
                         confirmButtonText: 'Ok'
                     })
                 } else {
-                    // try {
+                    try {
                         let tradeData = {
                             sub_action: sub_action,
                             value: price,
@@ -379,9 +380,9 @@ tradeBtn.addEventListener("click",
                             icon: "success",
                             confirmButtonText: "Ok"
                         })
-                    // } catch (err) {
-                    //     console.log("set order fetch failed, err");
-                    // }
+                    } catch (err) {
+                        console.log("set order fetch failed, err");
+                    }
                 }
             } else {
                 Swal.fire({
@@ -410,7 +411,6 @@ const frequency = getElement("#frequency");
 frequency.addEventListener("change", () => {
     const symbol = getElement("#show_symbol").innerText;
     const frequency_Value = frequency.value;
-    console.log(frequency_Value)
     showPrice(symbol, frequency_Value);
 })
 

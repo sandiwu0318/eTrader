@@ -124,7 +124,12 @@ async function getPortfolios() {
             }
         }
     } catch (err) {
-        console.log("Portfolios fetch failed, err");
+        Swal.fire({
+            title: "Error!",
+            text: "Internal server error",
+            icon: "error",
+            confirmButtonText: "Ok"
+        });
     }
 }
 

@@ -54,7 +54,12 @@ async function getWatchlist() {
     try {
         socket.emit("token", token);
     } catch (err) {
-        console.log("watchlist fetch failed, err");
+        Swal.fire({
+            title: "Error!",
+            text: "Internal server error",
+            icon: "error",
+            confirmButtonText: "Ok"
+        });
     }
 }
 

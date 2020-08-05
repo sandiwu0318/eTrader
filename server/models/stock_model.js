@@ -37,6 +37,7 @@ const getIntradayPrices = async function (symbol) {
             return {error: "Unavailable to get the data now"};
         } else {
             priceData = {
+                currentPrice: apiPriceData.data.chart.result[0].meta.regularMarketPrice,
                 times: apiPriceData.data.chart.result[0].timestamp.map(i => new Date((i-14400)*1000)),
                 prices: apiPriceData.data.chart.result[0].indicators.quote[0].close,
                 volumes: apiPriceData.data.chart.result[0].indicators.quote[0].volume,
@@ -217,24 +218,24 @@ const getApiBasicInfo = async function (symbol) {
                 "region":"US"
             }
         };
-        const apiBasicInfoData = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary", config);
+        const apiBasicInfoData = (await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary", config)).data;
         let basicInfoData = {
             symbol: symbol,
             prev_close: getData(apiBasicInfoData, "price", "regularMarketPreviousClose").raw || null,
-            day_range: `${getData(apiBasicInfoData, "price", "regularMarketDayLow").raw} - ${getData("price", "regularMarketDayHigh").raw}` || null,
+            day_range: `${getData(apiBasicInfoData, "price", "regularMarketDayLow").raw} - ${getData(apiBasicInfoData, "price", "regularMarketDayHigh").raw}` || null,
             average_volume: getData(apiBasicInfoData, "price", "averageDailyVolume3Month").raw  || null,
             annual_return: getData(apiBasicInfoData, "summaryDetail", "ytdReturn").raw || null,
             beta: getData(apiBasicInfoData, "summaryDetail", "beta").raw || null,
             market_cap: getData(apiBasicInfoData, "defaultKeyStatistics", "enterpriseValue").raw || null,
             eps: getData(apiBasicInfoData, "defaultKeyStatistics", "trailingEps").raw || null,
-            pe_ration: getData(apiBasicInfoData, "price", "regularMarketPrice").raw / getData("defaultKeyStatistics", "trailingEps").raw || null,
+            pe_ration: getData(apiBasicInfoData, "price", "regularMarketPrice").raw / getData(apiBasicInfoData, "defaultKeyStatistics", "trailingEps").raw || null,
             dividend: getData(apiBasicInfoData, "summaryDetail", "dividendYield").raw || null,
         };
         if (getData(apiBasicInfoData, "earnings", "financialsChart")) {
             basicInfoData.financial_chart = JSON.stringify(getData(apiBasicInfoData, "earnings", "financialsChart"));
         }
-        if (apiBasicInfoData.data.summaryProfile) {
-            basicInfoData.profile = JSON.stringify(apiBasicInfoData.data.summaryProfile);
+        if (apiBasicInfoData.summaryProfile) {
+            basicInfoData.profile = JSON.stringify(apiBasicInfoData.summaryProfile);
         }
         const insertStr = "INSERT INTO stock_basicInfo SET ?";
         await transaction();
@@ -243,6 +244,7 @@ const getApiBasicInfo = async function (symbol) {
         return basicInfoData;
     } catch(error) {
         await rollback();
+        console.log(error);
         return {error: "Error when retrieving API basic info"};
     }
 };
@@ -273,6 +275,7 @@ const getApiNews = async function (symbol) {
         return lastestTenNews;
     } catch(error) {
         await rollback();
+        console.log(error);
         return {error: "Error when retrieving API news"};
     }
 };
@@ -330,7 +333,8 @@ const getDailyPrices = async function () {
 
 const getDailyBasicInfo = async function () {
     try {
-        const selectStr = "SELECT DISTINCT(symbol) FROM stock_basicInfo";
+        // const selectStr = "SELECT DISTINCT(symbol) FROM stock_basicInfo";
+        const selectStr = "SELECT DISTINCT(symbol) FROM stock_price";
         const symbols = (await query(selectStr, [])).map(i => i.symbol);
         let count = 0;
         //Limit: 5 calls per second for RapidAPI
@@ -357,13 +361,17 @@ const getDailyNews = async function () {
     try {
         const selectStr = "SELECT DISTINCT(symbol) FROM stock_news";
         const symbols = (await query(selectStr, [])).map(i => i.symbol);
-        for (let symbol of symbols) {
-            const deleteStr = "DELETE FROM stock_news WHERE symbol=?";
-            await transaction();
-            await query(deleteStr, [symbol]);
-            getApiNews(symbol);
-            await commit();
-        }
+        let count = 0;
+        setInterval(async function() {
+            if (count < symbols.length) {
+                const deleteStr = "DELETE FROM stock_news WHERE symbol=?";
+                await transaction();
+                await query(deleteStr, [symbols[count]]);
+                getApiNews(symbols[count]);
+                await commit();
+                count++;
+            }
+        }, 1000);
         return;
     } catch(error) {
         await rollback();

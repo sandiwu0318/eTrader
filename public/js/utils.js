@@ -154,7 +154,6 @@ function createChart(data, frequency) {
 }
 
 async function checkLogin(token) {
-    console.log(token)
     if (token === null) {
         await Swal.fire({
             title: "Please login first!",
@@ -162,7 +161,6 @@ async function checkLogin(token) {
             showConfirmButton: false,
             timer: "800",
         })
-        console.log("11111")
         localStorage.setItem("page", window.location.href);
         window.location = "/login.html";
     } else {

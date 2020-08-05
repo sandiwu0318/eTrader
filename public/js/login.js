@@ -61,7 +61,12 @@ signUpBtn.addEventListener("click",
         try{
             signInUp("signUp")
         } catch (err) {
-            console.log("signUp failed, err");
+            Swal.fire({
+                title: "Error!",
+                text: "Internal server error",
+                icon: "error",
+                confirmButtonText: "Ok"
+            });
         }
     }
 )
@@ -72,7 +77,12 @@ signInBtn.addEventListener("click",
         try{
             signInUp("signIn")
         } catch (err) {
-            console.log("signUp failed, err");
+            Swal.fire({
+                title: "Error!",
+                text: "Internal server error",
+                icon: "error",
+                confirmButtonText: "Ok"
+            });
         }
     }
 )

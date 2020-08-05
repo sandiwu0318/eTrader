@@ -19,7 +19,6 @@ async function getHistory() {
             }
         });
         const resJson = (await res.json()).data;
-        console.log(resJson)
         if (data.error === "Wrong authentication") {
             swal.close();
             await Swal.fire({
@@ -83,7 +82,12 @@ async function getHistory() {
             }
         }
     } catch (err) {
-        console.log("History fetch failed, err");
+        Swal.fire({
+            title: "Error!",
+            text: "Internal server error",
+            icon: "error",
+            confirmButtonText: "Ok"
+        });
     }
 }
 

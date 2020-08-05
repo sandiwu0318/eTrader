@@ -19,7 +19,7 @@ socket.on("intraday", (data) => {
         socket.disconnect();
     } else {
         createChart(data, "1d");
-        const currentPrice = data.prices[data.prices.length-1];
+        const currentPrice = data.currentPrice;
         getElement("#current_price").innerText = currentPrice.toFixed(2);
         if (previosClosing !== 0) {
             if (currentPrice - previosClosing > 0) {
@@ -261,7 +261,12 @@ searchBtn.addEventListener("click", function () {
             })
         }
     } catch (err) {
-        console.log("info fetch failed, err");
+        Swal.fire({
+            title: "Error!",
+            text: "Internal server error",
+            icon: "error",
+            confirmButtonText: "Ok"
+        });
     }
 })
 
@@ -381,7 +386,12 @@ tradeBtn.addEventListener("click",
                             confirmButtonText: "Ok"
                         })
                     } catch (err) {
-                        console.log("set order fetch failed, err");
+                        Swal.fire({
+                            title: "Error!",
+                            text: "Internal server error",
+                            icon: "error",
+                            confirmButtonText: "Ok"
+                        });
                     }
                 }
             } else {

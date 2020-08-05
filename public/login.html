@@ -27,7 +27,8 @@
             <form id="login_form">
                 <label class="login_label signUpInput">Name</label>
                 <br>
-                <input type="text" class="login_input signUpInput" id="name"/>
+                <input type="text" class="login_input signUpInput" id="name" onkeyup="value=value.replace(/[\W]/g,``) "
+                onbeforepaste="clipboardData.setData(`text`,clipboardData.getData(`text`).replace(/[^\d]/g,``))"/>
                 <br>
                 <label class="login_label">Email</label>
                 <br>

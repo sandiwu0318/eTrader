@@ -170,7 +170,12 @@ showGraphBtn.addEventListener("click",
                         scrollTo(0, 500);
                     }
                 } catch (err) {
-                    console.log("price fetch failed", err);
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Internal server error",
+                        icon: "error",
+                        confirmButtonText: "Ok"
+                    });
                 }
             }
         } else {
@@ -378,7 +383,12 @@ backtestBtn.addEventListener("click",
                         })
                     }
                 } catch (err) {
-                    console.log("price fetch failed", err);
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Internal server error",
+                        icon: "error",
+                        confirmButtonText: "Ok"
+                    });
                 }
             }    
         } else {

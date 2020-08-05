@@ -48,19 +48,16 @@ const getSymbolList = async (req, res) => {
     res.status(200).json({data: symbolList});
 };
 
-const getDailyPrices = async (req, res) => {
-    const dailyPrices = await Stock.getDailyPrices();
-    res.status(200).json({data: dailyPrices});
+const getDailyPrices = async () => {
+    await Stock.getDailyPrices();
 };
 
-const getDailyNews = async (req, res) => {
-    const dailyNews = await Stock.getDailyNews();
-    res.status(200).json({data: dailyNews});
+const getDailyNews = async () => {
+    await Stock.getDailyNews();
 };
 
-const getDailyBasicInfo = async (req, res) => {
-    const dailyBasicInfo = await Stock.getDailyBasicInfo();
-    res.status(200).json({data: dailyBasicInfo});
+const getDailyBasicInfo = async () => {
+    await Stock.getDailyBasicInfo();
 };
 
 

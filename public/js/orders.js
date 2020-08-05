@@ -130,7 +130,12 @@ async function getOrders() {
             }
         }
     } catch (err) {
-        console.log("Orders fetch failed, err");
+        Swal.fire({
+            title: "Error!",
+            text: "Internal server error",
+            icon: "error",
+            confirmButtonText: "Ok"
+        });
     }
 }
 

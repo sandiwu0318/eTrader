@@ -88,7 +88,6 @@ async function backtest_history() {
         }
     });
     const resJson = (await res.json()).data;
-    console.log(resJson)
     if (resJson.error === "Wrong authentication") {
         await Swal.fire({
             title: "Please login again",
@@ -115,7 +114,6 @@ async function backtest_history() {
         const reminder = document.createElement("div");
         reminder.className = "reminder";
         reminder.innerHTML = "You can backtest with different indicators and save the results."
-        console.log(getElement("#saved_ul"))
         getElement("#saved_ul").appendChild(reminder);
     }
     removeChild("test_form");

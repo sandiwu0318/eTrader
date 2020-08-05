@@ -21,8 +21,8 @@ const toThousands = function (num) {
 };
 
 const getData = function(data, category, name) {
-    if (data.data[category]) {
-        return data.data[category][name] || null;
+    if (data[category]) {
+        return data[category][name] || null;
     }
     return null;
 };

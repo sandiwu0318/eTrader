@@ -1,4 +1,4 @@
-import {getElement, getDataByClass, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, searchSymbol, hoverNav, showResult} from "./utils.js";
+import {getElement, showLoginBtn, createList, removeChild, createButton, checkLogin, removeItem, searchSymbol, hoverNav, showResult} from "./utils.js";
 window.scrollTo(0, 0);
 const token = window.localStorage.getItem("token");
 showLoginBtn(token);
@@ -13,24 +13,22 @@ const setOrder= function (data) {
         e.preventDefault();
         checkLogin(token);
         let data1 = {
-            token: token,
             symbol: data.symbol,
             action: "long",
             sub_action: "buy",
             value: data.actionValue,
-            category: data.indicator,
+            indicator: data.indicator,
             cross: data.actionCross,
             indicatorPeriod: data.indicatorPeriod,
             volume: data.volume,
             period: "90 days"
         }
         let data2 = {
-            token: token,
             symbol: data.symbol,
             action: "long",
             sub_action: "sell",
             value: data.exitValue,
-            category: data.indicator,
+            indicator: data.indicator,
             cross: data.exitCross,
             indicatorPeriod: data.indicatorPeriod,
             volume: data.volume,
@@ -50,6 +48,7 @@ const setOrder= function (data) {
             method: "POST",
             body: JSON.stringify(data1),
             headers: {
+                "Authorization": `${token}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -57,6 +56,7 @@ const setOrder= function (data) {
             method: "POST",
             body: JSON.stringify(data2),
             headers: {
+                "Authorization": `${token}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -81,14 +81,10 @@ const setOrder= function (data) {
 }
 
 async function backtest_history() {
-    const data = {
-        token: token
-    }
-    const res = await fetch("/api/1.0/backtest/getSavedResults", {
-        method: "POST",
-        body: JSON.stringify(data),
+    const res = await fetch(`/api/1.0/backtest/getSavedResults`, {
+        method: "GET",
         headers: {
-            'Content-Type': 'application/json'
+            "Authorization": `${token}`
         }
     });
     const resJson = (await res.json()).data;

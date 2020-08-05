@@ -265,7 +265,7 @@ function autocomplete(inp, arr) {
 
 let symbols;
 async function getSymbols() {
-    const res = (await fetch(`/api/1.0/stock/symbolList`));
+    const res = (await fetch(`/api/1.0/stock/getSymbolList`));
     const resJson = (await res.json()).data;
     const symbolList = resJson.map(i => `${i.symbol} (${i.name})`);
     symbols = resJson.map(i => i.symbol);
@@ -274,7 +274,7 @@ async function getSymbols() {
 }
 
 async function getInputSymbols() {
-    const res = (await fetch(`/api/1.0/stock/symbolList`));
+    const res = (await fetch(`/api/1.0/stock/getSymbolList`));
     const resJson = (await res.json()).data;
     const symbolList = resJson.map(i => `${i.symbol} (${i.name})`);
     autocomplete(getElement("#input_symbol_search"), symbolList);

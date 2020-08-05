@@ -40,7 +40,6 @@ socket.on("intraday", (data) => {
                 getElement("#change").classList.remove("green");
             }
         }
-        previosClosing = 0;
     }
 });
 async function renderData(symbol){
@@ -68,13 +67,13 @@ async function renderData(symbol){
     let watchlist;
     if (token) {
         const data = {
-            token: token,
             symbolOnly: 1
         }
         const res3 = await fetch(`/api/1.0/user/getWatchlist`,{
             method: "POST",
             body: JSON.stringify(data),
             headers: {
+                "Authorization": `${token}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -250,6 +249,7 @@ searchBtn.addEventListener("click", function () {
     try {
         const symbol = getElement("#symbol_search").value.split(" ")[0];
         if (symbols.map(i => i.symbol).includes(symbol)) {
+            previosClosing = 0;
             renderData(symbol);
             showPrice(symbol, "1d");
         } else {
@@ -275,12 +275,12 @@ watchListBtn.addEventListener("click",
             const symbol = getElement("#show_symbol").innerText;
             const data = {
                 symbol: symbol,
-                token: token
             }
             const res5 = await fetch(`/api/1.0/user/addRemoveWatchlist`,{
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: {
+                    "Authorization": `${token}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -339,8 +339,7 @@ tradeBtn.addEventListener("click",
                             volume: volume,
                             symbol: symbol,
                             period: period,
-                            token: token,
-                            category: "price",
+                            indicator: "price",
                             cross: null,
                             indicatorPeriod: null,
                         }
@@ -353,6 +352,7 @@ tradeBtn.addEventListener("click",
                             method: "POST",
                             body: JSON.stringify(tradeData),
                             headers: {
+                                "Authorization": `${token}`,
                                 'Content-Type': 'application/json'
                             }
                         });

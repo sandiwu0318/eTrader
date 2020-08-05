@@ -1,10 +1,10 @@
 const Backtest = require("../models/backtest_model");
 
 
-const getData = async (req, res) => {
+const showIndicatorData = async (req, res) => {
     const { periods, symbol, indicator, indicatorPeriod } = req.body;
-    const getData = await Backtest.getData(periods, symbol, indicator, indicatorPeriod);
-    res.status(200).json({data: getData});
+    const indicatorData = await Backtest.showIndicatorData(periods, symbol, indicator, indicatorPeriod);
+    res.status(200).json({data: indicatorData});
 };
 
 const testWithIndicator = async (req, res) => {
@@ -14,13 +14,14 @@ const testWithIndicator = async (req, res) => {
 };
 
 const saveBacktestResult = async (req, res) => {
-    const { token, periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross, investmentReturn, ROI } = req.body;
+    const { periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross, investmentReturn, ROI } = req.body;
+    const token = req.get("Authorization");
     const saveBacktestResult = await Backtest.saveBacktestResult(token, periods, symbol, action, volume, indicator, indicatorPeriod, actionValue, actionCross, exitValue, exitCross, investmentReturn, ROI);
     res.status(200).json({data: saveBacktestResult});
 };
 
 const getSavedResults = async (req, res) => {
-    const { token } = req.body;
+    const token = req.get("Authorization");
     const getSavedResults = await Backtest.getSavedResults(token);
     res.status(200).json({data: getSavedResults});
 };
@@ -29,7 +30,7 @@ const getSavedResults = async (req, res) => {
 
 
 module.exports = {
-    getData,
+    showIndicatorData,
     testWithIndicator,
     saveBacktestResult,
     getSavedResults

@@ -2,7 +2,7 @@ require("dotenv").config();
 const {PORT_TEST, PORT, NODE_ENV, API_VERSION} = process.env;
 const port = NODE_ENV == "test" ? PORT_TEST : PORT;
 const CronJob = require("cron").CronJob;
-const {dailyGetPrices, dailyGetNews, dailyGetBasicInfo} = require("./server/controllers/stock_controller");
+const {getDailyPrices, getDailyNews, getDailyBasicInfo} = require("./server/controllers/stock_controller");
 const {matchOrders} = require("./server/controllers/trade_controller");
 const {socket} = require("./server/controllers/socket_controller");
 
@@ -70,7 +70,7 @@ app.get("*", function(req, res){
 // "Asia/Taipei"
 
 // );
-// Job1.start;
+// Job1.start();
 //10:00-16:00
 // const Job2 = new CronJob("0 */1 10-16 * * 1-5", function() {
 //     matchPriceOrders();
@@ -81,20 +81,20 @@ app.get("*", function(req, res){
 // "America/New_York"
 // "Asia/Taipei"
 // );
-// Job2.start;
+// Job2.start();
 
 // Function to get stock data every day
-// const Job3 = new CronJob("0 0 0 * * 1-5", function() {
-//     dailyGetNews();
-//     dailyGetPrices();
-//     dailyGetBasicInfo();
-// },
-// null,
-// true,
-// "America/New_York"
-// "Asia/Taipei"
-// );
-// Job3.start;
+const Job3 = new CronJob("0 0 0 * * 2-6", function() {
+    getDailyPrices();
+    getDailyNews();
+    getDailyBasicInfo();
+    console.log("cronJob");
+},
+null,
+true,
+"Asia/Taipei"
+);
+Job3.start();
 
 
 module.exports = app;

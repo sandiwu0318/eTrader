@@ -2,63 +2,64 @@ require("dotenv").config();
 const {RAPID_API_HOST, RAPID_API_KEY} = process.env;
 const axios = require("axios");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
-const {toThousands} = require("../../utils/util.js");
+const {toThousands, getData} = require("../../utils/util.js");
 
 const getIntradayPrices = async function (symbol) {
     try {
         const today = new Date();
-        const hours = today.getUTCHours();
-        const minutes = today.getUTCMinutes();
-        let period1;
-        let period2;
-        if ((hours === 13 && minutes >= 30) || (hours >=14 && hours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
-            console.log("1");
-            period1 = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 13, 29)).getTime()/1000;
-            period2 = Math.floor(today.getTime()/1000);
+        const currentHours = today.getUTCHours();
+        const currentMinutes = today.getUTCMinutes();
+        let startTime;
+        let endTime;
+        //Mon-Fri and UTC 13:30-20:00
+        if ((currentHours === 13 && currentMinutes >= 30) || (currentHours >=14 && currentHours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
+            console.log(1);
+            startTime = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 13, 29)).getTime()/1000;
+            endTime = Math.floor(today.getTime()/1000);
+        //Sun
         } else if (today.getDay() === 0) {
-            console.log("2");
-            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 13, 29)).getTime()/1000);
-            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 20, 1)).getTime()/1000);
+            console.log(2);
+            startTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 13, 29)).getTime()/1000);
+            endTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 20, 1)).getTime()/1000);
+        //Mon
         } else if (today.getDay() === 1) {
-            console.log("3");
-            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 13, 29)).getTime()/1000);
-            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 20, 1)).getTime()/1000);
+            console.log(3);
+            startTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 13, 29)).getTime()/1000);
+            endTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 20, 1)).getTime()/1000);
         } else {
-            console.log("4");
-            period1 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 13, 29)).getTime()/1000);
-            period2 = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 20, 1)).getTime()/1000);
+            console.log(4);
+            startTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 13, 29)).getTime()/1000);
+            endTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 20, 1)).getTime()/1000);
         }
-        const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${period1}&period2=${period2}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
-        let data;
-        if (response.data.chart.result[0].timestamp === undefined) {
-            console.log("Unavailable to get the data now");
+        const apiPriceData = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${startTime}&period2=${endTime}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
+        let priceData;
+        if (apiPriceData.data.chart.result[0].timestamp === undefined) {
             return {error: "Unavailable to get the data now"};
         } else {
-            data = {
-                times: response.data.chart.result[0].timestamp.map(i => new Date((i-14400)*1000)),
-                prices: response.data.chart.result[0].indicators.quote[0].close,
-                volumes: response.data.chart.result[0].indicators.quote[0].volume,
+            priceData = {
+                times: apiPriceData.data.chart.result[0].timestamp.map(i => new Date((i-14400)*1000)),
+                prices: apiPriceData.data.chart.result[0].indicators.quote[0].close,
+                volumes: apiPriceData.data.chart.result[0].indicators.quote[0].volume,
             };
         }
-        for (let i =0; i<data.prices.length; i++) {
-            if (data.prices[i] === null) {
-                data.prices[i] = data.prices[i-1];
+        for (let i =0; i<priceData.prices.length; i++) {
+            if (priceData.prices[i] === null) {
+                priceData.prices[i] = priceData.prices[i-1];
             }
         }
-        for (let i =0; i<data.volumes.length; i++) {
-            if (data.volumes[i] === null) {
-                data.volumes[i] = 0;
+        for (let i =0; i<priceData.volumes.length; i++) {
+            if (priceData.volumes[i] === null) {
+                priceData.volumes[i] = 0;
             }
         }
-        return data;
+        return priceData;
     } catch(error) {
-        console.log(error);
-        return "Error when retrieving intraday price";
+        return {error: "Error when retrieving intraday price"};
     }
 };
 
 const getPrices = async function (symbol, frequency) {
-    const today = Math.floor(new Date().getTime());
+    const current = Math.floor(new Date().getTime());
     let month;
     switch (frequency) {
     case "1mo":
@@ -80,77 +81,70 @@ const getPrices = async function (symbol, frequency) {
         month = 12*50;
         break;
     }
-    const startDate = new Date(today-(1000*60*60*24*30*month)).toISOString().substr(0, 10);
+    const startDate = new Date(current-(1000*60*60*24*30*month)).toISOString().substr(0, 10);
     try {
         const selectStr = "SELECT DISTINCT(time), price, volume FROM stock_price WHERE symbol=? AND time >= ? ORDER BY time";
-        await transaction();
-        const result = await query(selectStr, [symbol, startDate]);
-        await commit();
-        if (result.length === 0) {
-            const prices = (await getApiPrices(symbol)).filter(i => i.date >= today/1000-(60*60*24*30*month));
-            const formatPrices = {
-                times: prices.map(i => new Date(i.date*1000).toISOString().substr(0, 10)),
-                prices: prices.map(i => i.close),
-                volumes: prices.map(i => i.volume),
+        const databasePriceData = await query(selectStr, [symbol, startDate]);
+        let priceData;
+        if (databasePriceData.length === 0) {
+            const apiPriceData = (await getApiPrices(symbol)).filter(i => i.date >= current/1000-(60*60*24*30*month));
+            priceData = {
+                times: apiPriceData.map(i => new Date(i.date*1000).toISOString().substr(0, 10)),
+                prices: apiPriceData.map(i => i.close),
+                volumes: apiPriceData.map(i => i.volume),
             };
-            return formatPrices;
         } else {
-            return {
-                times: result.map(i => i.time.toISOString().substr(0, 10)),
-                prices: result.map(i => i.price),
-                volumes: result.map(i => i.volume),
+            priceData = {
+                times: databasePriceData.map(i => i.time.toISOString().substr(0, 10)),
+                prices: databasePriceData.map(i => i.price),
+                volumes: databasePriceData.map(i => i.volume),
             };
         }
+        return priceData;
     } catch(error) {
-        await rollback();
-        console.log(error);
-        return "Error when retrieving stock price";
+        return {error: "Error when retrieving stock price"};
     }
 };
 
 const getBasicInfo = async function (symbol) {
     try {
         const selectStr = "SELECT * FROM stock_basicInfo WHERE symbol=?";
-        await transaction();
-        const result = await query(selectStr, [symbol]);
-        await commit();
-        let data;
-        if (result.length === 0) {
-            data = await getApiBasicInfo(symbol);
+        const databaseBasicInfoData = await query(selectStr, [symbol]);
+        let basicInfoRawData;
+        if (databaseBasicInfoData.length === 0) {
+            basicInfoRawData = await getApiBasicInfo(symbol);
         } else {
-            data = result[0];
+            basicInfoRawData = databaseBasicInfoData[0];
         }
-        const finalData = {
-            Symbol: data.symbol,
-            "Previous Closing": data.prevClose,
-            "Day Range": data.dayRange,
-            "Average Volume": toThousands(data.averageVolume),
-            "Annual Return": data.annualReturn,
-            "Beta": data.beta,
-            "Market Cap": toThousands(data.marketCap),
-            "EPS": data.eps,
-            "PE Ration": data.peRation,
-            "Dividend": data.dividend,
+        const basicInfoData = {
+            Symbol: basicInfoRawData.symbol,
+            "Previous Closing": basicInfoRawData.prev_close,
+            "Day Range": basicInfoRawData.day_range,
+            "Average Volume": toThousands(basicInfoRawData.average_volume),
+            "Annual Return": basicInfoRawData.annual_return,
+            "Beta": basicInfoRawData.beta,
+            "Market Cap": toThousands(basicInfoRawData.market_cap),
+            "EPS": basicInfoRawData.eps,
+            "PE Ration": basicInfoRawData.pe_ration,
+            "Dividend": basicInfoRawData.dividend,
         };
-        if (data.financialChart) {
-            finalData.financialChart = JSON.parse(data.financialChart);
+        if (basicInfoRawData.financial_chart) {
+            basicInfoData.financialChart = JSON.parse(basicInfoRawData.financial_chart);
         }
-        if (data.profile) {
-            finalData.profile = {
-                Sector: JSON.parse(data.profile).sector || null,
-                Industry: JSON.parse(data.profile).industry || null,
-                Country: JSON.parse(data.profile).country || null,
-                City: JSON.parse(data.profile).city || null,
-                State: JSON.parse(data.profile).state || null,
-                Employees: toThousands(JSON.parse(data.profile).fullTimeEmployees) || null,
-                Website: JSON.parse(data.profile).website || null,
-                longBusinessSummary: JSON.parse(data.profile).longBusinessSummary || null
+        if (basicInfoRawData.profile) {
+            basicInfoData.profile = {
+                Sector: JSON.parse(basicInfoRawData.profile).sector || null,
+                Industry: JSON.parse(basicInfoRawData.profile).industry || null,
+                Country: JSON.parse(basicInfoRawData.profile).country || null,
+                City: JSON.parse(basicInfoRawData.profile).city || null,
+                State: JSON.parse(basicInfoRawData.profile).state || null,
+                Employees: toThousands(JSON.parse(basicInfoRawData.profile).fullTimeEmployees) || null,
+                Website: JSON.parse(basicInfoRawData.profile).website || null,
+                longBusinessSummary: JSON.parse(basicInfoRawData.profile).longBusinessSummary || null
             };
         }
-        return finalData;
+        return basicInfoData;
     } catch(error) {
-        await rollback();
-        console.log(error);
         return {error: "Error when retrieving stock basic info"};
     }
 };
@@ -158,30 +152,28 @@ const getBasicInfo = async function (symbol) {
 const getNews = async function (symbol) {
     try {
         const selectStr = "SELECT title, link, author, time FROM stock_news WHERE symbol=?";
-        await transaction();
-        const result = await query(selectStr, [symbol]);
-        await commit();
-        if (result.length === 0) {
-            const news = await getApiNews(symbol);
-            const formatNews = news.map(i => ({
+        const databaseNewsData = await query(selectStr, [symbol]);
+        let newsData;
+        if (databaseNewsData.length === 0) {
+            const apiNewsData = await getApiNews(symbol);
+            newsData = apiNewsData.map(i => ({
                 title: i.title,
                 link: i.link,
                 author: i.author,
                 time: (new Date(i.published_at*1000)).toISOString().substr(0, 10)
             }));
-            return formatNews;
         } else {
-            return result;
+            newsData = databaseNewsData;
         }
+        return newsData;
     } catch(error) {
         await rollback();
-        console.log(error);
-        return {error: "Error when retrieving stock basic info"};
+        return {error: "Error when retrieving stock news"};
     }
 };
 
 const getApiPrices = async function (symbol) {
-    const now = Math.floor(new Date().getTime()/1000);
+    const current = Math.floor(new Date().getTime()/1000);
     const config = {
         "headers":{
             "x-rapidapi-host":RAPID_API_HOST,
@@ -191,25 +183,24 @@ const getApiPrices = async function (symbol) {
             "frequency":"1d",
             "filter":"history",
             "period1":0,
-            "period2":now,
+            "period2":current,
             "symbol":symbol
         },
     };
     try {
-        const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data", config);
-        const queryArr = response.data.prices.map(i => 
+        const apiPriceData = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data", config);
+        const priceData = apiPriceData.data.prices.map(i => 
             [symbol, (new Date(i.date*1000)).toISOString().substr(0, 10), i.close, i.volume]
         );
-        if (queryArr.length !== 0) {
+        if (priceData.length !== 0) {
             const insertStr = "INSERT INTO stock_price (symbol, time, price, volume) VALUES ?";
             await transaction();
-            await query(insertStr, [queryArr]);
+            await query(insertStr, [priceData]);
             await commit();
-            return response.data.prices;
+            return apiPriceData.data.prices;
         }
     } catch(error) {
         await rollback();
-        console.log(error);
         return {error: "Error when retrieving API stock price"};
     }
 };
@@ -226,40 +217,32 @@ const getApiBasicInfo = async function (symbol) {
                 "region":"US"
             }
         };
-        const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary", config);
-        const getData = function(category, name) {
-            if (response.data[category]) {
-                return response.data[category][name] || null;
-            }
-            return null;
-        };
-        let data = {
+        const apiBasicInfoData = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary", config);
+        let basicInfoData = {
             symbol: symbol,
-            prevClose: getData("price", "regularMarketPreviousClose").raw || null,
-            dayRange: `${getData("price", "regularMarketDayLow").raw} - ${getData("price", "regularMarketDayHigh").raw}` || null,
-            averageVolume: getData("price", "averageDailyVolume3Month").raw  || null,
-            annualReturn: getData("summaryDetail", "ytdReturn").raw || null,
-            beta: getData("summaryDetail", "beta").raw || null,
-            marketCap: getData("defaultKeyStatistics", "enterpriseValue").raw || null,
-            eps: getData("defaultKeyStatistics", "trailingEps").raw || null,
-            peRation: getData("price", "regularMarketPrice").raw / getData("defaultKeyStatistics", "trailingEps").raw || null,
-            dividend: getData("summaryDetail", "dividendYield").raw || null,
-            
+            prev_close: getData(apiBasicInfoData, "price", "regularMarketPreviousClose").raw || null,
+            day_range: `${getData(apiBasicInfoData, "price", "regularMarketDayLow").raw} - ${getData("price", "regularMarketDayHigh").raw}` || null,
+            average_volume: getData(apiBasicInfoData, "price", "averageDailyVolume3Month").raw  || null,
+            annual_return: getData(apiBasicInfoData, "summaryDetail", "ytdReturn").raw || null,
+            beta: getData(apiBasicInfoData, "summaryDetail", "beta").raw || null,
+            market_cap: getData(apiBasicInfoData, "defaultKeyStatistics", "enterpriseValue").raw || null,
+            eps: getData(apiBasicInfoData, "defaultKeyStatistics", "trailingEps").raw || null,
+            pe_ration: getData(apiBasicInfoData, "price", "regularMarketPrice").raw / getData("defaultKeyStatistics", "trailingEps").raw || null,
+            dividend: getData(apiBasicInfoData, "summaryDetail", "dividendYield").raw || null,
         };
-        if (getData("earnings", "financialsChart")) {
-            data.financialChart = JSON.stringify(getData("earnings", "financialsChart"));
+        if (getData(apiBasicInfoData, "earnings", "financialsChart")) {
+            basicInfoData.financial_chart = JSON.stringify(getData(apiBasicInfoData, "earnings", "financialsChart"));
         }
-        if (response.data.summaryProfile) {
-            data.profile = JSON.stringify(response.data.summaryProfile);
+        if (apiBasicInfoData.data.summaryProfile) {
+            basicInfoData.profile = JSON.stringify(apiBasicInfoData.data.summaryProfile);
         }
         const insertStr = "INSERT INTO stock_basicInfo SET ?";
         await transaction();
-        await query(insertStr, [data]);
+        await query(insertStr, [basicInfoData]);
         await commit();
-        return data;
+        return basicInfoData;
     } catch(error) {
         await rollback();
-        console.log(error);
         return {error: "Error when retrieving API basic info"};
     }
 };
@@ -276,49 +259,43 @@ const getApiNews = async function (symbol) {
                 "region":"US"
             }
         };
-        const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/list", config);
-        const shortRes = response.data.items.result.slice(0, 10);
-        const data = shortRes.map(i => 
+        const apiNewsData = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/list", config);
+        const lastestTenNews = apiNewsData.data.items.result.slice(0, 10);
+        const InsertNewsData = lastestTenNews.map(i => 
             [symbol, i.title, i.link, i.author, (new Date(i.published_at*1000)).toISOString().substr(0, 10)]
         );
         const deleteStr = "DELETE FROM stock_news WHERE symbol=?";
         const insertStr = "INSERT INTO stock_news (symbol, title, link, author, time) VALUES ?";
         await transaction();
         await query(deleteStr, [symbol]);
-        await query(insertStr, [data]);
+        await query(insertStr, [InsertNewsData]);
         await commit();
-        return shortRes;
+        return lastestTenNews;
     } catch(error) {
         await rollback();
-        console.log(error);
         return {error: "Error when retrieving API news"};
     }
 };
 
-const symbolList = async function () {
+const getSymbolList = async function () {
     try {
         const selectStr = "SELECT symbol, name FROM stock_symbol ORDER BY symbol";
-        await transaction();
-        const results = await query(selectStr, []);
-        await commit();
-        return results;
+        const symbols = await query(selectStr, []);
+        return symbols;
     } catch(error) {
-        console.log(error);
         await rollback();
         return {error: "Error when retrieving symbols"};
     }
 };
 
-const dailyGetPrices = async function () {
+const getDailyPrices = async function () {
     try {
         const selectStr = "SELECT DISTINCT(symbol) FROM stock_price";
-        await transaction();
-        const results = await query(selectStr, []);
-        await commit();
-        const symbols = results.map(i => i.symbol);
-        for (let a of symbols) {
-            const period1 = Math.floor((new Date()).getTime()/1000-60*60*24);
-            const now = Math.floor(new Date().getTime()/1000);
+        const symbols = (await query(selectStr, [])).map(i => i.symbol);
+        for (let symbol of symbols) {
+            // const startTime = Math.floor((new Date()).getTime()/1000-60*60*24);
+            const startTime = 0;
+            const current = Math.floor(new Date().getTime()/1000);
             const config = {
                 "headers":{
                     "x-rapidapi-host":RAPID_API_HOST,
@@ -327,19 +304,19 @@ const dailyGetPrices = async function () {
                 }, "params":{
                     "frequency":"1d",
                     "filter":"history",
-                    "period1":period1,
-                    "period2":now,
-                    "symbol": a
+                    "period1":startTime,
+                    "period2":current,
+                    "symbol": symbol
                 },
             };
-            const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data", config);
-            const queryArr = response.data.prices.map(i => 
-                [a, (new Date(i.date*1000)).toISOString().substr(0, 10), i.close, i.volume]
+            const apiPriceData = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data", config);
+            const insertPriceData = apiPriceData.data.prices.map(i => 
+                [symbol, (new Date(i.date*1000)).toISOString().substr(0, 10), i.close, i.volume]
             );
-            if (queryArr.length !== 0) {
+            if (insertPriceData.length !== 0) {
                 const insertStr = "INSERT INTO stock_price (symbol, time, price, volume) VALUES ?";
                 await transaction();
-                await query(insertStr, [queryArr]);
+                await query(insertStr, [insertPriceData]);
                 await commit();
             }
         }
@@ -351,95 +328,22 @@ const dailyGetPrices = async function () {
     }
 };
 
-const dailyGetNews = async function () {
-    try {
-        const selectStr = "SELECT DISTINCT(symbol) FROM stock_news";
-        await transaction();
-        const results = await query(selectStr, []);
-        await commit();
-        const symbols = results.map(i => i.symbol);
-        for (let a of symbols) {
-            const config = {
-                "headers":{
-                    "x-rapidapi-host":RAPID_API_HOST,
-                    "x-rapidapi-key":RAPID_API_KEY,
-                    "useQueryString":true
-                }, "params":{
-                    "category":a,
-                    "region":"US"
-                }
-            };
-            
-            const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/list", config);
-            const shortRes = response.data.items.result.slice(0, 10);
-            const data = shortRes.map(i => 
-                [a, i.title, i.link, i.author, (new Date(i.published_at*1000)).toISOString().substr(0, 10)]
-            );
-            const deleteStr = "DELETE FROM stock_news WHERE symbol=?";
-            const insertStr = "INSERT INTO stock_news (symbol, title, link, author, time) VALUES ?";
-            await transaction();
-            await query(deleteStr, [a]);
-            await query(insertStr, [data]);
-            await commit();
-        }
-        return;
-    } catch(error) {
-        await rollback();
-        console.log(error);
-        return {error: "Error when retrieving API news"};
-    }
-};
-
-
-const dailyGetBasicInfo = async function () {
+const getDailyBasicInfo = async function () {
     try {
         const selectStr = "SELECT DISTINCT(symbol) FROM stock_basicInfo";
-        await transaction();
-        const results = await query(selectStr, []);
-        console.log(results);
-        await commit();
-        const symbols = results.map(i => i.symbol);
-        for (let a of symbols) {
-            const config = {
-                "headers":{
-                    "x-rapidapi-host":RAPID_API_HOST,
-                    "x-rapidapi-key":RAPID_API_KEY,
-                    "useQueryString":true
-                }, "params":{
-                    "symbol":a,
-                    "region":"US"
-                }
-            };
-            setTimeout(() => console.log(1), 1000);
-            const response = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary", config);
-            const getData = function(category, name) {
-                return response.data[category][name] || null;
-            };
-            let data = {
-                symbol: a,
-                prevClose: getData("price", "regularMarketPreviousClose").raw || null,
-                dayRange: `${getData("price", "regularMarketDayLow").raw} - ${getData("price", "regularMarketDayHigh").raw}` || null,
-                averageVolume: getData("price", "averageDailyVolume3Month").raw || null,
-                annualReturn: getData("summaryDetail", "ytdReturn").raw || null,
-                beta: getData("summaryDetail", "beta").raw || null,
-                marketCap: getData("defaultKeyStatistics", "enterpriseValue").raw || null,
-                eps: getData("defaultKeyStatistics", "trailingEps").raw || null,
-                peRation: getData("price", "regularMarketPrice").raw / getData("defaultKeyStatistics", "trailingEps").raw || null,
-                dividend: getData("summaryDetail", "dividendYield").raw || null,
-            };
-            if (getData("earnings", "financialsChart")) {
-                data.financialChart = JSON.stringify(getData("earnings", "financialsChart"));
+        const symbols = (await query(selectStr, [])).map(i => i.symbol);
+        let count = 0;
+        //Limit: 5 calls per second for RapidAPI
+        setInterval(async function() {
+            if (count < symbols.length) {
+                const deleteStr = "DELETE FROM stock_basicInfo WHERE symbol = ?";
+                await transaction();
+                await query(deleteStr, [symbols[count]]);
+                getApiBasicInfo(symbols[count]);
+                await commit();
+                count++;
             }
-            if (response.data.summaryProfile) {
-                data.profile = JSON.stringify(response.data.summaryProfile);
-            }
-            const deleteStr = "DELETE FROM stock_basicInfo WHERE symbol = ?";
-            const insertStr = "INSERT INTO stock_basicInfo SET ?";
-            await transaction();
-            await query(deleteStr, [a]);
-            await query(insertStr, [data]);
-            await commit();
-        }
+        }, 1000); 
         return;
     } catch(error) {
         await rollback();
@@ -447,6 +351,25 @@ const dailyGetBasicInfo = async function () {
         return {error: "Error when retrieving stock basic info every day"};
     }
 
+};
+
+const getDailyNews = async function () {
+    try {
+        const selectStr = "SELECT DISTINCT(symbol) FROM stock_news";
+        const symbols = (await query(selectStr, [])).map(i => i.symbol);
+        for (let symbol of symbols) {
+            const deleteStr = "DELETE FROM stock_news WHERE symbol=?";
+            await transaction();
+            await query(deleteStr, [symbol]);
+            getApiNews(symbol);
+            await commit();
+        }
+        return;
+    } catch(error) {
+        await rollback();
+        console.log(error);
+        return {error: "Error when retrieving news every day"};
+    }
 };
 
 
@@ -458,8 +381,8 @@ module.exports = {
     getApiPrices,
     getApiBasicInfo,
     getApiNews,
-    symbolList,
-    dailyGetPrices,
-    dailyGetNews,
-    dailyGetBasicInfo
+    getSymbolList,
+    getDailyPrices,
+    getDailyBasicInfo,
+    getDailyNews
 };

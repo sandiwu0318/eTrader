@@ -6,14 +6,12 @@ if (token !== null) {
     getOrders();
 }
 async function getOrders() {
-    // try {
-        const data = {
-            token: token
-        }
+    try {
         const res = await fetch(`/api/1.0/user/getOrders`,{
             method: "POST",
             body: JSON.stringify(data),
             headers: {
+                "Authorization": `${token}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -50,7 +48,7 @@ async function getOrders() {
             if (orders.length !== 0) {
                 let newOrders = []
                 orders.forEach(i => {
-                    const indicator = i.category;
+                    const indicator = i.indicator;
                     let data = {
                         symbol: i.symbol,
                         action: i.sub_action,
@@ -92,7 +90,7 @@ async function getOrders() {
                                 id: orders[i].id
                             }
                             const res = await fetch(`/api/1.0/trade/deleteOrder`,{
-                                method: "POST",
+                                method: "DELETE",
                                 body: JSON.stringify(deleteData),
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -131,17 +129,17 @@ async function getOrders() {
                 getElement("#orders_ul").appendChild(reminder);
             }
         }
-    // } catch (err) {
-    //     console.log("Orders fetch failed, err");
-    // }
+    } catch (err) {
+        console.log("Orders fetch failed, err");
+    }
 }
 
 
 let symbols;
-async function SymbolList() {
+async function getSymbolList() {
     symbols = await getSymbols();
 }
 
-SymbolList();
+getSymbolList();
 searchSymbol();
 hoverNav();

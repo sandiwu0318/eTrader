@@ -20,8 +20,15 @@ const toThousands = function (num) {
     return result;
 };
 
+const getData = function(data, category, name) {
+    if (data.data[category]) {
+        return data.data[category][name] || null;
+    }
+    return null;
+};
 
 module.exports = {
     wrapAsync,
-    toThousands
+    toThousands,
+    getData
 };

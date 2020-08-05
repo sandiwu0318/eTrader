@@ -3,8 +3,7 @@ const Stock = require("../models/stock_model");
 
 const getIntradayPrices = async (req, res) => {
     const { symbol, close } = req.query;
-    const { io } = req;
-    const intradayPrices = await Stock.getIntradayPrices(symbol, close, io);
+    const intradayPrices = await Stock.getIntradayPrices(symbol, close);
     res.status(200).json({data: intradayPrices});
 };
 
@@ -12,12 +11,6 @@ const getPrices = async (req, res) => {
     const { symbol, frequency } = req.query;
     const prices = await Stock.getPrices(symbol, frequency);
     res.status(200).json({data: prices});
-};
-
-const getApiPrices = async (req, res) => {
-    const { symbol } = req.query;
-    const apiPrices = await Stock.getApiPrices(symbol);
-    res.status(200).json({data: apiPrices});
 };
 
 const getBasicInfo = async (req, res) => {
@@ -32,6 +25,12 @@ const getNews = async (req, res) => {
     res.status(200).json({data: news});
 };
 
+const getApiPrices = async (req, res) => {
+    const { symbol } = req.query;
+    const apiPrices = await Stock.getApiPrices(symbol);
+    res.status(200).json({data: apiPrices});
+};
+
 const getApiBasicInfo = async (req, res) => {
     const { symbol } = req.query;
     const apiBasicInfo = await Stock.getApiBasicInfo(symbol);
@@ -40,28 +39,28 @@ const getApiBasicInfo = async (req, res) => {
 
 const getApiNews = async (req, res) => {
     const { symbol } = req.query;
-    const news = await Stock.getApiNews(symbol);
-    res.status(200).json({data: news});
+    const apiNews = await Stock.getApiNews(symbol);
+    res.status(200).json({data: apiNews});
 };
 
-const symbolList = async (req, res) => {
-    const symbolList = await Stock.symbolList();
+const getSymbolList = async (req, res) => {
+    const symbolList = await Stock.getSymbolList();
     res.status(200).json({data: symbolList});
 };
 
-const dailyGetPrices = async (req, res) => {
-    const dailyGetPrices = await Stock.dailyGetPrices();
-    res.status(200).json({data: dailyGetPrices});
+const getDailyPrices = async (req, res) => {
+    const dailyPrices = await Stock.getDailyPrices();
+    res.status(200).json({data: dailyPrices});
 };
 
-const dailyGetNews = async (req, res) => {
-    const dailyGetNews = await Stock.dailyGetNews();
-    res.status(200).json({data: dailyGetNews});
+const getDailyNews = async (req, res) => {
+    const dailyNews = await Stock.getDailyNews();
+    res.status(200).json({data: dailyNews});
 };
 
-const dailyGetBasicInfo = async (req, res) => {
-    const dailyGetBasicInfo = await Stock.dailyGetBasicInfo();
-    res.status(200).json({data: dailyGetBasicInfo});
+const getDailyBasicInfo = async (req, res) => {
+    const dailyBasicInfo = await Stock.getDailyBasicInfo();
+    res.status(200).json({data: dailyBasicInfo});
 };
 
 
@@ -73,8 +72,8 @@ module.exports = {
     getApiPrices,
     getApiBasicInfo,
     getApiNews,
-    symbolList,
-    dailyGetPrices,
-    dailyGetNews,
-    dailyGetBasicInfo
+    getSymbolList,
+    getDailyPrices,
+    getDailyNews,
+    getDailyBasicInfo
 };

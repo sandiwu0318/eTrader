@@ -15,7 +15,7 @@ showGraphBtn.addEventListener("click",
             },
         });
         const symbol = getDataByClass("symbol")[0] || "";
-        let data = {
+        const data = {
                 periods: getDataByClass("period"),
                 symbol: symbol.split(" ")[0],
                 indicator: getElement(".indicator").value,
@@ -51,7 +51,7 @@ showGraphBtn.addEventListener("click",
                     removeItem("saveBtn");
                 }
                 try {
-                    const res = await fetch("/api/1.0/backtest/getData", {
+                    const res = await fetch("/api/1.0/backtest/showIndicatorData", {
                         method: "POST",
                         body: JSON.stringify(data),
                         headers: {
@@ -296,13 +296,13 @@ backtestBtn.addEventListener("click",
                             } else {
                                 window.scrollTo(0, 0);
                                 let data3 = Object.assign({}, data);
-                                data3.token = token;
                                 data3.investmentReturn = resJson.investmentReturn;
                                 data3.ROI = resJson.ROI || 0;
                                 const res3 = await fetch("/api/1.0/backtest/saveBacktestResult", {
                                     method: "POST",
                                     body: JSON.stringify(data3),
                                     headers: {
+                                        "Authorization": `${token}`,
                                         'Content-Type': 'application/json'
                                     }
                                 });
@@ -400,24 +400,22 @@ const setOrder = function (data) {
             checkLogin(token);
         } else {
             let data1 = {
-                token: token,
                 symbol: data.symbol,
                 action: "long",
                 sub_action: "buy",
                 value: data.actionValue,
-                category: data.indicator,
+                indicator: data.indicator,
                 cross: data.actionCross,
                 indicatorPeriod: data.indicatorPeriod,
                 volume: data.volume,
                 period: "90 days"
             }
             let data2 = {
-                token: token,
                 symbol: data.symbol,
                 action: "long",
                 sub_action: "sell",
                 value: data.exitValue,
-                category: data.indicator,
+                indicator: data.indicator,
                 cross: data.exitCross,
                 indicatorPeriod: data.indicatorPeriod,
                 volume: data.volume,
@@ -437,6 +435,7 @@ const setOrder = function (data) {
                 method: "POST",
                 body: JSON.stringify(data1),
                 headers: {
+                    "Authorization": `${token}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -444,6 +443,7 @@ const setOrder = function (data) {
                 method: "POST",
                 body: JSON.stringify(data2),
                 headers: {
+                    "Authorization": `${token}`,
                     'Content-Type': 'application/json'
                 }
             });

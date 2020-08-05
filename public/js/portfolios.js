@@ -14,13 +14,11 @@ if (token !== null) {
 }
 async function getPortfolios() {
     try {
-        const data = {
-            token: token
-        }
         const res = await fetch(`/api/1.0/user/getPortfolios`,{
             method: "POST",
             body: JSON.stringify(data),
             headers: {
+                "Authorization": `${token}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -132,10 +130,10 @@ async function getPortfolios() {
 
 
 let symbols;
-async function SymbolList() {
+async function getSymbolList() {
     symbols = await getSymbols();
 }
 
-SymbolList();
+getSymbolList();
 searchSymbol();
 hoverNav();

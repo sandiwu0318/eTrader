@@ -6,12 +6,10 @@ const axios = require("axios");
 const _ = require("lodash");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 
-const signUp = async (name, email, password, expire) => {
+const signUp = async (name, email, password) => {
     try {
-        await transaction();
         const emails = await query("SELECT email FROM user WHERE email = ? FOR UPDATE", [email]);
         if (emails.length > 0){
-            await commit();
             return {error: "Email Already Exists"};
         }
         const loginAt = new Date();
@@ -22,147 +20,141 @@ const signUp = async (name, email, password, expire) => {
             email: email,
             password: CryptoJS.AES.encrypt(password, email).toString(),
             name: name,
-            picture: null,
             access_token: accessToken,
-            access_expired: expire,
             last_login: loginAt
         };
-        const queryStr = "INSERT INTO user SET ?";
-        const result = await query(queryStr, user);
+        const insertStr = "INSERT INTO user SET ?";
+        await transaction();
+        const result = await query(insertStr, user);
         user.id = result.insertId;
         await commit();
         delete user.password;
-        delete user.access_expired;
         delete user.access_token;
         delete user.last_login;
         return {accessToken, loginAt, user};
     } catch (error) {
         await rollback();
-        return {error};
+        return {error: "sign up error"};
     }
 };
 
 const signIn = async (email, password) => {
     try {
-        await transaction();
+        
         const users = await query("SELECT * FROM user WHERE email = ?", [email]);
         const user = users[0];
-        if (users.length == 0) {
-            await commit();
+        if (users.length === 0) {
             return {error: "Please sign up first"};
         }
         if (CryptoJS.AES.decrypt(user.password, email).toString(CryptoJS.enc.Utf8) !== password){
-            await commit();
             return {error: "Password is wrong"};
         }
         const accessToken = users[0].access_token;
         const loginAt = new Date();
-        const queryStr = "UPDATE user SET last_login = ? WHERE id = ?";
-        await query(queryStr, [loginAt, user.id]);
+        const updateStr = "UPDATE user SET last_login = ? WHERE id = ?";
+        await transaction();
+        await query(updateStr, [loginAt, user.id]);
         delete user.password;
-        delete user.access_expired;
         delete user.access_token;
         delete user.last_login;
         await commit();
         return {accessToken, loginAt, user};
     } catch (error) {
         await rollback();
-        return {error};
+        return {error: "sign in error"};
     }
 };
-
-
 
 const addRemoveWatchlist = async function (token, symbol) {
     try {
         const selectStr = "SELECT id, watchlist FROM user WHERE access_token = ?";
-        const result = await query(selectStr, token);
-        if (result.length === 0) {
+        const databaseWatchlistData = await query(selectStr, token);
+        if (databaseWatchlistData.length === 0) {
             return {error: "Wrong authentication"};
         }
-        let watchlist;
-        if (result[0].watchlist === null || result[0].watchlist === "") {
+        let watchlist = [];
+        if (databaseWatchlistData[0].watchlist === null || databaseWatchlistData[0].watchlist === "") {
             watchlist = [];
         } else {
-            watchlist = result[0].watchlist.split(",");
+            watchlist = databaseWatchlistData[0].watchlist.split(",");
         }
+        let newWatchlist = [];
         if (watchlist.indexOf(symbol) !== -1) {
-            watchlist = watchlist.filter(i => i !== symbol);
+            newWatchlist = watchlist.filter(i => i !== symbol);
         } else {
-            watchlist.push(symbol);
+            newWatchlist.push(symbol);
         }
-        const watchlistStr = watchlist.join(",");
+        const watchlistStr = newWatchlist.join(",");
         await transaction();
         const updateStr = "UPDATE user SET watchlist = ? WHERE id = ?";
-        await query(updateStr, [watchlistStr, result[0].id]);
+        await query(updateStr, [watchlistStr, databaseWatchlistData[0].id]);
         await commit();
         return {watchlist: watchlistStr};
     } catch(error) {
         await rollback();
-        return {error};
+        return {error: "Failed to Add to / remove from watchlist"};
     }
 };
 
 const getWatchlist = async function (token, symbolOnly) {
     const selectStr = "SELECT watchlist FROM user WHERE access_token = ?";
-    const result = await query(selectStr, token);
-    if (result.length === 0) {
+    const databaseWatchlist = await query(selectStr, token);
+    if (databaseWatchlist.length === 0) {
         return {error: "Wrong authentication"};
     }
-    let results = [];
-    if (result[0].watchlist === null) {
+    let watchlistData = [];
+    if (databaseWatchlist[0].watchlist === null) {
         return {error: "You don't have any watchlist yet"};
     } else {
         if (symbolOnly === 1) {
-            return result;
+            return databaseWatchlist;
         }
-        let watchlist = result[0].watchlist.split(",");
-        if (watchlist.length === 1 && watchlist[0] === "") {
+        let watchlistArr = databaseWatchlist[0].watchlist.split(",");
+        if (watchlistArr.length === 1 && watchlistArr[0] === "") {
             return {error: "You don't have any watchlist yet"};
         }
-        for (let i of watchlist) {
-            const current = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${i}&token=${FINNHUB_API_KEY}`)).data;
-            if (current === undefined) {
+        for (let i of watchlistArr) {
+            const quote = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${i}&token=${FINNHUB_API_KEY}`)).data;
+            if (quote === undefined) {
                 return {error: "Please wait for a bit"};
             }
-            const result = {
+            const watchlistSingleData = {
                 symbol: i,
-                "opening price": current["o"],
-                "high price": current["h"],
-                "low price": current["l"],
-                "current price": current["c"],
-                "previous closing price": current["pc"],
-                "%": `${((current["c"] / current["pc"] -1)*100).toFixed(2)}%`,
+                "opening price": quote["o"],
+                "high price": quote["h"],
+                "low price": quote["l"],
+                "current price": quote["c"],
+                "previous closing price": quote["pc"],
+                "%": `${((quote["c"] / quote["pc"] -1)*100).toFixed(2)}%`,
             };
-            results.push(result);
+            watchlistData.push(watchlistSingleData);
         }
     }
-    return results;
+    return watchlistData;
 };
 
 const getOrders = async function (token) {
     const getIdStr = "SELECT id FROM user WHERE access_token = ?";
-    const result = (await query(getIdStr, token));
-    if (result.length === 0) {
+    const databaseId = (await query(getIdStr, token));
+    if (databaseId.length === 0) {
         return {error: "Wrong authentication"};
     }
-    const id = result[0].id;
+    const id = databaseId[0].id;
     const selectStr = "SELECT * FROM orders WHERE user_id = ? ORDER BY success, created_date DESC, symbol";
-    const results = await query(selectStr, id);
-    if (results.length === 0) {
+    const databaseOrders = await query(selectStr, id);
+    if (databaseOrders.length === 0) {
         return {error: "You haven't created any orders yet"};
     }
-    const now = new Date();
-    const history = results.filter(i => i.success === 1);
-    const orders = results.filter(i => i.success === 0 && i.deadline >= new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0));
-    history.forEach(i => {
+    const today = new Date();
+    const history = databaseOrders.filter(i => i.success === 1);
+    const orders = databaseOrders.filter(i => i.success === 0 && i.deadline >= new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0));
+    history.forEach(function(i) {
         delete i.success;
-    });
-    history.filter(i => i.sub_action === "buy" || i.sub_action === "short").forEach(i => {
-        i.investmentReturn = - i.volume * i.price;
-    });
-    history.filter(i => i.sub_action === "sell" || i.sub_action === "short cover").forEach(i => {
-        i.investmentReturn = i.volume * i.price;
+        if (i.sub_action === "buy" || i.sub_action === "short") {
+            i.investmentReturn = - i.volume * i.price;
+        } else {
+            i.investmentReturn = i.volume * i.price;
+        }
     });
     orders.forEach(i => {
         delete i.success;
@@ -177,50 +169,86 @@ const getOrders = async function (token) {
 
 const getPortfolios = async function (token) {
     const getIdStr = "SELECT id FROM user WHERE access_token = ?";
-    const result = (await query(getIdStr, token));
-    if (result.length === 0) {
+    const databaseId = (await query(getIdStr, token));
+    if (databaseId.length === 0) {
         return {error: "Wrong authentication"};
     }
-    const id = result[0].id;
-    const selectStr = "SELECT symbol, action, sub_action, price, volume FROM orders WHERE user_id = ? and success = 1";
-    const results = await query(selectStr, id);
-    if (results.length === 0) {
+    const id = databaseId[0].id;
+    const selectStr = "SELECT symbol, action, sub_action sub_action, price, volume, success_date FROM orders WHERE user_id = ? and success = 1 ORDER BY success_date";
+    const databasePortfolios = await query(selectStr, id);
+    if (databasePortfolios.length === 0) {
         return {error: "You don't have any portfolios yet"};
     }
-    results.forEach(i => {
+    databasePortfolios.forEach(i => {
         if (i.sub_action === "buy" || i.sub_action === "short") {
             i.multiple = i.price * i.volume;
         } else {
-            i.multiple = - i.price * i.volume;
-            i.volume = -i.volume;
+            i.multiple = 0;
+            i.volume = - i.volume;
         }
     });
-    const portfolioList = _.groupBy(results, "symbol");
-    let portfolio = [];
-    Object.values(portfolioList).forEach(i => {
-        const group = _.groupBy(i, "action");
-        Object.values(group).forEach(j => {
-            const volume = _.sumBy(j, "volume");
-            const averagePrice = _.sumBy(j, "multiple")/volume;
-            const data = {
-                symbol: j[0].symbol,
-                action: j[0].action,
-                volume: volume,
+    const groupBySymbol = _.groupBy(databasePortfolios, "symbol");
+    let portfolios = [];
+    Object.values(groupBySymbol).forEach(i => {
+        const groupByAction = _.groupBy(i, "action");
+        Object.values(groupByAction).forEach(j => {
+            let aggreatedArr = [];
+            const symbol = j[0].symbol;
+            const action = j[0].action;
+            while (j.findIndex(i => i.sub_action === "sell" || i.sub_action === "short cover") !== -1) {
+                const firstExit = j.findIndex(i => i.sub_action === "sell" || i.sub_action === "short cover");
+                const arrBeforeFirstExit = j.slice(0, firstExit);
+                const arrIncludingFirstExit = j.slice(0, firstExit+1);
+                const volumeSumBeforeFirstExit = _.sumBy(arrBeforeFirstExit, "volume");
+                const averagePrice = _.sumBy(arrBeforeFirstExit, "multiple")/volumeSumBeforeFirstExit;
+                const volume = _.sumBy(arrIncludingFirstExit, "volume");
+                const aggreatedData = {
+                    symbol: symbol,
+                    action: action,
+                    averagePrice: averagePrice,
+                    volume: volume,
+                    multiple: averagePrice * volume
+                };
+                aggreatedArr.push(aggreatedData);
+                j.splice(0, firstExit+1);
+            }
+            const allData = aggreatedArr.concat(j);
+            const totalVolume = _.sumBy(allData, "volume");
+            const averagePrice = _.sumBy(allData, "multiple")/totalVolume;
+            const portfolioData = {
+                symbol: symbol,
+                action: action,
+                volume: totalVolume,
                 price: averagePrice
             };
-            portfolio.push(data);
+            portfolios.push(portfolioData);
         });
     });
-    const newportfolio = portfolio.filter(i => i.volume !== 0);
-    for (let i of newportfolio) {
-        const current = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${i.symbol}&token=${FINNHUB_API_KEY}`)).data;
+    const portfolioWithVolume = portfolios.filter(i => i.volume !== 0);
+    portfolioWithVolume.forEach(i => {
+        i.index = portfolioWithVolume.indexOf(i);
+    });
+    const uniqueSymbols = _.uniq(portfolioWithVolume.map(i => i.symbol));
+    
+    for (let i of uniqueSymbols) {
+        const current = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${i}&token=${FINNHUB_API_KEY}`)).data;
         if (current === undefined) {
             return {error: "Please wait for a bit"};
         }
-        i.current = current["c"];
-        i.changePercent = (i.current - i.price) / i.price;
+        let copiedPortfolio = [...portfolioWithVolume];
+        while (copiedPortfolio.findIndex(j => j.symbol === i) !== -1) {
+            const indexOfSymbol = copiedPortfolio.findIndex(j => j.symbol === i);
+            const index = copiedPortfolio[indexOfSymbol].index;
+            const indexOfValue = portfolioWithVolume[index];
+            indexOfValue.current = current["c"];
+            indexOfValue.changePercent = (current["c"] - indexOfValue.price) / indexOfValue.price;
+            copiedPortfolio.splice(0, indexOfSymbol+1);
+        }
     }
-    return newportfolio;
+    portfolioWithVolume.forEach(i => {
+        delete(i.index);
+    });
+    return portfolioWithVolume;
 };
 
 

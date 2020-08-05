@@ -20,7 +20,7 @@ router.route("/trade/matchIndicatorOrders")
     .get(wrapAsync(matchIndicatorOrders));
 
 router.route("/trade/deleteOrder")
-    .post(wrapAsync(deleteOrder));
+    .delete(wrapAsync(deleteOrder));
 
 
 module.exports = router;

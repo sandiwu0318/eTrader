@@ -9,14 +9,12 @@ if (token !== null) {
 
 let newHistory = []
 async function getHistory() {
-    // try {
-        const data = {
-            token: token
-        }
+    try {
         const res = await fetch(`/api/1.0/user/getOrders`,{
             method: "POST",
             body: JSON.stringify(data),
             headers: {
+                "Authorization": `${token}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -57,7 +55,7 @@ async function getHistory() {
                     let data = {
                         symbol: i.symbol,
                         action: i.sub_action,
-                        indicator: i.category,
+                        indicator: i.indicator,
                         volume: i.volume,
                         price: i.price,
                         date: i.success_date.substr(0, 10),
@@ -84,9 +82,9 @@ async function getHistory() {
                 getElement("#history_ul").appendChild(reminder);
             }
         }
-    // } catch (err) {
-    //     console.log("History fetch failed, err");
-    // }
+    } catch (err) {
+        console.log("History fetch failed, err");
+    }
 }
 
 const sort_input = getElement("#sort_input");
@@ -112,10 +110,10 @@ sort_input.addEventListener("change", () => {
 })
 
 let symbols;
-async function SymbolList() {
+async function getSymbolList() {
     symbols = await getSymbols();
 }
 
-SymbolList();
+getSymbolList();
 searchSymbol();
 hoverNav();

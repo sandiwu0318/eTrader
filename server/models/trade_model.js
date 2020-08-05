@@ -1,107 +1,105 @@
 require("dotenv").config();
-const { FINNHUB_API_KEY } = process.env;
+const {FINNHUB_API_KEY} = process.env;
 const {RSI, SMA, EMA, WMA, CrossUp, CrossDown} = require("technicalindicators");
 const BB = require("technicalindicators").BollingerBands;
 const axios = require("axios");
 const _ = require("lodash");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 
-const setOrder = async function (token, symbol, category, value, indicatorPeriod, cross, volume, action, sub_action, period) {
-    console.log(value);
+const setOrder = async function (token, symbol, indicator, value, indicatorPeriod, cross, volume, action, sub_action, period) {
     try {
-        if (category === "price") {
+        if (indicator === "price" || indicator.substr(1, 2) === "MA" ) {
             indicatorPeriod = null;
         }
-        const now = new Date();
+        const today = new Date();
         let deadline;
         switch (period) {
         case "1 day":
-            deadline = new Date(now.getTime()+1000*60*60*24);
+            deadline = new Date(today.getTime()+1000*60*60*24);
             break;
         case "90 days":
-            deadline = new Date(now.getTime()+1000*60*60*24*90);
+            deadline = new Date(today.getTime()+1000*60*60*24*90);
             break;
         }
         const selectIdStr = "SELECT id FROM user WHERE access_token = ?";
-        const result = await query(selectIdStr, token);
-        const user_id = result[0].id;
-        const title = `${category}`;
+        const databaseId = await query(selectIdStr, token);
+        const id = databaseId[0].id;
+        const indicatorName = `${indicator}`;
         let order = {
-            user_id: user_id,
+            user_id: id,
             symbol: symbol,
             volume: volume,
             action: action,
             sub_action: sub_action,
-            indicatorPeriod: indicatorPeriod,
+            indicator_period: indicatorPeriod,
             cross: cross,
             deadline: deadline,
             success: 0,
             created_date: new Date()
         };
-        if (title.substr(1, 2) === "MA") {
+        if (indicatorName.substr(1, 2) === "MA") {
             order["MA"] = `${JSON.stringify(value)}`;
         } else {
-            order[title] = value;
+            order[indicatorName] = value;
         }
-        order["category"] = title;
+        order["indicator"] = indicatorName;
         const queryStr = "INSERT INTO orders SET ?";
         await transaction();
         await query(queryStr, order);
         await commit();
         return {message: "The order placed! You can check the result in History and Orders now."};
     } catch(error) {
-        console.log(error);
         await rollback();
-        return {error};
+        return {error: "Place order failed"};
     }
 };
 
 const matchPriceOrders = async function () {
     try {
         const today = new Date();
-        const queryStr = "SELECT * FROM orders WHERE deadline >= ? and success = 0 and price IS NOT NULL";
-        const orders = await query(queryStr, new Date(today.getTime()));
-        if (orders.length === 0) {
+        const selectStr = "SELECT * FROM orders WHERE deadline >= ? and success = 0 and price IS NOT NULL";
+        const pendingOrders = await query(selectStr, new Date(today.getTime()));
+        if (pendingOrders.length === 0) {
             return;
         }
-        for (let order of orders) {
-            let newOrder;
+        for (let order of pendingOrders) {
+            let successfulOrder;
             const selectOrdersStr = "SELECT * FROM orders WHERE user_id = ? AND symbol = ? AND action = ? AND success = 1";
-            const OrderResult = await query(selectOrdersStr, [order.user_id, order.symbol, order.action]);
+            const historyOrders = await query(selectOrdersStr, [order.user_id, order.symbol, order.action]);
             switch(order.sub_action){
             case "sell": {
-                const buyVolume = OrderResult.filter(i => i.sub_action === "buy").reduce((a, b) => (a+b.volume), 0);
-                const sellVolume = OrderResult.filter(i => i.sub_action === "sell").reduce((a, b) => (a+b.volume), 0);
+                const buyVolume = historyOrders.filter(i => i.sub_action === "buy").reduce((a, b) => (a+b.volume), 0);
+                const sellVolume = historyOrders.filter(i => i.sub_action === "sell").reduce((a, b) => (a+b.volume), 0);
                 if (buyVolume - sellVolume > order.volume) {
-                    newOrder = order;
+                    successfulOrder = order;
                 }
                 break;
             }
             case "short cover": {
-                const buyVolume = OrderResult.filter(i => i.sub_action === "short").reduce((a, b) => (a+b.volume), 0);
-                const sellVolume = OrderResult.filter(i => i.sub_action === "short cover").reduce((a, b) => (a+b.volume), 0);
+                const buyVolume = historyOrders.filter(i => i.sub_action === "short").reduce((a, b) => (a+b.volume), 0);
+                const sellVolume = historyOrders.filter(i => i.sub_action === "short cover").reduce((a, b) => (a+b.volume), 0);
                 if (buyVolume - sellVolume > order.volume) {
-                    newOrder = order;
+                    successfulOrder = order;
                 }
                 break;
             }
             case "buy": {
-                newOrder = order;
+                successfulOrder = order;
                 break;
             }
             case "short": {
-                newOrder = order;
+                successfulOrder = order;
                 break;
             }
             }
-            if (newOrder) {
-                const symbol = newOrder.symbol;
-                const markets = await axios.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`);
-                const marketPrice = markets.data["c"];
-                if (newOrder.price >= marketPrice) {
+            if (successfulOrder) {
+                const symbol = successfulOrder.symbol;
+                const quote = await axios.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`);
+                const currentPrice = quote.data["c"];
+                if (successfulOrder.price >= currentPrice) {
                     await transaction();
                     const queryStr = "UPDATE orders SET price = ?, success = 1, success_date = ? WHERE id = ?";
-                    await query(queryStr, [marketPrice, today, newOrder.id]);
+                    await query(queryStr, [currentPrice, today, successfulOrder.id]);
                     await commit();
                 }
             }
@@ -109,133 +107,132 @@ const matchPriceOrders = async function () {
         return;
     } catch(error) {
         await rollback();
-        return {error};
+        return {error: "match price orders failed"};
     }
 };
 
 const matchIndicatorOrders = async function () {
     try {
         const today = new Date();
-        const queryStr = "SELECT * FROM orders WHERE deadline >= ? and success = 0 and price IS NULL";
-        const orders = await query(queryStr, new Date(today.getTime()));
-        if (orders.length === 0) {
+        const selectStr = "SELECT * FROM orders WHERE deadline >= ? and success = 0 and price IS NULL";
+        const pendingOrders = await query(selectStr, new Date(today.getTime()));
+        if (pendingOrders.length === 0) {
             return;
         }
-        for (let order of orders) {
-            let newOrder;
+        for (let order of pendingOrders) {
+            let successfulOrder;
             const selectOrdersStr = "SELECT * FROM orders WHERE user_id = ? AND symbol = ? AND action = ? AND success = 1";
-            const OrderResult = await query(selectOrdersStr, [order.user_id, order.symbol, order.action]);
+            const historyOrder = await query(selectOrdersStr, [order.user_id, order.symbol, order.action]);
             switch(order.sub_action){
             case "sell": {
-                const buyVolume = OrderResult.filter(i => i.sub_action === "buy").reduce((a, b) => (a+b.volume), 0);
-                const sellVolume = OrderResult.filter(i => i.sub_action === "sell").reduce((a, b) => (a+b.volume), 0);
+                const buyVolume = historyOrder.filter(i => i.sub_action === "buy").reduce((a, b) => (a+b.volume), 0);
+                const sellVolume = historyOrder.filter(i => i.sub_action === "sell").reduce((a, b) => (a+b.volume), 0);
                 if (buyVolume - sellVolume > order.volume) {
-                    newOrder = order;
+                    successfulOrder = order;
                 }
                 break;
             }
             case "short cover": {
-                const buyVolume = OrderResult.filter(i => i.sub_action === "short").reduce((a, b) => (a+b.volume), 0);
-                const sellVolume = OrderResult.filter(i => i.sub_action === "short cover").reduce((a, b) => (a+b.volume), 0);
+                const buyVolume = historyOrder.filter(i => i.sub_action === "short").reduce((a, b) => (a+b.volume), 0);
+                const sellVolume = historyOrder.filter(i => i.sub_action === "short cover").reduce((a, b) => (a+b.volume), 0);
                 if (buyVolume - sellVolume > order.volume) {
-                    newOrder = order;
+                    successfulOrder = order;
                 }
                 break;
             }
             case "buy": {
-                newOrder = order;
+                successfulOrder = order;
                 break;
             }
             case "short": {
-                newOrder = order;
+                successfulOrder = order;
                 break;
             }
             }
-            if (newOrder) {
-                const symbol = newOrder.symbol;
-                const indicatorPeriod = newOrder.indicatorPeriod;
+            if (successfulOrder) {
+                const symbol = successfulOrder.symbol;
+                const indicatorPeriod = successfulOrder.indicatorPeriod;
                 const selectStr = "SELECT DISTINCT(time), price FROM stock_price WHERE symbol = ? ORDER BY time DESC LIMIT ?";
-                let results;
-                if (newOrder.category.substr(1, 2) === "MA") {
-                    const period = _.max([JSON.parse(newOrder.MA)[0]+2, JSON.parse(newOrder.MA)[1]+2]);
-                    results = await query(selectStr, [symbol, period]);
+                let marketPrices;
+                if (successfulOrder.indicator.substr(1, 2) === "MA") {
+                    const period = _.max([JSON.parse(successfulOrder.MA)[0]+2, JSON.parse(successfulOrder.MA)[1]+2]);
+                    marketPrices = await query(selectStr, [symbol, period]);
                 } else {
-                    results = await query(selectStr, [symbol, indicatorPeriod+2]);
+                    marketPrices = await query(selectStr, [symbol, indicatorPeriod+2]);
                 }
-                if (results.length === 0) {
+                if (marketPrices.length === 0) {
                     return;
                 }
                 let calculateInput = {
-                    values: results.map(i => i.price),
+                    values: marketPrices.map(i => i.price),
                     period: indicatorPeriod
                 };
-                let calculateInput1;
-                let calculateInput2;
-                let calculateValue1;
-                let calculateValue2;
-                let arr;
-                if (newOrder.category.substr(1, 2) === "MA") {
-                    calculateInput1 = {
-                        values: results.map(i => i.price),
-                        period: JSON.parse(newOrder.MA)[0]
+                let calculateInputForMA1;
+                let calculateInputForMA2;
+                let calculateValueForMA1;
+                let calculateValueForMA2;
+                if (successfulOrder.indicator.substr(1, 2) === "MA") {
+                    calculateInputForMA1 = {
+                        values: marketPrices.map(i => i.price),
+                        period: JSON.parse(successfulOrder.MA)[0]
                     };
-                    calculateInput2 = {
-                        values: results.map(i => i.price),
-                        period: JSON.parse(newOrder.MA)[1]
+                    calculateInputForMA2 = {
+                        values: marketPrices.map(i => i.price),
+                        period: JSON.parse(successfulOrder.MA)[1]
                     };
                 }
-            
                 let crossInput;
-                switch(newOrder.category) {
+                switch(successfulOrder.indicator) {
                 case "RSI": {
                     const calculateValue = RSI.calculate(calculateInput);
                     crossInput = {
                         lineA: calculateValue,
-                        lineB: new Array(calculateValue.length).fill(newOrder.RSI)
+                        lineB: new Array(calculateValue.length).fill(successfulOrder.RSI)
                     };
                     break;
                 }
                 case "BB": {
                     calculateInput.stdDev = 2;
-                    const calculateValue = BB.calculate(calculateInput).map(i => i[newOrder.BBline]);
+                    const calculateValue = BB.calculate(calculateInput).map(i => i[successfulOrder.BBline]);
                     crossInput = {
-                        lineA: results.slice(0-calculateValue.length).map(i => i.price),
+                        lineA: marketPrices.slice(0-calculateValue.length).map(i => i.price),
                         lineB: calculateValue,
                     };
                     break;
                 }
                 case "SMA": {
-                    calculateValue1 = SMA.calculate(calculateInput1);
-                    calculateValue2 = SMA.calculate(calculateInput2);
+                    calculateValueForMA1 = SMA.calculate(calculateInputForMA1);
+                    calculateValueForMA2 = SMA.calculate(calculateInputForMA2);
                     break;
                 }
                 case "EMA": {
-                    calculateValue1 = EMA.calculate(calculateInput1);
-                    calculateValue2 = EMA.calculate(calculateInput2);
+                    calculateValueForMA1 = EMA.calculate(calculateInputForMA1);
+                    calculateValueForMA2 = EMA.calculate(calculateInputForMA2);
                     break;
                 }
                 case "WMA": {
-                    calculateValue1 = WMA.calculate(calculateInput1);
-                    calculateValue2 = WMA.calculate(calculateInput2);
+                    calculateValueForMA1 = WMA.calculate(calculateInputForMA1);
+                    calculateValueForMA2 = WMA.calculate(calculateInputForMA2);
                     break;
                 }
                 }
-                if (newOrder.category.substr(1, 2) === "MA") {
-                    arr = new Array(Math.abs(calculateValue1.length-calculateValue2.length)).fill(0);
-                    if (calculateValue1.length > calculateValue2.length) {
+                let arrFilledWithZero;
+                if (successfulOrder.indicator.substr(1, 2) === "MA") {
+                    arrFilledWithZero = new Array(Math.abs(calculateValueForMA1.length-calculateValueForMA2.length)).fill(0);
+                    if (calculateValueForMA1.length > calculateValueForMA2.length) {
                         crossInput = {
-                            lineA: calculateValue1,
-                            lineB: arr.concat(calculateValue2)
+                            lineA: calculateValueForMA1,
+                            lineB: arrFilledWithZero.concat(calculateValueForMA2)
                         };
                     } else {
                         crossInput = {
-                            lineA: calculateValue1,
-                            lineB: arr.concat(calculateValue2)
+                            lineA: calculateValueForMA1,
+                            lineB: arrFilledWithZero.concat(calculateValueForMA2)
                         };
                     }
                 }
                 let crossArr = [];
-                switch(newOrder.cross) {
+                switch(successfulOrder.cross) {
                 case "crossup": {
                     crossArr = CrossUp.calculate(crossInput);
                     break;
@@ -248,7 +245,7 @@ const matchIndicatorOrders = async function () {
                 if (crossArr[crossArr.length-1] === true) {
                     await transaction();
                     const queryStr = "UPDATE orders SET price = ?, success = 1, success_date = ? WHERE id = ?";
-                    await query(queryStr, [results[results.length-1].price, today, newOrder.id]);
+                    await query(queryStr, [marketPrices[marketPrices.length-1].price, today, successfulOrder.id]);
                     await commit();
                 }
             }
@@ -256,7 +253,7 @@ const matchIndicatorOrders = async function () {
         return;
     } catch(error) {
         await rollback();
-        return {error};
+        return {error: "match indicator orders failed"};
     }
 };
 
@@ -269,10 +266,9 @@ const deleteOrder = async function (id) {
         return {message: "success"};
     } catch(error) {
         await rollback();
-        return {error};
+        return {error: "delete failed"};
     }
 };
-
 
 
 module.exports = {

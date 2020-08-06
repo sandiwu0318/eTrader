@@ -91,7 +91,7 @@ const getPrices = async function (symbol, frequency) {
         };
     } else {
         priceData = {
-            times: databasePriceData.map(i => formatedDate(i.time.toISOString())),
+            times: databasePriceData.map(i => formatedDate(new Date(i.time.getTime()+1000*60*60*24).toISOString())),
             prices: databasePriceData.map(i => i.price),
             volumes: databasePriceData.map(i => i.volume),
         };

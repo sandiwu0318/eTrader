@@ -125,6 +125,9 @@ function createChart(data, frequency) {
         xaxis: {
             title: "Date",
             type: "date",
+            rangebreaks: [{
+                bounds: ["Sat","Mon"],
+            }]
         },
         yaxis1: {
             title: "Price",

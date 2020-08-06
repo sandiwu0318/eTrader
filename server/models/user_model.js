@@ -223,11 +223,11 @@ const getPortfolios = async function (token) {
     });
     const uniqueSymbols = _.uniq(portfolioWithVolume.map(i => i.symbol));
     
-    for (let i of uniqueSymbols) {
-        const current = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${i}&token=${FINNHUB_API_KEY}`)).data;
+    for (let symbol of uniqueSymbols) {
+        const current = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`)).data;
         let copiedPortfolio = [...portfolioWithVolume];
-        while (copiedPortfolio.findIndex(j => j.symbol === i) !== -1) {
-            const indexOfSymbol = copiedPortfolio.findIndex(j => j.symbol === i);
+        while (copiedPortfolio.findIndex(j => j.symbol === symbol) !== -1) {
+            const indexOfSymbol = copiedPortfolio.findIndex(j => j.symbol === symbol);
             const index = copiedPortfolio[indexOfSymbol].index;
             const indexOfValue = portfolioWithVolume[index];
             indexOfValue.current = current["c"];

@@ -63,10 +63,10 @@ async function getHistory() {
                 });
                 newHistory.map(i => createList("#history_ul", "user_li", Object.values(i)));
                 const total = newHistory.reduce((a, b) => a + b.money, 0);
-                const initial = 1000000000;
-                const current = initial + total;
-                const change = ((current/initial -1)*100).toFixed(2);
-                getElement("#total_asset").innerText = `Initial Asset: $ ${toThousands(initial)}`;
+                const INITIAL_ASSET = 1000000000;
+                const current = INITIAL_ASSET + total;
+                const change = ((current/INITIAL_ASSET -1)*100).toFixed(2);
+                getElement("#total_asset").innerText = `Initial Asset: $ ${toThousands(INITIAL_ASSET)}`;
                 getElement("#current_asset").innerText = `Total Asset: $ ${toThousands(current)} (${change}%)`;
             } else {
                 Swal.fire({

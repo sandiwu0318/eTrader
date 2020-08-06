@@ -19,6 +19,8 @@ socket.on("intraday", (data) => {
         div.innerText = "Daily Price Unavailable";
         getElement("#priceChart").appendChild(div);
         socket.disconnect();
+    } else if (data === "disconnect") {
+        socket.disconnect();
     } else {
         createChart(data, "1d");
         const currentPrice = data.currentPrice;

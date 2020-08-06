@@ -259,75 +259,49 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
     }
     const allArr = _.orderBy(actionArr.concat(exitArr), "index");
     let filterData = [];
-    switch(action) {
-    case "long": {
-        let originBuyIndex = 0;
-        let buyData = {};
-        let originSellIndex = 0;
-        let sellData = {};
-        while (allArr.findIndex(i => i.action === "buy" && i.index > originSellIndex) !== -1) {
-            const buyIndex = allArr.findIndex(i => i.action === "buy" && i.index > originSellIndex);
-            if (buyIndex !== -1) {
-                originBuyIndex = allArr[buyIndex]["index"];
-                buyData = {
-                    time: prices[originBuyIndex].time,
-                    price: prices[originBuyIndex].price,
-                    indicatorValue: indicatorResult.values[originBuyIndex],
-                    action: allArr[buyIndex]["action"]
+
+    function getFilterData(arr, action, exit) {
+        let originActionIndex = 0;
+        let actionData = {};
+        let originExitIndex = 0;
+        let exitData = {};
+        while (arr.findIndex(i => i.action === action && i.index > originExitIndex) !== -1) {
+            const actionIndex = arr.findIndex(i => i.action === action && i.index > originExitIndex);
+            if (actionIndex !== -1) {
+                originActionIndex = arr[actionIndex]["index"];
+                actionData = {
+                    time: prices[originActionIndex].time,
+                    price: prices[originActionIndex].price,
+                    indicatorValue: indicatorResult.values[originActionIndex],
+                    action: arr[actionIndex]["action"]
                 };
-                allArr.splice(0, buyIndex+1);
+                arr.splice(0, actionIndex+1);
             }
-            const sellIndex = allArr.findIndex(i => i.action === "sell" && i.index > originBuyIndex);
-            if (sellIndex !== -1) {
-                originSellIndex = allArr[sellIndex]["index"];
-                sellData = {
-                    time: prices[originSellIndex].time,
-                    price: prices[originSellIndex].price,
-                    indicatorValue: indicatorResult.values[originSellIndex],
-                    action: allArr[sellIndex]["action"]
+            const exitIndex = arr.findIndex(i => i.action === exit && i.index > originActionIndex);
+            if (exitIndex !== -1) {
+                originExitIndex = arr[exitIndex]["index"];
+                exitData = {
+                    time: prices[originExitIndex].time,
+                    price: prices[originExitIndex].price,
+                    indicatorValue: indicatorResult.values[originExitIndex],
+                    action: arr[exitIndex]["action"]
                 };
-                allArr.splice(0, sellIndex+1);
+                arr.splice(0, exitIndex+1);
             }
-            if (buyIndex !== -1 && sellIndex !== -1) {
-                filterData.push(buyData);
-                filterData.push(sellData);
+            if (actionIndex !== -1 && exitIndex !== -1) {
+                filterData.push(actionData);
+                filterData.push(exitData);
             }
         }
+    }
+
+    switch(action) {
+    case "long": {
+        getFilterData(allArr, "buy", "sell");
         break;
     }
     case "short": {
-        let originSellIndex = 0;
-        let sellData = {};
-        let originBuyIndex = 0;
-        let buyData = {};
-        while (allArr.findIndex(i => i.action === "sell" && i.index > originBuyIndex) !== -1) {
-            const sellIndex = allArr.findIndex(i => i.action === "sell" && i.index > originBuyIndex);
-            if (sellIndex !== -1) {
-                originSellIndex = allArr[sellIndex]["index"];
-                sellData = {
-                    time: prices[originSellIndex].time,
-                    price: prices[originSellIndex].price,
-                    indicatorValue: indicatorResult.values[originSellIndex],
-                    action: allArr[sellIndex]["action"]
-                };
-                allArr.splice(0, sellIndex+1);
-            }
-            const buyIndex = allArr.findIndex(i => i.action === "buy" && i.index > originSellIndex);
-            if (buyIndex !== -1) {
-                originBuyIndex = allArr[buyIndex]["index"];
-                buyData = {
-                    time: prices[originBuyIndex].time,
-                    price: prices[originBuyIndex].price,
-                    indicatorValue: indicatorResult.values[originBuyIndex],
-                    action: allArr[buyIndex]["action"]
-                };
-                allArr.splice(0, buyIndex+1);
-            }
-            if (sellIndex !== -1 && buyIndex !== -1) {
-                filterData.push(sellData);
-                filterData.push(buyData);
-            }
-        }
+        getFilterData(allArr, "sell", "buy");
         break;
     }
     }

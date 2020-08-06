@@ -3,7 +3,7 @@ const {PORT_TEST, PORT, NODE_ENV, API_VERSION} = process.env;
 const port = NODE_ENV == "test" ? PORT_TEST : PORT;
 const CronJob = require("cron").CronJob;
 const {getDailyPrices, getDailyNews, getDailyBasicInfo} = require("./server/controllers/stock_controller");
-const {matchOrders} = require("./server/controllers/trade_controller");
+const {matchPriceOrders, matchIndicatorOrders} = require("./server/controllers/trade_controller");
 const {socket} = require("./server/controllers/socket_controller");
 
 // Express Initialization
@@ -61,28 +61,26 @@ app.get("*", function(req, res){
 
 // Function to match orders every minute
 //9:30-10:00
-// const Job1 = new CronJob("0 30-59/1 9 * * 1-5", function() {
-//     matchPriceOrders();
-//     matchIndicatorOrders();
-// },
-// null,
-// true,
-// "America/New_York"
-// "Asia/Taipei"
+const Job1 = new CronJob("0 30-59/1 9 * * 1-5", function() {
+    matchPriceOrders();
+    matchIndicatorOrders();
+},
+null,
+true,
+"America/New_York"
+);
+Job1.start();
 
-// );
-// Job1.start();
 //10:00-16:00
-// const Job2 = new CronJob("0 */1 10-16 * * 1-5", function() {
-//     matchPriceOrders();
-//     matchIndicatorOrders();
-// },
-// null,
-// true,
-// "America/New_York"
-// "Asia/Taipei"
-// );
-// Job2.start();
+const Job2 = new CronJob("0 */1 10-16 * * 1-5", function() {
+    matchPriceOrders();
+    matchIndicatorOrders();
+},
+null,
+true,
+"America/New_York"
+);
+Job2.start();
 
 // Function to get stock data every day
 // const Job3 = new CronJob("00 00 00 * * 2-6", function() {

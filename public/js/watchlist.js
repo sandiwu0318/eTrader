@@ -23,6 +23,7 @@ socket.on("watchlist", async (data) => {
         reminder.className = "reminder";
         reminder.innerText = "You can search for stocks you like in the search bar and add to your watchlist."
         getElement("#watchlist_ul").appendChild(reminder);
+        socket.disconnect();
     } else if (data.error) {
         Swal.fire({
             title: "Error",
@@ -30,6 +31,9 @@ socket.on("watchlist", async (data) => {
             icon: 'error',
             confirmButtonText: 'Ok'
         })
+        socket.disconnect();
+    }  else if (data === "disconnect") {
+        socket.disconnect();
     } else {
         removeChild("watchlist_ul_content");
         swal.close();

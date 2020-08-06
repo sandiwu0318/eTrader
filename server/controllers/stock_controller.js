@@ -1,18 +1,6 @@
 const Stock = require("../models/stock_model");
 
 
-const getIntradayPrices = async (req, res) => {
-    const { symbol, close } = req.query;
-    const intradayPrices = await Stock.getIntradayPrices(symbol, close);
-    if (intradayPrices.error === "Unavailable to get the data now") {
-        res.status(500).json({data: {
-            error: "Unavailable to get the data now"
-        }});
-    } else {
-        res.status(200).json({data: intradayPrices});
-    }
-};
-
 const getPrices = async (req, res) => {
     const { symbol, frequency } = req.query;
     const prices = await Stock.getPrices(symbol, frequency);
@@ -68,7 +56,6 @@ const getDailyBasicInfo = async () => {
 
 
 module.exports = {
-    getIntradayPrices,
     getPrices,
     getBasicInfo,
     getNews,

@@ -2,7 +2,6 @@ const router = require("express").Router();
 const {wrapAsync} = require("../../utils/util");
 
 const {
-    getIntradayPrices,
     getPrices,
     getBasicInfo,
     getNews,
@@ -10,13 +9,8 @@ const {
     getApiBasicInfo,
     getApiNews,
     getSymbolList,
-    getDailyPrices,
-    getDailyNews,
-    getDailyBasicInfo
 } = require("../controllers/stock_controller");
 
-router.route("/stock/getIntradayPrices")
-    .get(wrapAsync(getIntradayPrices));
 
 router.route("/stock/getPrices")
     .get(wrapAsync(getPrices));
@@ -39,14 +33,5 @@ router.route("/stock/getApiNews")
 router.route("/stock/getSymbolList")
     .get(wrapAsync(getSymbolList));
 
-router.route("/stock/getDailyPrices")
-    .get(wrapAsync(getDailyPrices));
-
-router.route("/stock/getDailyNews")
-    .get(wrapAsync(getDailyNews));
-
-
-router.route("/stock/getDailyBasicInfo")
-    .get(wrapAsync(getDailyBasicInfo));
 
 module.exports = router;

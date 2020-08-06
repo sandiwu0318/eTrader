@@ -4,7 +4,8 @@ const crypto = require("crypto");
 const { FINNHUB_API_KEY } = process.env;
 const axios = require("axios");
 const _ = require("lodash");
-const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
+const {query} = require("../../utils/mysqlcon.js");
+const {formatedDate} = require("../../utils/util.js");
 
 const signUp = async (name, email, password) => {
     const emails = await query("SELECT email FROM user WHERE email = ? FOR UPDATE", [email]);
@@ -152,7 +153,7 @@ const getOrders = async function (token) {
     orders.forEach(i => {
         delete i.success;
         delete i.action;
-        i.deadline = i.deadline.toISOString().substr(0, 10);
+        i.deadline = formatedDate(i.deadline.toISOString());
     });
     return {
         history: history,

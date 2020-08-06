@@ -4,6 +4,7 @@ const {RSI, SMA, EMA, WMA, CrossUp, CrossDown} = require("technicalindicators");
 const BB = require("technicalindicators").BollingerBands;
 const {query} = require("../../utils/mysqlcon.js");
 const {getApiPrices} = require("./stock_model");
+const {isMA} = require("../../utils/util.js");
 
 const showIndicatorData = async function (periods, symbol, indicator, indicatorPeriod) {
     const selectStr = "SELECT DISTINCT(time), price, volume FROM stock_price WHERE symbol=? AND time >= ? AND time <= ? ORDER BY time";
@@ -91,7 +92,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
     let calculateInputForMA2;
     let indicatorValueForMA1;
     let indicatorValueForMA2;
-    if (indicator.substr(1, 2) === "MA") {
+    if (isMA(indicator)) {
         calculateInputForMA1 = {
             values: prices.map(i => i.price),
             period: parseInt(actionValue)
@@ -135,7 +136,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
     let arrFilledWithZeroForMA1 = [];
     let arrFilledWithZeroForMA2 = [];
     let newIndicatorValue = [];
-    if (indicator.substr(1, 2) !== "MA") {
+    if (isMA(indicator)) {
         arrFilledWithZero = new Array(prices.length - indicatorValue.length).fill(0);
         newIndicatorValue = arrFilledWithZero.concat(indicatorValue);
     } else {
@@ -200,7 +201,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         break;
     }
     }
-    if (indicator.substr(1, 2) === "MA") {
+    if (isMA(indicator)) {
         actionCrossArr = actionCrossArr.fill(false, 0, _.max([arrFilledWithZeroForMA1.length+1, arrFilledWithZeroForMA2.length+1]));
         exitCrossArr = exitCrossArr.fill(false, 0, _.max([arrFilledWithZeroForMA1.length+1, arrFilledWithZeroForMA2.length+1]));
     } else {
@@ -260,48 +261,13 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
     const allArr = _.orderBy(actionArr.concat(exitArr), "index");
     let filterData = [];
 
-    function getFilterData(arr, action, exit) {
-        let originActionIndex = 0;
-        let actionData = {};
-        let originExitIndex = 0;
-        let exitData = {};
-        while (arr.findIndex(i => i.action === action && i.index > originExitIndex) !== -1) {
-            const actionIndex = arr.findIndex(i => i.action === action && i.index > originExitIndex);
-            if (actionIndex !== -1) {
-                originActionIndex = arr[actionIndex]["index"];
-                actionData = {
-                    time: prices[originActionIndex].time,
-                    price: prices[originActionIndex].price,
-                    indicatorValue: indicatorResult.values[originActionIndex],
-                    action: arr[actionIndex]["action"]
-                };
-                arr.splice(0, actionIndex+1);
-            }
-            const exitIndex = arr.findIndex(i => i.action === exit && i.index > originActionIndex);
-            if (exitIndex !== -1) {
-                originExitIndex = arr[exitIndex]["index"];
-                exitData = {
-                    time: prices[originExitIndex].time,
-                    price: prices[originExitIndex].price,
-                    indicatorValue: indicatorResult.values[originExitIndex],
-                    action: arr[exitIndex]["action"]
-                };
-                arr.splice(0, exitIndex+1);
-            }
-            if (actionIndex !== -1 && exitIndex !== -1) {
-                filterData.push(actionData);
-                filterData.push(exitData);
-            }
-        }
-    }
-
     switch(action) {
     case "long": {
-        getFilterData(allArr, "buy", "sell");
+        filterData = getFilterData(allArr, prices, indicatorResult, "buy", "sell");
         break;
     }
     case "short": {
-        getFilterData(allArr, "sell", "buy");
+        filterData = getFilterData(allArr, prices, indicatorResult, "sell", "buy");
         break;
     }
     }
@@ -369,12 +335,49 @@ const getSavedResults = async function (token) {
     const savedBackestingResults = await query(selectTestsStr, id[0].id);
     savedBackestingResults.forEach(i => {
         i.periods = JSON.parse(i.periods);
-        if (i.indicator.substr(1, 2) === "MA") {
+        if (isMA(i.indicator)) {
             i.actionValue = JSON.parse(i.actionValue);
             i.exitValue = JSON.parse(i.exitValue);
         }
     });  
     return savedBackestingResults;
+};
+
+const getFilterData = function(arr, prices, indicatorResult, action, exit) {
+    let filterData = [];
+    let originActionIndex = 0;
+    let actionData = {};
+    let originExitIndex = 0;
+    let exitData = {};
+    while (arr.findIndex(i => i.action === action && i.index > originExitIndex) !== -1) {
+        const actionIndex = arr.findIndex(i => i.action === action && i.index > originExitIndex);
+        if (actionIndex !== -1) {
+            originActionIndex = arr[actionIndex]["index"];
+            actionData = {
+                time: prices[originActionIndex].time,
+                price: prices[originActionIndex].price,
+                indicatorValue: indicatorResult.values[originActionIndex],
+                action: arr[actionIndex]["action"]
+            };
+            arr.splice(0, actionIndex+1);
+        }
+        const exitIndex = arr.findIndex(i => i.action === exit && i.index > originActionIndex);
+        if (exitIndex !== -1) {
+            originExitIndex = arr[exitIndex]["index"];
+            exitData = {
+                time: prices[originExitIndex].time,
+                price: prices[originExitIndex].price,
+                indicatorValue: indicatorResult.values[originExitIndex],
+                action: arr[exitIndex]["action"]
+            };
+            arr.splice(0, exitIndex+1);
+        }
+        if (actionIndex !== -1 && exitIndex !== -1) {
+            filterData.push(actionData);
+            filterData.push(exitData);
+        }
+    }
+    return filterData;
 };
 
 

@@ -81,7 +81,6 @@ async function getHistory() {
             }
         }
     } catch (err) {
-        console.log(err)
         Swal.fire({
             title: "Error!",
             text: "Internal server error",

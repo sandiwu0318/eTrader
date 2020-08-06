@@ -2,7 +2,7 @@ require("dotenv").config();
 const {RAPID_API_HOST, RAPID_API_KEY} = process.env;
 const axios = require("axios");
 const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
-const {toThousands, getData} = require("../../utils/util.js");
+const {toThousands, getData, formatedDate} = require("../../utils/util.js");
 
 const getIntradayPrices = async function (symbol) {
     const today = new Date();
@@ -13,22 +13,22 @@ const getIntradayPrices = async function (symbol) {
     //Mon-Fri and UTC 13:30-20:00
     if ((currentHours === 13 && currentMinutes >= 30) || (currentHours >=14 && currentHours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
         console.log(1);
-        startTime = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 13, 29)).getTime()/1000;
+        startTime = getTimeForApi(today, 0, 13, 29);
         endTime = Math.floor(today.getTime()/1000);
         //Sun
     } else if (today.getDay() === 0) {
         console.log(2);
-        startTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 13, 29)).getTime()/1000);
-        endTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-2, 20, 1)).getTime()/1000);
+        startTime = getTimeForApi(today, 2, 13, 29);
+        endTime = getTimeForApi(today, 2, 20, 1);
         //Mon
     } else if (today.getDay() === 1) {
         console.log(3);
-        startTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 13, 29)).getTime()/1000);
-        endTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-3, 20, 1)).getTime()/1000);
+        startTime = getTimeForApi(today, 3, 13, 29);
+        endTime = getTimeForApi(today, 3, 20, 1);
     } else {
         console.log(4);
-        startTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 13, 29)).getTime()/1000);
-        endTime = Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-1, 20, 1)).getTime()/1000);
+        startTime = getTimeForApi(today, 1, 13, 29);
+        endTime = getTimeForApi(today, 1, 20, 1);
     }
     const apiPriceData = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${startTime}&period2=${endTime}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
     let priceData;
@@ -78,20 +78,20 @@ const getPrices = async function (symbol, frequency) {
         month = 12*50;
         break;
     }
-    const startDate = new Date(current-(1000*60*60*24*30*month)).toISOString().substr(0, 10);
+    const startDate = formatedDate(new Date(current-(1000*60*60*24*30*month)).toISOString());
     const selectStr = "SELECT DISTINCT(time), price, volume FROM stock_price WHERE symbol=? AND time >= ? ORDER BY time";
     const databasePriceData = await query(selectStr, [symbol, startDate]);
     let priceData;
     if (databasePriceData.length === 0) {
         const apiPriceData = (await getApiPrices(symbol)).filter(i => i.date >= current/1000-(60*60*24*30*month));
         priceData = {
-            times: apiPriceData.map(i => new Date(i.date*1000).toISOString().substr(0, 10)),
+            times: apiPriceData.map(i => formatedDate(new Date(i.date*1000).toISOString())),
             prices: apiPriceData.map(i => i.close),
             volumes: apiPriceData.map(i => i.volume),
         };
     } else {
         priceData = {
-            times: databasePriceData.map(i => i.time.toISOString().substr(0, 10)),
+            times: databasePriceData.map(i => formatedDate(i.time.toISOString())),
             prices: databasePriceData.map(i => i.price),
             volumes: databasePriceData.map(i => i.volume),
         };
@@ -148,7 +148,7 @@ const getNews = async function (symbol) {
             title: i.title,
             link: i.link,
             author: i.author,
-            time: (new Date(i.published_at*1000)).toISOString().substr(0, 10)
+            time: formatedDate(new Date(i.published_at*1000).toISOString())
         }));
     } else {
         newsData = databaseNewsData;
@@ -173,7 +173,7 @@ const getApiPrices = async function (symbol) {
     };
     const apiPriceData = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data", config);
     const priceData = apiPriceData.data.prices.map(i => 
-        [symbol, (new Date(i.date*1000)).toISOString().substr(0, 10), i.close, i.volume]
+        [symbol, formatedDate(new Date(i.date*1000).toISOString()), i.close, i.volume]
     );
     if (priceData.length !== 0) {
         const insertStr = "INSERT INTO stock_price (symbol, time, price, volume) VALUES ?";
@@ -231,7 +231,7 @@ const getApiNews = async function (symbol) {
     const apiNewsData = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/list", config);
     const lastestTenNews = apiNewsData.data.items.result.slice(0, 10);
     const InsertNewsData = lastestTenNews.map(i => 
-        [symbol, i.title, i.link, i.author, (new Date(i.published_at*1000)).toISOString().substr(0, 10)]
+        [symbol, i.title, i.link, i.author, formatedDate(new Date(i.published_at*1000).toISOString())]
     );
     try {
         const deleteStr = "DELETE FROM stock_news WHERE symbol=?";
@@ -243,6 +243,7 @@ const getApiNews = async function (symbol) {
         return lastestTenNews;
     } catch(error) {
         await rollback();
+        throw error;
     }
 };
 
@@ -274,7 +275,7 @@ const getDailyPrices = async function () {
         };
         const apiPriceData = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data", config);
         const insertPriceData = apiPriceData.data.prices.map(i => 
-            [symbol, (new Date(i.date*1000)).toISOString().substr(0, 10), i.close, i.volume]
+            [symbol, formatedDate(new Date(i.date*1000).toISOString()), i.close, i.volume]
         );
         if (insertPriceData.length !== 0) {
             const insertStr = "INSERT INTO stock_price (symbol, time, price, volume) VALUES ?";
@@ -299,6 +300,7 @@ const getDailyBasicInfo = async function () {
                 await commit();
             } catch(error) {
                 await rollback();
+                throw error;
             }
             count++;
         }
@@ -320,11 +322,16 @@ const getDailyNews = async function () {
                 await commit();
             } catch(error) {
                 await rollback();
+                throw error;
             }
             count++;
         }
     }, 1000);
     return;
+};
+
+const getTimeForApi = function(today, minusDays, hour, minute) {
+    return Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-minusDays, hour, minute)).getTime()/1000);
 };
 
 

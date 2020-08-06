@@ -6,9 +6,10 @@ const axios = require("axios");
 const _ = require("lodash");
 const {query} = require("../../utils/mysqlcon.js");
 const {getApiPrices} = require("./stock_model");
+const {isMA} = require("../../utils/util.js");
 
 const setOrder = async function (token, symbol, indicator, value, indicatorPeriod, cross, volume, action, sub_action, period) {
-    if (indicator === "price" || indicator.substr(1, 2) === "MA" ) {
+    if (indicator === "price" || isMA(indicator)) {
         indicatorPeriod = null;
     }
     const today = new Date();
@@ -37,7 +38,7 @@ const setOrder = async function (token, symbol, indicator, value, indicatorPerio
         success: 0,
         created_date: new Date()
     };
-    if (indicatorName.substr(1, 2) === "MA") {
+    if (isMA(indicatorName)) {
         order["MA"] = `${JSON.stringify(value)}`;
     } else {
         order[indicatorName] = value;
@@ -55,37 +56,7 @@ const matchPriceOrders = async function () {
     if (pendingOrders.length === 0) {
         return;
     }
-    let validOrders = [];
-    for (let order of pendingOrders) {
-        const selectOrdersStr = "SELECT * FROM orders WHERE user_id = ? AND symbol = ? AND action = ? AND success = 1";
-        const historyOrders = await query(selectOrdersStr, [order.user_id, order.symbol, order.action]);
-        switch(order.sub_action){
-        case "sell": {
-            const buyVolume = historyOrders.filter(i => i.sub_action === "buy").reduce((a, b) => (a+b.volume), 0);
-            const sellVolume = historyOrders.filter(i => i.sub_action === "sell").reduce((a, b) => (a+b.volume), 0);
-            if (buyVolume - sellVolume > order.volume) {
-                validOrders.push(order);
-            }
-            break;
-        }
-        case "short cover": {
-            const buyVolume = historyOrders.filter(i => i.sub_action === "short").reduce((a, b) => (a+b.volume), 0);
-            const sellVolume = historyOrders.filter(i => i.sub_action === "short cover").reduce((a, b) => (a+b.volume), 0);
-            if (buyVolume - sellVolume > order.volume) {
-                validOrders.push(order);
-            }
-            break;
-        }
-        case "buy": {
-            validOrders.push(order);
-            break;
-        }
-        case "short": {
-            validOrders.push(order);
-            break;
-        }
-        }
-    }
+    const validOrders = checkValidOrder(pendingOrders);
     validOrders.forEach(i => {
         i.index = validOrders.indexOf(i);
     });
@@ -121,44 +92,16 @@ const matchIndicatorOrders = async function () {
     if (pendingOrders.length === 0) {
         return;
     }
-    for (let order of pendingOrders) {
-        let validOrder;
-        const selectOrdersStr = "SELECT * FROM orders WHERE user_id = ? AND symbol = ? AND action = ? AND success = 1";
-        const historyOrder = await query(selectOrdersStr, [order.user_id, order.symbol, order.action]);
-        switch(order.sub_action){
-        case "sell": {
-            const buyVolume = historyOrder.filter(i => i.sub_action === "buy").reduce((a, b) => (a+b.volume), 0);
-            const sellVolume = historyOrder.filter(i => i.sub_action === "sell").reduce((a, b) => (a+b.volume), 0);
-            if (buyVolume - sellVolume > order.volume) {
-                validOrder = order;
-            }
-            break;
-        }
-        case "short cover": {
-            const buyVolume = historyOrder.filter(i => i.sub_action === "short").reduce((a, b) => (a+b.volume), 0);
-            const sellVolume = historyOrder.filter(i => i.sub_action === "short cover").reduce((a, b) => (a+b.volume), 0);
-            if (buyVolume - sellVolume > order.volume) {
-                validOrder = order;
-            }
-            break;
-        }
-        case "buy": {
-            validOrder = order;
-            break;
-        }
-        case "short": {
-            validOrder = order;
-            break;
-        }
-        }
-        if (validOrder) {
-            const symbol = validOrder.symbol;
-            const indicatorPeriod = validOrder.indicatorPeriod;
+    const validOrders = checkValidOrder(pendingOrders);
+    for (let order of validOrders) {
+        if (order) {
+            const symbol = order.symbol;
+            const indicatorPeriod = order.indicatorPeriod;
             const selectStr = "SELECT DISTINCT(time), price FROM stock_price WHERE symbol = ? ORDER BY time DESC LIMIT ?";
             let marketPrices;
             let period;
-            if (validOrder.indicator.substr(1, 2) === "MA") {
-                period = _.max([JSON.parse(validOrder.MA)[0]+2, JSON.parse(validOrder.MA)[1]+2]);
+            if (isMA(order.indicator)) {
+                period = _.max([JSON.parse(order.MA)[0]+2, JSON.parse(order.MA)[1]+2]);
             } else {
                 period = indicatorPeriod+2;
             }
@@ -177,29 +120,29 @@ const matchIndicatorOrders = async function () {
             let calculateInputForMA2;
             let calculateValueForMA1;
             let calculateValueForMA2;
-            if (validOrder.indicator.substr(1, 2) === "MA") {
+            if (isMA(order.indicator)) {
                 calculateInputForMA1 = {
                     values: marketPrices.map(i => i.price),
-                    period: JSON.parse(validOrder.MA)[0]
+                    period: JSON.parse(order.MA)[0]
                 };
                 calculateInputForMA2 = {
                     values: marketPrices.map(i => i.price),
-                    period: JSON.parse(validOrder.MA)[1]
+                    period: JSON.parse(order.MA)[1]
                 };
             }
             let crossInput;
-            switch(validOrder.indicator) {
+            switch(order.indicator) {
             case "RSI": {
                 const calculateValue = RSI.calculate(calculateInput);
                 crossInput = {
                     lineA: calculateValue,
-                    lineB: new Array(calculateValue.length).fill(validOrder.RSI)
+                    lineB: new Array(calculateValue.length).fill(order.RSI)
                 };
                 break;
             }
             case "BB": {
                 calculateInput.stdDev = 2;
-                const calculateValue = BB.calculate(calculateInput).map(i => i[validOrder.BBline]);
+                const calculateValue = BB.calculate(calculateInput).map(i => i[order.BBline]);
                 crossInput = {
                     lineA: marketPrices.slice(0-calculateValue.length).map(i => i.price),
                     lineB: calculateValue,
@@ -223,7 +166,7 @@ const matchIndicatorOrders = async function () {
             }
             }
             let arrFilledWithZero;
-            if (validOrder.indicator.substr(1, 2) === "MA") {
+            if (isMA(order.indicator)) {
                 arrFilledWithZero = new Array(Math.abs(calculateValueForMA1.length-calculateValueForMA2.length)).fill(0);
                 if (calculateValueForMA1.length > calculateValueForMA2.length) {
                     crossInput = {
@@ -238,7 +181,7 @@ const matchIndicatorOrders = async function () {
                 }
             }
             let crossArr = [];
-            switch(validOrder.cross) {
+            switch(order.cross) {
             case "crossup": {
                 crossArr = CrossUp.calculate(crossInput);
                 break;
@@ -261,6 +204,41 @@ const deleteOrder = async function (id) {
     const deleteStr = "DELETE FROM orders WHERE id = ?";
     await query(deleteStr, id);
     return {message: "success"};
+};
+
+const checkValidOrder = async function(orders) {
+    let validOrders = [];
+    for (let order of orders) {
+        const selectOrdersStr = "SELECT * FROM orders WHERE user_id = ? AND symbol = ? AND action = ? AND success = 1";
+        const historyOrders = await query(selectOrdersStr, [order.user_id, order.symbol, order.action]);
+        switch(order.sub_action){
+        case "sell": {
+            const buyVolume = historyOrders.filter(i => i.sub_action === "buy").reduce((a, b) => (a+b.volume), 0);
+            const sellVolume = historyOrders.filter(i => i.sub_action === "sell").reduce((a, b) => (a+b.volume), 0);
+            if (buyVolume - sellVolume > order.volume) {
+                validOrders.push(order);
+            }
+            break;
+        }
+        case "short cover": {
+            const buyVolume = historyOrders.filter(i => i.sub_action === "short").reduce((a, b) => (a+b.volume), 0);
+            const sellVolume = historyOrders.filter(i => i.sub_action === "short cover").reduce((a, b) => (a+b.volume), 0);
+            if (buyVolume - sellVolume > order.volume) {
+                validOrders.push(order);
+            }
+            break;
+        }
+        case "buy": {
+            validOrders.push(order);
+            break;
+        }
+        case "short": {
+            validOrders.push(order);
+            break;
+        }
+        }
+    }
+    return validOrders;
 };
 
 

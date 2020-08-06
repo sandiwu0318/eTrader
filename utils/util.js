@@ -1,10 +1,9 @@
 require("dotenv").config();
 
 // reference: https://thecodebarbarian.com/80-20-guide-to-express-error-handling
+// Error handler.
 const wrapAsync = (fn) => {
     return function(req, res, next) {
-        // Make sure to `.catch()` any errors and pass them along to the `next()`
-        // middleware in the chain, in this case the error handler.
         fn(req, res, next).catch(next);
     };
 };
@@ -27,8 +26,20 @@ const getData = function(data, category, name) {
     return null;
 };
 
+const isMA = function(indicator) {
+    return indicator.substr(1, 2) === "MA";
+};
+
+const formatedDate = function(date) {
+    return date.substr(0, 10);
+};
+
+
+
 module.exports = {
     wrapAsync,
     toThousands,
-    getData
+    getData,
+    isMA,
+    formatedDate
 };

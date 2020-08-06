@@ -22,7 +22,9 @@ socket.on("intraday", (data) => {
     } else if (data === "disconnect") {
         socket.disconnect();
     } else {
-        createChart(data, "1d");
+        if (frequency.value === "1d") {
+            createChart(data, "1d");
+        }
         const currentPrice = data.currentPrice;
         getElement("#current_price").innerText = currentPrice.toFixed(2);
         if (previosClosing !== 0) {
@@ -217,7 +219,6 @@ async function showPrice(symbol, frequency) {
         socket.connect();
         socket.emit("symbol", symbol);
     } else {
-        socket.disconnect();
         const res = await fetch(`/api/1.0/stock/getPrices?symbol=${symbol}&frequency=${frequency}`);
         const resJson = (await res.json()).data;
         if (resJson.error) {

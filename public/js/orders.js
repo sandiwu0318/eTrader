@@ -9,14 +9,13 @@ async function getOrders() {
     try {
         const res = await fetch(`/api/1.0/user/getOrders`,{
             method: "POST",
-            body: JSON.stringify(data),
             headers: {
                 "Authorization": `${token}`,
                 'Content-Type': 'application/json'
             }
         });
         const resJson = (await res.json()).data;
-        if (data.error === "Wrong authentication") {
+        if (resJson.error === "Wrong authentication") {
             swal.close();
             await Swal.fire({
                 title: "Please login again",

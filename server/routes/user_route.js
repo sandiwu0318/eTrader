@@ -4,7 +4,8 @@ const {wrapAsync} = require("../../utils/util");
 const {
     signUp,
     signIn,
-    addRemoveWatchlist,
+    addToWatchlist,
+    removeFromWatchlist,
     getWatchlist,
     getOrders,
     getPortfolios
@@ -16,8 +17,11 @@ router.route("/user/signUp")
 router.route("/user/signIn")
     .post(wrapAsync(signIn));
 
-router.route("/user/addRemoveWatchlist")
-    .post(wrapAsync(addRemoveWatchlist));
+router.route("/user/addToWatchlist")
+    .post(wrapAsync(addToWatchlist));
+
+router.route("/user/removeFromWatchlist")
+    .post(wrapAsync(removeFromWatchlist));
 
 router.route("/user/getWatchlist")
     .post(wrapAsync(getWatchlist));

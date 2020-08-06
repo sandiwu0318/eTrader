@@ -7,6 +7,8 @@ showLoginBtn(token);
 let symbols = [];
 symbols = getSymbols();
 
+
+let watchlist;
 let previosClosing = 0;
 const socket = io();
 socket.on("intraday", (data) => {
@@ -64,7 +66,6 @@ async function renderData(symbol){
     }
 
     //Watchlist
-    let watchlist;
     if (token) {
         const data = {
             symbolOnly: 1
@@ -270,7 +271,7 @@ searchBtn.addEventListener("click", function () {
     }
 })
 
-//Add to / Remove from watchlist
+//Add to and Remove from watchlist
 let watchListBtn = getElement("#watchListBtn");
 watchListBtn.addEventListener("click",
     async function (e){
@@ -281,16 +282,28 @@ watchListBtn.addEventListener("click",
             const data = {
                 symbol: symbol,
             }
-            const res5 = await fetch(`/api/1.0/user/addRemoveWatchlist`,{
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: {
-                    "Authorization": `${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            const resJson5 = (await res5.json()).data;
-            if (resJson5.error === "Wrong authentication") {
+            let res;
+            if (!watchlist.includes(symbol)) {
+                res = await fetch(`/api/1.0/user/addToWatchlist`,{
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: {
+                        "Authorization": `${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } else {
+                res = await fetch(`/api/1.0/user/removeFromWatchlist`,{
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: {
+                        "Authorization": `${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }
+            const resJson = (await res.json()).data;
+            if (resJson.error === "Wrong authentication") {
                 await Swal.fire({
                     title: "Please login again",
                     icon: "error",
@@ -299,7 +312,7 @@ watchListBtn.addEventListener("click",
                 });
                 localStorage.setItem("page", window.location.href);
                 window.location = "/login.html";
-            } else if (resJson5.error) {
+            } else if (resJson.error) {
                 Swal.fire({
                     title: "Error",
                     text: "Internal server error",
@@ -308,7 +321,7 @@ watchListBtn.addEventListener("click",
                 })
             } else {
                 const watchlistBtn = getElement("#watchListBtn");
-                const watchlist = resJson5.watchlist;
+                watchlist = resJson.watchlist;
                 setWatchlistBtn(watchlist,symbol,watchlistBtn);
             }
         }

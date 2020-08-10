@@ -110,6 +110,7 @@ const getWatchlist = async function (token, symbolOnly) {
         if (watchlistArr.length === 1 && watchlistArr[0] === "") {
             return {error: "You don't have any watchlist yet"};
         }
+        //Get current price from API
         for (let i of watchlistArr) {
             const quote = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${i}&token=${FINNHUB_API_KEY}`)).data;
             const watchlistSingleData = {
@@ -161,6 +162,7 @@ const getOrders = async function (token) {
     };
 };
 
+//Calculate different symbols on hand (separated by actions)
 const getPortfolios = async function (token) {
     const getIdStr = "SELECT id FROM user WHERE access_token = ?";
     const databaseId = (await query(getIdStr, token));
@@ -223,7 +225,7 @@ const getPortfolios = async function (token) {
         i.index = portfolioWithVolume.indexOf(i);
     });
     const uniqueSymbols = _.uniq(portfolioWithVolume.map(i => i.symbol));
-    
+    //Get current prices for unique symbols
     for (let symbol of uniqueSymbols) {
         const current = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`)).data;
         let copiedPortfolio = [...portfolioWithVolume];

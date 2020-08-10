@@ -35,26 +35,21 @@ const getIntradayPrices = async function (symbol) {
     if (apiPriceData.data.chart.result[0].timestamp === undefined) {
         return {error: "Unavailable to get the data now"};
     } else {
+        const priceResult = apiPriceData.data.chart.result[0];
         priceData = {
-            currentPrice: apiPriceData.data.chart.result[0].meta.regularMarketPrice,
-            times: apiPriceData.data.chart.result[0].timestamp.map(i => new Date((i-14400)*1000)),
-            prices: apiPriceData.data.chart.result[0].indicators.quote[0].close,
-            volumes: apiPriceData.data.chart.result[0].indicators.quote[0].volume,
+            currentPrice: priceResult.meta.regularMarketPrice,
+            times: priceResult.timestamp.map(i => new Date((i-14400)*1000)),
+            prices: priceResult.indicators.quote[0].close,
+            volumes: priceResult.indicators.quote[0].volume,
         };
     }
-    for (let i =0; i<priceData.prices.length; i++) {
-        if (priceData.prices[i] === null) {
-            priceData.prices[i] = priceData.prices[i-1];
-        }
-    }
-    for (let i =0; i<priceData.volumes.length; i++) {
-        if (priceData.volumes[i] === null) {
-            priceData.volumes[i] = 0;
-        }
-    }
+    fillTheEmptyNum(priceData, "prices");
+    fillTheEmptyNum(priceData, "volumes");
     return priceData;
 };
 
+
+//Get prices for 1 month above
 const getPrices = async function (symbol, frequency) {
     const current = Math.floor(new Date().getTime());
     let month;
@@ -78,6 +73,7 @@ const getPrices = async function (symbol, frequency) {
         month = 12*50;
         break;
     }
+    //Select from database first, if no data then call API
     const startDate = formatedDate(new Date(current-(1000*60*60*24*30*month)).toISOString());
     const selectStr = "SELECT DISTINCT(time), price, volume FROM stock_price WHERE symbol=? AND time >= ? ORDER BY time";
     const databasePriceData = await query(selectStr, [symbol, startDate]);
@@ -103,6 +99,7 @@ const getBasicInfo = async function (symbol) {
     const selectStr = "SELECT * FROM stock_basicInfo WHERE symbol=?";
     const databaseBasicInfoData = await query(selectStr, [symbol]);
     let basicInfoRawData;
+    //Select from database first, if no data then call API
     if (databaseBasicInfoData.length === 0) {
         basicInfoRawData = await getApiBasicInfo(symbol);
     } else {
@@ -142,6 +139,7 @@ const getNews = async function (symbol) {
     const selectStr = "SELECT title, link, author, time FROM stock_news WHERE symbol=?";
     const databaseNewsData = await query(selectStr, [symbol]);
     let newsData;
+    //Select from database first, if no data then call API
     if (databaseNewsData.length === 0) {
         const apiNewsData = await getApiNews(symbol);
         newsData = apiNewsData.map(i => ({
@@ -253,6 +251,7 @@ const getSymbolList = async function () {
     return symbols;
 };
 
+//Daily CronJob
 const getDailyPrices = async function () {
     const selectStr = "SELECT DISTINCT(symbol) FROM stock_price";
     const symbols = (await query(selectStr, [])).map(i => i.symbol);
@@ -285,6 +284,7 @@ const getDailyPrices = async function () {
     return;
 };
 
+//Daily CronJob
 const getDailyBasicInfo = async function () {
     const selectStr = "SELECT DISTINCT(symbol) FROM stock_basicInfo";
     const symbols = (await query(selectStr, [])).map(i => i.symbol);
@@ -308,10 +308,12 @@ const getDailyBasicInfo = async function () {
     return;
 };
 
+//Daily CronJob
 const getDailyNews = async function () {
     const selectStr = "SELECT DISTINCT(symbol) FROM stock_news";
     const symbols = (await query(selectStr, [])).map(i => i.symbol);
     let count = 0;
+    //Limit: 5 calls per second for RapidAPI
     setInterval(async function() {
         if (count < symbols.length) {
             try {
@@ -330,8 +332,18 @@ const getDailyNews = async function () {
     return;
 };
 
+//Function for getIntradayPrices
 const getTimeForApi = function(today, minusDays, hour, minute) {
     return Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-minusDays, hour, minute)).getTime()/1000);
+};
+
+//Function for getIntradayPrices
+const fillTheEmptyNum = function(data, title) {
+    for (let i =0; i<data[title].length; i++) {
+        if (data[title][i] === null) {
+            data[title][i] = data[title][i-1];
+        }
+    }
 };
 
 

@@ -1,10 +1,11 @@
 require("dotenv").config();
-const {PORT_TEST, PORT, NODE_ENV, API_VERSION} = process.env;
-const port = NODE_ENV == "test" ? PORT_TEST : PORT;
+const {PORT, API_VERSION, NODE_ENV, PORT_TEST} = process.env;
 const CronJob = require("cron").CronJob;
 const {getDailyPrices, getDailyNews, getDailyBasicInfo} = require("./server/controllers/stock_controller");
 const {matchPriceOrders, matchIndicatorOrders} = require("./server/controllers/trade_controller");
 const {socket} = require("./server/controllers/socket_controller");
+
+const port = NODE_ENV == "test" ? PORT_TEST : PORT;
 
 // Express Initialization
 const express = require("express");
@@ -17,22 +18,11 @@ app.use(express.static("public"));
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended:true}));
 
+//Server and socket connection
 let io;
-if (NODE_ENV != "production"){
-    const server = app.listen(port, () => {console.log(`Listening on port: ${port}`);});
-    io = require("socket.io")(server);
-}
-
+const server = app.listen(port, () => {console.log(`Listening on port: ${port}`);});
+io = require("socket.io")(server);
 socket(io);
-
-// CORS Control
-app.use("/api/", function(req, res, next){
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
-    res.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-    res.set("Access-Control-Allow-Credentials", "true");
-    next();
-});
 
 // API routes
 app.use("/api/" + API_VERSION,

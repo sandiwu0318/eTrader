@@ -8,6 +8,7 @@ const {query} = require("../../utils/mysqlcon.js");
 const {getApiPrices} = require("./stock_model");
 const {isMA} = require("../../utils/util.js");
 
+
 const setOrder = async function (token, symbol, indicator, value, indicatorPeriod, cross, volume, action, sub_action, period) {
     if (indicator === "price" || isMA(indicator)) {
         indicatorPeriod = null;
@@ -60,6 +61,7 @@ const matchPriceOrders = async function () {
     validOrders.forEach(i => {
         i.index = validOrders.indexOf(i);
     });
+    //Call API to get current prices of unique symbols
     const uniqueSymbols = _.uniq(validOrders.map(i => i.symbol));
     for (let symbol of uniqueSymbols) {
         const quote = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`));
@@ -116,6 +118,7 @@ const matchIndicatorOrders = async function () {
                 values: marketPrices,
                 period: indicatorPeriod
             };
+            //MA needs 2 values
             let calculateInputForMA1;
             let calculateInputForMA2;
             let calculateValueForMA1;
@@ -206,6 +209,7 @@ const deleteOrder = async function (id) {
     return {message: "success"};
 };
 
+//Sell and Short cover orders need to have enough shares for Buy and Short
 const checkValidOrder = async function(orders) {
     let validOrders = [];
     for (let order of orders) {

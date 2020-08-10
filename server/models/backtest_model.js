@@ -52,6 +52,7 @@ const showIndicatorData = async function (periods, symbol, indicator, indicatorP
         break;
     }
     }
+    //Fill with zero for first few days
     let arrFilledWithZero = new Array(indicatorPeriod).fill(0);
     const concatValue = arrFilledWithZero.concat(indicatorValue);
     let data = {
@@ -88,6 +89,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         values: prices.map(i => i.price),
         period: parseInt(indicatorPeriod)
     };
+    //MA needs 2 lines
     let calculateInputForMA1;
     let calculateInputForMA2;
     let indicatorValueForMA1;
@@ -136,7 +138,8 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
     let arrFilledWithZeroForMA1 = [];
     let arrFilledWithZeroForMA2 = [];
     let newIndicatorValue = [];
-    if (isMA(indicator)) {
+    //Fill with zero for first few days
+    if (!isMA(indicator)) {
         arrFilledWithZero = new Array(prices.length - indicatorValue.length).fill(0);
         newIndicatorValue = arrFilledWithZero.concat(indicatorValue);
     } else {
@@ -208,6 +211,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         actionCrossArr = actionCrossArr.fill(false, 0, arrFilledWithZero.length+1);
         exitCrossArr = exitCrossArr.fill(false, 0, arrFilledWithZero.length+1);
     }
+    //Find buy and sell points
     let actionCrossIndex = [];
     let actionFirstIndex = 0;
     while(actionCrossArr.findIndex(i => i === true) !== -1) {
@@ -258,9 +262,10 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         break;
     }
     }
+    //Concat buy and sell arrays
     const allArr = _.orderBy(actionArr.concat(exitArr), "index");
     let filterData = [];
-
+    //Filter backtesting results
     switch(action) {
     case "long": {
         filterData = getFilterData(allArr, prices, indicatorResult, "buy", "sell");
@@ -343,6 +348,7 @@ const getSavedResults = async function (token) {
     return savedBackestingResults;
 };
 
+//Function for testWithIndicator
 const getFilterData = function(arr, prices, indicatorResult, action, exit) {
     let filterData = [];
     let originActionIndex = 0;

@@ -7,7 +7,6 @@ showLoginBtn(token);
 let symbols = [];
 symbols = getSymbols();
 
-
 let watchlist;
 let previosClosing = 0;
 const socket = io();
@@ -440,5 +439,9 @@ frequency.addEventListener("change", () => {
     showPrice(symbol, frequency_Value);
 })
 
+
+const getTimeForApi = function(today, minusDays, hour, minute) {
+    return Math.floor(new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()-minusDays, hour, minute)).getTime()/1000);
+};
 
 hoverNav();

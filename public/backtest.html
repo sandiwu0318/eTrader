@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="stock trading website. updated at 2020." />
+    <title>eTrader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="shortcut icon" href="/img/favicon.ico"/>
+    <link rel="bookmark" href="/img/favicon.ico"/>
+</head>
+<body>
+    <div class="search_container">
+        <a href="/" id="logo"><img class="search_item" id="logo_img" src="img/logo.jpeg"></a>
+        <div class="search_item item">
+            <form autocomplete="off">
+                <div class="autocomplete">
+                    <input type="text" class="search" name="symbol" id="symbol_search" onfocus="this.value=''" placeholder="Stock search"/>
+                </div>
+                <button class="search" type="button" id="searchBtn">Search</button>
+            </form>
+        </div>
+        <button class="btn" type="button" id="loginBtn">Login</button>
+    </div>
+    <nav class="main_nav">
+        <div class="nav_item"><a href="/watchlist.html">Watchlist</a></div>
+        <div class="nav_item"><a href="/portfolios.html">Portfolios</a></div>
+        <div class="nav_item dropdown_nav" id="orders_nav"><a id="orders_a">Orders<span class="downIcon">&#9660</span></a>
+            <div class="dropdown_div" id="orders_dropdown_div">
+                <div class="orders_dropdown" id=""><a href="/orders.html">Pending</a></div>
+                <div class="orders_dropdown"><a href="/history.html">History</a></div>
+            </div>
+        </div>
+        <div class="nav_item dropdown_nav" id="backtest_nav"><a class="current" id="backtest_a">Backtest<span class="downIcon">&#9660</span></a>
+            <div class="dropdown_div" id="backtest_dropdown_div">
+                <div class="backtest_dropdown"><a href="/backtest.html">New</a></div>
+                <div class="backtest_dropdown"><a href="/backtest_history.html">Saved</a></div>
+            </div>
+        </div>
+    </nav>
+    <div id="saved_results">
+    </div>
+    <div class="test_case">
+        <form autocomplete="off" id="test_form">
+            <label class="test_label">Date Range</label>
+            <input type="date" value="2019-01-01" class="test_input period"/>
+            <input type="date" value="2020-07-01" class="test_input period"/>
+            <br>
+            <label class="test_label">Stock Symbol</label>
+            <div class="autocomplete input_symbol_search">
+                <input type="text" class="test_input symbol" onfocus="this.value=''" id="input_symbol_search"/>
+            </div>
+            <br>
+            <label class="test_label">Indicator</label>
+            <select type="text" class="test_input indicator">
+                <option value="BB">BB</option>
+                <option value="RSI">RSI</option>
+                <option value="SMA">SMA</option>
+                <option value="WMA">WMA</option>
+                <option value="EMA">EMA</option>
+                <option value="price">Price</option>
+            </select>
+            <div id="indicator_info_container">
+                <div id="indicator_info_icon">i</div>
+                <div id="indicator_info_content">
+                    <p class="info_title">BB (Bollinger Bands)</p>
+                    <br>
+                    <p class="info_content">Middle line is SMA. Upper and Lower Bands are 2 standard deviations away from the middle.</p>
+                    <br>
+                    <p class="info_title">RSI (relative strength index)</p>
+                    <br>
+                    <p class="info_content">The magnitude of recent price changes to evaluate overbought or oversold.</p>
+                    <br>
+                    <p class="info_title">SMA (Simple Moving Average)</p>
+                    <br>
+                    <p class="info_content">Average price over a specified period.</p>
+                    <br>
+                    <p class="info_title">WMA (Weighted Moving Average)</p>
+                    <br>
+                    <p class="info_content">Like SMA but applies more weight to data that is more current.</p>
+                    <br>
+                    <p class="info_title">EMA (Exponential Moving Average)</p>
+                    <br>
+                    <p class="info_content">Like WMA but applies exponentially.</p>
+                </div>
+            </div>
+            
+            <br>
+            <label class="test_label indicatorPeriod">Indicator Period</label>
+            <input type="number" min="1" class="test_input indicatorPeriod" placeholder="ex. 7"/>
+            <br>
+            <button type="button" class="btn" id="showGraphBtn">Show graph</button>
+            <div id="graph_container"></div>
+            <div id="backtest_container">
+                <label class="test_label">Action</label>
+                <select type="text" class="test_input action">
+                    <option value="long">long</option>
+                    <option value="short">short</option>
+                </select>
+                <br>
+                <label class="test_label">Quantity</label>
+                <input type="number" min="1" class="test_input volume"/>
+                <br>
+                <div class="price_test hide">
+                    <label class="test_label">Action Timing</label>
+                    <select type="text" class="price_test test_input actionCross">
+                        <option value="crossup">Price Crossup</option>
+                        <option value="crossdown">Price Crossdown</option>
+                    </select>
+                    <input type="number" step="0.01" min="0.01" class="price_test test_input actionValue"/>
+                    <br>
+                    <label class="test_label">Exit Timing</label>
+                    <select type="text" class="price_test test_input exitCross">
+                        <option value="crossup">Price Crossup</option>
+                        <option value="crossdown">Price Crossdown</option>
+                    </select>
+                    <input type="number" step="0.01" min="0.01"  class="price_test test_input exitValue"/>
+                    <br>
+                </div>
+                <div class="RSI_test hide">
+                    <label class="test_label">Action Timing</label>
+                    <select type="text" class="RSI_test test_input actionCross">
+                        <option value="crossup">RSI Crossup</option>
+                        <option value="crossdown">RSI Crossdown</option>
+                    </select>
+                    <input type="number" min="1" class="RSI_test test_input actionValue" placeholder="ex. 30" id="RSI_actionValue_input"/>
+                    <br>
+                    <label class="test_label">Exit Timing</label>
+                    <select type="text" class="RSI_test test_input exitCross">
+                        <option value="crossup">RSI Crossup</option>
+                        <option value="crossdown">RSI Crossdown</option>
+                    </select>
+                    <input type="number" min="1" class="RSI_test test_input exitValue" placeholder="ex. 70" id="RSI_exitValue_input"/>
+                    <br>
+                </div>
+                <div class="MA_test hide">
+                    <label class="test_label">Action Timing</label>
+                    <input type="number" min="1" class="MA_test test_input actionValue" id="MA_actionValue_input" placeholder="ex. 6"/>
+                    <select type="text" class="MA_test test_input actionCross">
+                        <option value="crossup">Period crossup</option>
+                        <option value="crossdown">Period crossdown</option>
+                    </select>
+                    <input type="number" min="1" class="MA_test test_input actionValue" id="MA_exitValue_input" placeholder="ex. 14"/>
+                    <br>
+                    <label class="test_label">Exit Timing</label>
+                    <input type="number" min="1" class="MA_test test_input exitValue" id="MA_exitValue" disabled/>
+                    <select type="text" class="MA_test test_input exitCross">
+                        <option value="crossup">Period crossup</option>
+                        <option value="crossdown">Period crossdown</option>
+                    </select>
+                    <input type="number" min="1" class="MA_test test_input actionValue" id="MA_actionValue" disabled/>
+                    <br>
+                </div>
+                <div class="BB_test show">
+                    <label class="test_label">Action Timing</label>
+                    <select type="text" class="BB_test test_input actionCross">
+                        <option value="crossup">Price crossup</option>
+                        <option value="crossdown">Price crossdown</option>
+                    </select>
+                    <select type="text" class="BB_test test_input actionValue" id="BB_actionValue">
+                        <option value="lower">Lower BB line</option>
+                        <option value="middle">Middle BB line</option>
+                        <option value="upper">Upper BB line</option>
+                    </select>
+                    <br>
+                    <label class="test_label">Exit Timing</label>
+                    <select type="text" class="BB_test test_input exitCross">
+                        <option value="crossup">Price crossup</option>
+                        <option value="crossdown">Price crossdown</option>
+                    </select>
+                    <select type="text" class="BB_test test_input exitValue" id="BB_exitValue">
+                        <option value="upper">Upper BB line</option>
+                        <option value="middle">Middle BB line</option>
+                        <option value="lower">Lower BB line</option>
+                    </select>
+                </div>
+                <br>
+                <button type="button" class="btn" id="backtestBtn">Backtest</button>
+            </div>
+        </form>
+    </div>
+    <div class="user_ul" id="quantity"></div>
+    <div class="user_ul" id="profit"></div>
+    <div class="user_ul" id="ROI"></div>
+    <div id="result_container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script type="module" src="js/backtest.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,938 @@
+
+/* ------- General -------- */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+button,
+input,
+select,
+a,
+body {
+    font-size: 1.1rem;
+    line-height: 1.5rem;
+    letter-spacing: 0.05rem;
+    font-style: normal;
+    font-weight: 300;
+    font-family: 'Roboto', sans-serif;
+    text-decoration: none;
+    color: rgb(66, 66, 66);
+}
+
+h2 {
+    font-weight: 600;
+}
+
+ul {
+    padding: 0;
+}
+
+a:visited {
+    color: rgb(66, 66, 66);
+}
+
+body {
+    height: 100%;
+    background-color: rgb(235, 235, 235);
+    margin: 0;
+}
+
+/* ------- Search bar -------- */
+
+#logo {
+    width: 11%;
+}
+
+#logo_img {
+    display: block;
+    width: 85%;
+}
+
+.search {
+    font-size: 1rem;
+}
+
+.search_container {
+    display: flex;
+    background-color: #424242;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem;
+}
+
+.item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(66, 66, 66);
+}
+
+.search_item {
+    justify-content: space-evenly;
+}
+
+.search {
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    border: solid rgb(66, 66, 66);
+}
+
+#symbol_search {
+    width: 35rem;
+}
+
+#searchBtn {
+    background-color: #64ffda;
+    font-weight: 500;
+    border: 0;
+    cursor: pointer;
+}
+
+#searchBtn:hover {
+    background-color: #3fa089;
+    border: 0;
+    color: white;
+}
+
+
+.autocomplete {
+    position: relative;
+    display: inline-block;
+}
+
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+.autocomplete-items div:hover {
+    background-color: #e9e9e9;
+}
+
+.autocomplete-active {
+    background-color: #3fa089 !important;
+    color: #ffffff;
+}
+
+/* ------Main Nav------- */
+
+
+.main_nav {
+    display: flex;
+    width: 100%;
+    height: 2.8rem;
+    background-color: rgb(235, 235, 235);
+    border-bottom: 1px solid rgb(190, 190, 190);
+    justify-content: center;
+    font-weight: 500;
+}
+
+.nav_item a {
+    display: inline-block;
+    padding: 0.2rem 0.4rem;
+}
+
+.nav_item {
+    padding: 0.4rem 4rem;
+}
+
+.nav_item a:hover {
+    color: rgb(148, 148, 148);
+    border-bottom: 0.15rem solid #3fa089;
+    cursor: pointer;
+}
+
+.current {
+    border-bottom: 0.15rem solid #3fa089;
+    cursor: default;
+}
+
+
+
+#backtest_nav,
+#orders_nav {
+    position: relative;
+}
+
+.dropdown_div {
+    position: absolute;
+    border-bottom: 1px solid rgb(190, 190, 190);
+    display: none;
+    z-index: 99;
+}
+
+.backtest_dropdown,
+.orders_dropdown {
+    background-color: white;
+    border: 1px solid rgb(190, 190, 190);
+    border-top: none;
+    display: block;
+    cursor: pointer;
+}
+
+.backtest_dropdown a:hover,
+.orders_dropdown a:hover {
+    border: none;
+}
+
+.backtest_dropdown {
+    padding: 0.1rem 2.1rem 0.1rem 0.5rem;
+}
+
+.orders_dropdown {
+    padding: 0.1rem 0.2rem 0.1rem 0.2rem;
+}
+
+
+.MA_test .MA_test {
+    width: 11rem;
+}
+
+/* ------Main Content------- */
+
+
+.content_container {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(235, 235, 235);
+}
+
+
+.content_item {
+    width: 80%;
+    margin: 1rem auto;
+    border: 5px solid rgb(235, 235, 235);
+    border-radius: 5px;
+}
+
+#unavailable {
+    background-color: white;
+    text-align: center;
+    font-size: 2rem;
+    line-height: 380px;
+    height: 380px;
+    border: 1px solid rgb(148, 148, 148);
+    border-radius: 10px;
+    margin: 2rem auto;
+}
+
+.financial_graph {
+    height: 400px;
+}
+
+.main-svg {
+    border: 1px solid rgb(180, 180, 180);
+    border-radius: 8px;
+}
+
+#tradeForm {
+    display: flex;
+    justify-content: center;
+}
+
+#trade {
+    width: 80%;
+    margin: 2rem auto;
+}
+
+.input,
+.btn {
+    width: 10rem;
+    border: 1px solid rgb(180, 180, 180);
+    border-radius: 5px;
+    padding: 0.1rem 0.5rem;
+    margin: 0 1rem;
+}
+
+.btn {
+    width: 8rem;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #838383;
+    color: white;
+}
+
+.not_added {
+    cursor: pointer;
+    background-color: #a0a0a0;
+    color: white;
+}
+
+.not_added:hover {
+    background-color: #3fa089;
+}
+
+.added {
+    cursor: pointer;
+    background-color: #3fa089;
+}
+
+.added:hover {
+    background-color: #a0a0a0;
+}
+
+#news_ul {
+    margin: 0 5rem;
+}
+
+#news_ul a {
+    text-decoration: underline rgb(66, 66, 66);
+    font-weight: 100;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    line-height: 2rem;
+}
+
+#news_ul a:hover {
+    color: rgb(131, 131, 131);
+}
+
+.basic_info,
+.profile,
+#financials {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.basic_info,
+.profile {
+    margin-left: 5rem;
+}
+
+#financials {
+    width: 80%;
+    justify-content: space-between;
+}
+
+.li_div {
+    width: 35%;
+    width: 15%;
+    margin: 0.5rem 5rem 0.5rem 0rem;
+    font-weight: 100;
+}
+
+.li_title {
+    font-weight: 400;
+}
+
+#financials_Yearly,
+#financials_Quarterly {
+    width: 45%;
+}
+
+.intro,
+.intro .li_div {
+    width: 100%;
+    list-style-type: none;
+    font-weight: 100;
+    line-height: 2rem;
+    text-align: left;
+}
+
+.intro .li_div {
+    width: 90%;
+    margin-left: 5rem;
+}
+
+#result_title,
+#result_price,
+#result_price_div {
+    display: flex;
+    width: 78%;
+    margin: 2rem auto;
+    font-size: 2.3rem;
+    font-weight: 500;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#result_price_div {
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+#result_price {
+    margin: 0;
+}
+
+#result_title div,
+#result_price div{
+    margin: 0 0.5rem;
+}
+
+#show_symbol {
+    line-height: 1.8rem;
+}
+
+#current_price {
+    display: inline-block;
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 2.8rem;
+}
+
+#frequency {
+    border: 1px solid #a0a0a0;
+}
+
+#show_company,
+#change {
+    font-size: 1.3rem;
+    font-weight: 300;
+    line-height: 1.8rem;
+}
+
+#change {
+    display: inline-block;
+    line-height: 2rem;
+}
+
+#watchListBtn {
+    margin-left: 4rem;
+}
+
+.red {
+    color: #920000;
+    padding: 3px 5px;
+    animation-duration: 1s;
+    animation-name: red;
+    animation-iteration-count: 1;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
+}
+
+.red_flash {
+    background-color: #920000;
+    color: white;
+    border-radius: 3px;
+    padding: 3px 5px;
+    animation-duration: 1s;
+    animation-name: red_flash;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
+}
+@keyframes red_flash {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0.2;
+    }
+}
+
+@keyframes red {
+    from {
+        opacity: 0.3;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.green {
+    color: #046900;
+    padding: 3px 5px;
+    animation-duration: 1s;
+    animation-name: green;
+    animation-iteration-count: 1;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
+}
+
+.green_flash {
+    background-color: #046900;
+    color: white;
+    border-radius: 3px;
+    padding: 3px 5px;
+    animation-duration: 1s;
+    animation-name: green_flash;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
+}
+@keyframes green_flash {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0.2;
+    }
+}
+
+@keyframes green {
+    from {
+        opacity: 0.3;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ------Watchlist Page------- */
+
+.user_li,
+.title_li,
+.titles {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 0.2rem 0.5rem;
+    border-top: 1px solid rgb(180, 180, 180);
+}
+
+.title_li {
+    border: none;
+}
+
+.buy_li {
+    color: #920000;
+}
+
+.sell_li {
+    color: rgb(4, 105, 0);
+}
+
+.titles {
+    background-color: rgb(180, 180, 180);
+}
+
+.user_ul {
+    margin: 0;
+}
+
+#watchlist_ul .li_div,
+#portfolio_ul .li_div,
+#history_ul .li_div,
+.title {
+    width: 13rem;
+    text-align: right;
+    margin: 0.5rem 5rem 0.5rem 0rem;
+}
+
+#history_ul .li_div,
+#history_ul .title {
+    margin: 0.5rem 4rem 0.5rem 0rem;
+}
+
+.orders_titles .title,
+#orders_ul .li_div {
+    margin: 0.5rem 2rem 0.5rem 0rem;
+    text-align: right;
+}
+
+.pie_container {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.pie_item {
+    margin: 10rem;
+}
+
+#delete_title,
+.icon {
+    width: 3rem;
+}
+
+.icon {
+    cursor: pointer;
+}
+
+
+
+/* ------Backtesting Page------- */
+
+.test_case {
+    margin: 2rem auto;
+    width: 80%;
+}
+
+.test_input,
+.test_label {
+    font-size: 1rem;
+    display: inline-block;
+    width: 15rem;
+    border-radius: 6px;
+    padding: 0.3rem 1rem;
+    border: 0.1rem solid rgb(180, 180, 180);
+    margin: 0.5rem 1rem;
+    display: inline-block;
+}
+
+.test_label {
+    border: none;
+    width: 13rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+#addSymbolBtn,
+#addIndicatorBtn {
+    width: 1.6rem;
+	height: 1.6rem;
+	line-height: 1.6rem;
+	background-color: rgb(180, 180, 180);
+    border-radius: 1.6rem;
+    text-align: center;
+    color: white;
+    font-size: 1rem;
+    text-align: center;
+    display: inline-block;
+    cursor: pointer;
+}
+
+#backtestBtn,
+#showGraphBtn,
+#viewHistoryBtn {
+    background-color: rgb(180, 180, 180);
+    margin: 1.5rem 2rem;
+    cursor: pointer;
+}
+
+#backtest_container {
+    display: none;
+}
+
+#viewHistoryBtn {
+    width: 13rem;
+    margin-left: 3rem;
+    background-color: #3fa089;
+    color: white;
+}
+
+#addSymbolBtn:hover,
+#backtestBtn:hover,
+#viewHistoryBtn:hover {
+    background-color: rgb(105, 105, 105);
+    color: white;
+}
+
+#graph_container {
+    margin: 1rem;
+}
+
+#profit,
+#ROI,
+#quantity,
+#result_graph {
+    width: 90%;
+    margin: 2rem auto;
+}
+
+.title,
+.title_li,
+.user_li {
+    justify-content: space-around;
+}
+
+#result_ul .li_div {
+    margin: 0.5rem 1rem;
+}
+
+#saved_ul,
+#result_ul,
+#orders_ul,
+#history_ul,
+#portfolio_ul,
+#watchlist_ul {
+    width: 90%;
+    margin: 1rem auto;
+    border: 0.05rem solid #b4b4b4;
+    border-radius: 0.5rem;
+}
+
+#saved_test_case {
+    width: 90%;
+}
+
+.titles {
+    background-color: rgb(180, 180, 180);
+    border: 0.05rem solid #b4b4b4;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+
+.graph {
+    height: 400px;
+    margin: 2rem;
+}
+
+.hide {
+    display: none;
+}
+
+.saved_li {
+    cursor: pointer;
+}
+
+.saved_li:hover {
+    background-color: #3fa089;
+}
+
+#saved_ul {
+    text-align: right;
+}
+
+#saved_ul .li_div {
+    margin-right: 3rem; 
+}
+
+#indicator_info_icon {
+    display: inline-block;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bolder;
+    font-family: sans-serif;
+    width: 1.2rem;
+    height: 1.2rem;
+    line-height: 1.2rem;
+    border-radius: 100%;
+    text-align: center;
+    background-color: rgb(180, 180, 180);
+    cursor: pointer;
+}
+
+#indicator_info_container {
+    position: relative;
+    display: inline-block;
+}
+
+#indicator_info_content {
+    display: none;
+    position: absolute;
+    top: -2rem;
+    left: 2rem;
+    width: 46vw;
+    font-size: 1rem;
+    border: 1px solid white;
+    border-radius: 0.3rem;
+    padding: 0.5rem;
+    background-color: white;
+}
+
+.info_content {
+    margin: 0;
+    display: inline-block;
+    font-size: 0.8rem;
+}
+
+.info_title {
+    margin: 0;
+    display: inline-block;
+    font-weight: 300;
+}
+
+#goBackBtn {
+    margin: 1rem 7rem;
+}
+
+#setOrderBtn,
+#tradeBtn {
+    background-color: #3fa089;
+    color: white;
+}
+
+
+/* ------Login Page------- */
+
+#login_form {
+    display: block;
+    width: 50%;
+    margin: 7rem auto;
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.login_input,
+.login_label {
+    font-size: 1.1rem;
+    display: inline-block;
+    width: 22rem;
+    border-radius: 6px;
+    padding: 0.3rem 1rem;
+    border: 0.1rem solid #b4b4b4;
+    margin: 0.5rem 0rem;
+}
+
+.login_label {
+    color: white;
+    border: none;
+    font-weight: 100;
+    width: 13rem;
+    padding: 0;
+}
+
+#signInBtn,
+#signUpBtn {
+    width: 7rem;
+    height: 2rem;
+    margin: 1rem 0rem;
+    font-weight: 300;
+    display: inline-block;
+}
+
+#signInBtn,
+#signUpBtn {
+    background-color: #1f5c7e;
+    color: white;
+    border: none;
+}
+
+#signUpBtn {
+    display: none;
+}
+
+#signInBtn:hover,
+#signUpBtn:hover {
+    background-color: #b4b4b4;
+    color: black;
+    box-shadow: 3px 3px white;
+}
+
+
+#loginBtn {
+    background-color: #818181;
+    font-weight: 500;
+    border-radius: 6px;
+    border: #818181;
+    height: 2.2rem;
+    width: 5rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.login_container {
+    display: flex;
+    background-size: 100%;
+    height: 100vh;
+}
+
+.div_container {
+    width: 50%;
+    text-align: center;
+}
+
+
+#login_intro,
+#not_found_text {
+    padding: 10rem 8rem;
+    width: 45%;
+    font-size: 1.1rem;
+    font-weight: 100;
+    background-color: #818181;
+    color: white;
+    text-align: left;
+}
+
+#not_found_text {
+    padding: none;
+    width: 100%;
+    height: 100vh;
+}
+
+#login_title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 3.5rem;
+    margin: 0;
+}
+
+#signUpWords,
+#signUpLink,
+#signInWords,
+#signInLink {
+    font-size: 1rem;
+    display: inline-block;
+}
+
+#signUpLink,
+#signInLink {
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.signUpInput {
+    display: none;
+}
+
+#signInDiv {
+    display: none;
+}
+
+#signUpDiv {
+    display: flex;
+}
+
+
+.reminder {
+    width: 70%;
+    margin: 1rem auto;
+    text-align: center;
+}
+
+#sort_label,
+#total_asset,
+#current_asset {
+    width: 7rem;
+    margin: 0rem;
+    font-size: 1.2rem;
+}
+#total_asset,
+#current_asset {
+    width: 33%;
+}
+
+
+#sort_input {
+    width: 10rem;
+    margin: 0rem;
+    border-width: 1px;
+}
+
+#history_sort {
+    margin: 1rem 7rem 0rem 5rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.downIcon {
+    font-size: 0.8rem;
+    margin: 0.2rem;
+}
+
+#not_found_button {
+    background-color: #3fa089;
+    color: white;
+    width: 18rem;
+    height: 3rem;
+    cursor: pointer;
+    border: none;
+    box-shadow: 3px 3px white;
+}
+
+#not_found_button:hover {
+    background-color: #b4b4b4;
+    color: black;
+    box-shadow: 3px 3px white;
+}

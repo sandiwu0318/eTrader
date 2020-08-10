@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="stock trading website. updated at 2020." />
+    <title>eTrader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="shortcut icon" href="/img/favicon.ico"/>
+    <link rel="bookmark" href="/img/favicon.ico"/>
+</head>
+<body>
+    <div class="search_container">
+        <a href="/" id="logo"><img class="search_item" id="logo_img" src="img/logo.jpeg"></a>
+        <div class="search_item item">
+            <form autocomplete="off">
+                <div class="autocomplete">
+                    <input type="text" class="search" name="symbol" id="symbol_search" onfocus="this.value=''" placeholder="Stock search"/>
+                </div>
+                <button class="search" type="button" id="searchBtn">Search</button>
+            </form>
+        </div>
+        <button class="btn" type="button" id="loginBtn">Login</button>
+    </div>
+    <nav class="main_nav">
+        <div class="nav_item"><a href="/watchlist.html">Watchlist</a></div>
+        <div class="nav_item"><a href="/portfolios.html">Portfolios</a></div>
+        <div class="nav_item dropdown_nav" id="orders_nav"><a class="current" id="orders_a">Orders<span class="downIcon">&#9660</span></a>
+            <div class="dropdown_div" id="orders_dropdown_div">
+                <div class="orders_dropdown" id=""><a href="/orders.html">Pending</a></div>
+                <div class="orders_dropdown"><a href="/history.html">History</a></div>
+            </div>
+        </div>
+        <div class="nav_item dropdown_nav" id="backtest_nav"><a id="backtest_a">Backtest<span class="downIcon">&#9660</span></a>
+            <div class="dropdown_div" id="backtest_dropdown_div">
+                <div class="backtest_dropdown"><a href="/backtest.html">New</a></div>
+                <div class="backtest_dropdown"><a href="/backtest_history.html">Saved</a></div>
+            </div>
+        </div>
+    </nav>
+    <div>
+        <form autocomplete="off" id="history_sort">
+            <div class="test_label" id="total_asset"></div>
+            <div class="test_label" id="current_asset"></div>
+            <div>
+                <label class="test_label" id="sort_label">Sort by</label>
+                <select class="test_input" id="sort_input">
+                    <option value="symbol">Stock</option>
+                    <option value="action">Action</option>
+                    <option value="indicator">Indicator</option>
+                    <option value="date">Success Date</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    <div>
+        <ul id="history_ul" class="user_ul">
+            <div class="titles">
+                <div class="title">Stock</a></div>
+                <div class="title">Action</a></div>
+                <div class="title">Indicator</a></div>
+                <div class="title">Volume</a></div>
+                <div class="title">Price</a></div>
+                <div class="title">Success Date</a></div>
+                <div class="title">$</a></div>
+            </div>
+        </ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script type="module" src="js/history.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
+</html>

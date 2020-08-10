@@ -752,6 +752,12 @@ body {
     color: white;
 }
 
+#setOrderBtn:hover,
+#tradeBtn:hover {
+    background-color :#66fbd9;
+    color: black;
+}
+
 
 /* ------Login Page------- */
 

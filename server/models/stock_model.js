@@ -11,10 +11,15 @@ const getIntradayPrices = async function (symbol) {
     let startTime;
     let endTime;
     //Mon-Fri and UTC 13:30-20:00
-    if ((currentHours === 13 && currentMinutes >= 30) || (currentHours >=14 && currentHours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
+    if ((currentHours === 13 && currentMinutes >= 30) || (currentHours >=14 && currentHours <= 15) && today.getDay() !== 7 && today.getDay() !== 0) {
+        console.log(1);
         startTime = getTimeForApi(today, 0, 13, 29);
         endTime = Math.floor(today.getTime()/1000);
         //Sun
+    } else if ((currentHours >=16 && currentHours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
+        console.log(2);
+        startTime = getTimeForApi(today, 1, 13, 29);
+        endTime = Math.floor(today.getTime()/1000);
     } else if (today.getDay() === 0) {
         startTime = getTimeForApi(today, 2, 13, 29);
         endTime = getTimeForApi(today, 2, 20, 1);
@@ -26,12 +31,18 @@ const getIntradayPrices = async function (symbol) {
         startTime = getTimeForApi(today, 1, 13, 29);
         endTime = getTimeForApi(today, 1, 20, 1);
     }
+    console.log(today);
+    console.log(currentHours);
+    console.log(startTime);
+    console.log(endTime);
     const apiPriceData = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?symbol=${symbol}&period1=${startTime}&period2=${endTime}&interval=1m&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=s4kSXO9kdhY&corsDomain=finance.yahoo.com`);
+    console.log(apiPriceData);
     let priceData;
     if (apiPriceData.data.chart.result[0].timestamp === undefined) {
         return {error: "Unavailable to get the data now"};
     } else {
         const priceResult = apiPriceData.data.chart.result[0];
+        
         priceData = {
             currentPrice: priceResult.meta.regularMarketPrice,
             times: priceResult.timestamp.map(i => new Date((i-14400)*1000)),
@@ -41,6 +52,7 @@ const getIntradayPrices = async function (symbol) {
     }
     fillTheEmptyNum(priceData, "prices");
     fillTheEmptyNum(priceData, "volumes");
+    console.log(priceData);
     return priceData;
 };
 
@@ -252,7 +264,6 @@ const getDailyPrices = async function () {
     const selectStr = "SELECT DISTINCT(symbol) FROM stock_price";
     const symbols = (await query(selectStr, [])).map(i => i.symbol);
     for (let symbol of symbols) {
-        // const startTime = Math.floor((new Date()).getTime()/1000-60*60*24);
         const startTime = 0;
         const current = Math.floor(new Date().getTime()/1000);
         const config = {

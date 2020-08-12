@@ -146,10 +146,18 @@ function createChart(data, frequency) {
     const nowDay = new Date().getUTCDay();
     const nowHours = new Date().getUTCHours();
     const nowMinutes = new Date().getUTCMinutes();
-    if (frequency === "1d" && nowDay >=1 && nowDay <= 5 && (nowHours >= 14 && nowHours < 20) || (nowHours === 13 && nowMinutes > 30 && nowMinutes <= 59)) {
+    console.log(nowDay)
+    console.log(nowHours)
+    console.log(nowMinutes)
+    if (frequency === "1d" && nowDay >=1 && nowDay <= 5 && (nowHours >= 14 && nowHours <= 15) || (nowHours === 13 && nowMinutes > 30 && nowMinutes <= 59)) {
         const today = new Date();
         const period1 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 30);
         const period2 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 16);
+        priceLayout.xaxis.range = [period1, period2];
+    } else if (frequency === "1d" && nowDay >=1 && nowDay <= 5 && (nowHours >= 16 && nowHours < 20)) {
+        const today = new Date();
+        const period1 = new Date(today.getFullYear(), today.getMonth(), today.getDate()-1, 9, 30);
+        const period2 = new Date(today.getFullYear(), today.getMonth(), today.getDate()-1, 16);
         priceLayout.xaxis.range = [period1, period2];
     }
     const chartData = [priceTrace1, priceTrace2];

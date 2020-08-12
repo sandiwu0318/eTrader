@@ -8,7 +8,7 @@ const {
     getApiPrices,
     getApiBasicInfo,
     getApiNews,
-    getSymbolList,
+    getSymbolList
 } = require("../controllers/stock_controller");
 
 

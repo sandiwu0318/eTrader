@@ -12,21 +12,17 @@ const getIntradayPrices = async function (symbol) {
     let endTime;
     //Mon-Fri and UTC 13:30-20:00
     if ((currentHours === 13 && currentMinutes >= 30) || (currentHours >=14 && currentHours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
-        console.log(1);
         startTime = getTimeForApi(today, 0, 13, 29);
         endTime = Math.floor(today.getTime()/1000);
         //Sun
     } else if (today.getDay() === 0) {
-        console.log(2);
         startTime = getTimeForApi(today, 2, 13, 29);
         endTime = getTimeForApi(today, 2, 20, 1);
         //Mon
     } else if (today.getDay() === 1) {
-        console.log(3);
         startTime = getTimeForApi(today, 3, 13, 29);
         endTime = getTimeForApi(today, 3, 20, 1);
     } else {
-        console.log(4);
         startTime = getTimeForApi(today, 1, 13, 29);
         endTime = getTimeForApi(today, 1, 20, 1);
     }
@@ -256,8 +252,8 @@ const getDailyPrices = async function () {
     const selectStr = "SELECT DISTINCT(symbol) FROM stock_price";
     const symbols = (await query(selectStr, [])).map(i => i.symbol);
     for (let symbol of symbols) {
-        const startTime = Math.floor((new Date()).getTime()/1000-60*60*24);
-        // const startTime = 0;
+        // const startTime = Math.floor((new Date()).getTime()/1000-60*60*24);
+        const startTime = 0;
         const current = Math.floor(new Date().getTime()/1000);
         const config = {
             "headers":{
@@ -273,6 +269,7 @@ const getDailyPrices = async function () {
             },
         };
         const apiPriceData = await axios.get("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-historical-data", config);
+        console.log(apiPriceData);
         const insertPriceData = apiPriceData.data.prices.map(i => 
             [symbol, formatedDate(new Date(i.date*1000).toISOString()), i.close, i.volume]
         );

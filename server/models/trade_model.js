@@ -57,14 +57,14 @@ const matchPriceOrders = async function () {
     if (pendingOrders.length === 0) {
         return;
     }
-    const validOrders = checkValidOrder(pendingOrders);
+    const validOrders = await checkValidOrder(pendingOrders);
     validOrders.forEach(i => {
         i.index = validOrders.indexOf(i);
     });
     //Call API to get current prices of unique symbols
     const uniqueSymbols = _.uniq(validOrders.map(i => i.symbol));
     for (let symbol of uniqueSymbols) {
-        const quote = (await axios.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`));
+        const quote = await axios.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`);
         const currentPrice = quote.data["c"];
         let copiedOrders = [...validOrders];
         while (copiedOrders.findIndex(j => j.symbol === symbol) !== -1) {
@@ -94,11 +94,11 @@ const matchIndicatorOrders = async function () {
     if (pendingOrders.length === 0) {
         return;
     }
-    const validOrders = checkValidOrder(pendingOrders);
+    const validOrders = await checkValidOrder(pendingOrders);
     for (let order of validOrders) {
         if (order) {
             const symbol = order.symbol;
-            const indicatorPeriod = order.indicatorPeriod;
+            const indicatorPeriod = order.indicator_period;
             const selectStr = "SELECT DISTINCT(time), price FROM stock_price WHERE symbol = ? ORDER BY time DESC LIMIT ?";
             let marketPrices;
             let period;

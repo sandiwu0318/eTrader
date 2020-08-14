@@ -4,6 +4,8 @@
 * Backtest with different indicators (ex. RSI, SMA, BB line).
 * Place orders in real-time with prices or indicators.
 > Website URL: https://etrader.fun
+> 
+> Direct login with demo account: https://etrader.fun/login.html?demo
 
 ---
 

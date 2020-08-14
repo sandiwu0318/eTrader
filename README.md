@@ -69,7 +69,8 @@
     * The orders will be shown in Pending Orders page
     * Use CronJob to match placed orders during market time
 
-![](https://i.imgur.com/qyu8XXh.gif)
+![](https://i.imgur.com/CldtwXx.gif)
+
 
 
 * Backtest
@@ -83,7 +84,8 @@
     * Save backtesting results for future use
     * Place orders with these indicators
 
-![](https://i.imgur.com/OkseFeP.gif)
+![](https://i.imgur.com/uw1UmeH.gif)
+
 
 ## Demo accounts
 * Demo 1

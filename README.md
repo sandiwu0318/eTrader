@@ -90,12 +90,5 @@
 
 
 ## Demo accounts
-* Demo 1
-    * Account: demo1@demo.com
-    * Password: etraderdemo1
-* Demo 2
-    * Account: demo2@demo.com
-    * Password: etraderdemo2
-* Demo 3
-    * Account: demo3@demo.com
-    * Password: etraderdemo3
+* Account: demo1@demo.com
+* Password: etraderdemo1

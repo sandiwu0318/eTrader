@@ -21,9 +21,9 @@ const toThousands = function (num) {
 
 const getData = function(data, category, name) {
     if (data[category]) {
-        return data[category][name] || null;
+        return data[category][name] || {};
     }
-    return null;
+    return {};
 };
 
 const isMA = function(indicator) {

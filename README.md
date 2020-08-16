@@ -27,7 +27,7 @@
 * CSS
 * JavaScript
 ### Cloud Service (AWS)
-* Compute: EC2
+* EC2
 ### Database
 * MySQL
 ### Networking

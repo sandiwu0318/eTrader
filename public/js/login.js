@@ -1,6 +1,10 @@
 import {getElement} from "./utils.js";
 window.scrollTo(0, 0);
 
+if (window.location.search === "?demo") {
+    getElement("#email").value = "demo1@demo.com";
+    getElement("#password").value = "etraderdemo1"
+}
 
 async function signInUp(action) {
     const data = {

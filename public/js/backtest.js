@@ -22,7 +22,7 @@ showGraphBtn.addEventListener("click",
                 indicatorPeriod: parseInt(getDataByClass("indicatorPeriod")[1]),
             }
         if (!symbols.includes(data.symbol)) {
-            swal.close();
+            Swal.close();
             Swal.fire({
                 title: "Error",
                 text: "Please confirm you entered the right symbol",
@@ -31,7 +31,7 @@ showGraphBtn.addEventListener("click",
             })
         } else if ((data.periods.length === 2 && data.symbol) && ((data.indicator !== "price" && data.indicatorPeriod) || (data.indicator === "price"))) {
             if (data.indicator !== "price" && (new Date(data.periods[1]).getTime() - new Date(data.periods[0]).getTime() < data.indicatorPeriod*1000*60*60*24)) {
-                swal.close();
+                Swal.close();
                 Swal.fire({
                     title: "Error",
                     text: "Date range needs to be longer than indicator period",
@@ -59,7 +59,7 @@ showGraphBtn.addEventListener("click",
                         }
                     });
                     const resJson = (await res.json()).data;
-                    swal.close();
+                    Swal.close();
                     if (resJson.error) {
                         Swal.fire({
                             title: "Error!",
@@ -240,7 +240,7 @@ backtestBtn.addEventListener("click",
             })
         } else if ((data.periods.length === 2 && data.symbol) && data.volume && data.actionValue && data.exitValue && ((data.indicator !== "price" && data.indicatorPeriod) || (data.indicator === "price"))) {
             if (data.indicator !== "price" && (new Date(data.periods[1]).getTime() - new Date(data.periods[0]).getTime() < data.indicatorPeriod*1000*60*60*24)) {
-                swal.close();
+                Swal.close();
                 Swal.fire({
                     title: "Error",
                     text: "Date range needs to be longer than indicator period",
@@ -248,7 +248,7 @@ backtestBtn.addEventListener("click",
                     confirmButtonText: 'Ok'
                 })
             } else if (data.volume%1 !== 0) {
-                swal.close();
+                Swal.close();
                 Swal.fire({
                     title: "Error",
                     text: "Amount needs to be an integer",
@@ -276,7 +276,7 @@ backtestBtn.addEventListener("click",
                         }
                     });
                     const resJson = (await res.json()).data;
-                    swal.close();
+                    Swal.close();
                     if (resJson.error) {
                         Swal.fire({
                             title: "Error!",

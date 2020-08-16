@@ -3,7 +3,7 @@ window.scrollTo(0, 0);
 const socket = io();
 socket.on("watchlist", async (data) => {
     if (data.error === "Wrong authentication") {
-        swal.close();
+        Swal.close();
         await Swal.fire({
             title: "Please login again",
             icon: "error",
@@ -13,7 +13,7 @@ socket.on("watchlist", async (data) => {
         localStorage.setItem("page", window.location.href);
         window.location = "/login.html";
     } else if (data.error === "You don't have any watchlist yet") {
-        swal.close();
+        Swal.close();
         Swal.fire({
             text: "You don't have any watchlist yet",
             icon: 'warning',
@@ -36,7 +36,7 @@ socket.on("watchlist", async (data) => {
         socket.disconnect();
     } else {
         removeChild("watchlist_ul_content");
-        swal.close();
+        Swal.close();
         data.map(i => createList("#watchlist_ul_content", "user_li", Object.values(i)));
     }
 });

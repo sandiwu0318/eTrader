@@ -53,7 +53,7 @@ app.get("*", function(req, res){
 //9:30-10:00
 const Job1 = new CronJob("0 30-59/1 9 * * 1-5", function() {
     matchPriceOrders();
-    // matchIndicatorOrders();
+    matchIndicatorOrders();
 },
 null,
 true,

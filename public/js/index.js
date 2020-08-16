@@ -57,9 +57,7 @@ async function renderData(symbol){
         },
     });
     removeChild("priceChart");
-    removeChild("profile_ul");
     removeChild("basicInfo_ul");
-    removeChild("intro");
     removeChild("show_symbol");
     removeChild("financials_Yearly");
     removeChild("financials_Quarterly");
@@ -179,26 +177,13 @@ async function renderData(symbol){
         const financialsData = [revenueTrace, earningTrace];
         Plotly.newPlot(id, financialsData, financialsLayout);
     }
-    //Profile
-    if (resJson1.profile) {
-        delete resJson1.profile.zip;
-        delete resJson1.profile.companyOfficers;
-        delete resJson1.profile.maxAge;
-        const longIntro = resJson1.profile.longBusinessSummary;
-        delete resJson1.profile.longBusinessSummary;
-        const profileData = Object.keys(resJson1.profile).map(i => [i, resJson1.profile[i]]).reduce((a,b) => a.concat(b));
-        createTitle("#profile_ul", "Profile");
-        createList("#profile_ul", "profile", profileData);
-        createTitle("#intro", "Company Intro");
-        createList("#intro", "intro", [longIntro]);
-    }
     const list = document.getElementsByClassName("li_div");
     for (let i = 0; i<list.length; i++) {
         if (i%2 === 0) {
             list[i].className = "li_title li_div";
         }
     }
-    swal.close();
+    Swal.close();
 
     //News
     const res2 = await fetch(`/api/1.0/stock/getNews?symbol=${symbol}`);
@@ -344,7 +329,7 @@ tradeBtn.addEventListener("click",
             const period = getElement("#expiration").value;
             if (sub_action && price && volume && symbol && period) {
                 if (volume%1 !== 0 || volume < 0) {
-                    swal.close();
+                    Swal.close();
                     Swal.fire({
                         title: "Error",
                         text: "Amount needs to be an integer",

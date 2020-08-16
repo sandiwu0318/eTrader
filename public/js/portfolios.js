@@ -23,7 +23,7 @@ async function getPortfolios() {
         });
         const resJson = (await res.json()).data;
         if (resJson.error === "Wrong authentication") {
-            swal.close();
+            Swal.close();
             await Swal.fire({
                 title: "Please login again",
                 icon: "error",
@@ -35,7 +35,7 @@ async function getPortfolios() {
         } else if (resJson.error === "You don't have any portfolios yet") {
             removeItem("expensePie");
             removeItem("returnPie");
-            swal.close();
+            Swal.close();
             Swal.fire({
                 text: resJson.error,
                 icon: 'warning',
@@ -53,7 +53,7 @@ async function getPortfolios() {
                 confirmButtonText: 'Ok'
             })
         } else {
-            swal.close();
+            Swal.close();
             const portfolios = resJson;
             if (portfolios.length !== 0) {
                 for (let i of portfolios) {

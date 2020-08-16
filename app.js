@@ -51,38 +51,38 @@ app.get("*", function(req, res){
 
 // Function to match orders every minute
 //9:30-10:00
-// const Job1 = new CronJob("0 30-59/1 9 * * 1-5", function() {
-//     matchPriceOrders();
-//     matchIndicatorOrders();
-// },
-// null,
-// true,
-// "America/New_York"
-// );
-// Job1.start();
+const Job1 = new CronJob("0 30-59/1 9 * * 1-5", function() {
+    matchPriceOrders();
+    matchIndicatorOrders();
+},
+null,
+true,
+"America/New_York"
+);
+Job1.start();
 
 //10:00-16:00
-// const Job2 = new CronJob("0 */1 10-16 * * 1-5", function() {
-//     matchPriceOrders();
-//     matchIndicatorOrders();
-// },
-// null,
-// true,
-// "America/New_York"
-// );
-// Job2.start();
+const Job2 = new CronJob("0 */1 10-16 * * 1-5", function() {
+    matchPriceOrders();
+    matchIndicatorOrders();
+},
+null,
+true,
+"America/New_York"
+);
+Job2.start();
 
 // Function to get stock data every day
-// const Job3 = new CronJob("00 00 00 * * 2-6", function() {
-// getDailyPrices();
-// getDailyNews();
-// getDailyBasicInfo();
-// },
-// null,
-// true,
-// "Asia/Taipei"
-// );
-// Job3.start();
+const Job3 = new CronJob("00 00 00 * * 2-6", function() {
+    getDailyPrices();
+    getDailyNews();
+    getDailyBasicInfo();
+},
+null,
+true,
+"Asia/Taipei"
+);
+Job3.start();
 
 
 module.exports = app;

@@ -11,22 +11,21 @@ const getIntradayPrices = async function (symbol) {
     let startTime;
     let endTime;
     //Mon-Fri and UTC 13:30-20:00
-    if ((currentHours === 13 && currentMinutes >= 30) || (currentHours >=14 && currentHours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
-        console.log(1);
+    if ((currentHours === 13 && currentMinutes >= 30) || (currentHours >=14 && currentHours <= 15) && today.getDay() !== 7 && today.getDay() !== 0) {
         startTime = getTimeForApi(today, 0, 13, 29);
         endTime = Math.floor(today.getTime()/1000);
         //Sun
+    } else if ((currentHours >=16 && currentHours <= 20) && today.getDay() !== 7 && today.getDay() !== 0) {
+        startTime = getTimeForApi(today, 1, 13, 29);
+        endTime = Math.floor(today.getTime()/1000);
     } else if (today.getDay() === 0) {
-        console.log(2);
         startTime = getTimeForApi(today, 2, 13, 29);
         endTime = getTimeForApi(today, 2, 20, 1);
         //Mon
     } else if (today.getDay() === 1) {
-        console.log(3);
         startTime = getTimeForApi(today, 3, 13, 29);
         endTime = getTimeForApi(today, 3, 20, 1);
     } else {
-        console.log(4);
         startTime = getTimeForApi(today, 1, 13, 29);
         endTime = getTimeForApi(today, 1, 20, 1);
     }
@@ -116,21 +115,12 @@ const getBasicInfo = async function (symbol) {
         "EPS": basicInfoRawData.eps,
         "PE Ration": basicInfoRawData.pe_ration,
         "Dividend": basicInfoRawData.dividend,
+        "Sector": JSON.parse(basicInfoRawData.profile).sector || null,
+        "Industry": JSON.parse(basicInfoRawData.profile).industry || null,
+        "Employees": toThousands(JSON.parse(basicInfoRawData.profile).fullTimeEmployees) || null,
     };
     if (basicInfoRawData.financial_chart) {
         basicInfoData.financialChart = JSON.parse(basicInfoRawData.financial_chart);
-    }
-    if (basicInfoRawData.profile) {
-        basicInfoData.profile = {
-            Sector: JSON.parse(basicInfoRawData.profile).sector || null,
-            Industry: JSON.parse(basicInfoRawData.profile).industry || null,
-            Country: JSON.parse(basicInfoRawData.profile).country || null,
-            City: JSON.parse(basicInfoRawData.profile).city || null,
-            State: JSON.parse(basicInfoRawData.profile).state || null,
-            Employees: toThousands(JSON.parse(basicInfoRawData.profile).fullTimeEmployees) || null,
-            Website: JSON.parse(basicInfoRawData.profile).website || null,
-            longBusinessSummary: JSON.parse(basicInfoRawData.profile).longBusinessSummary || null
-        };
     }
     return basicInfoData;
 };
@@ -256,8 +246,7 @@ const getDailyPrices = async function () {
     const selectStr = "SELECT DISTINCT(symbol) FROM stock_price";
     const symbols = (await query(selectStr, [])).map(i => i.symbol);
     for (let symbol of symbols) {
-        const startTime = Math.floor((new Date()).getTime()/1000-60*60*24);
-        // const startTime = 0;
+        const startTime = 0;
         const current = Math.floor(new Date().getTime()/1000);
         const config = {
             "headers":{

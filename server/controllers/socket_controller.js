@@ -13,7 +13,7 @@ const socket = async (io) => {
             }
             socket.intraday = setInterval(async () => {
                 socket.emit("intraday", await getIntradayPrices(symbol));
-            }, 20000);
+            }, 60000);
             if ((nowHours <= 13 || nowHours >= 20) || (nowHours === 13 && nowMinutes > 1 && nowMinutes < 30) || nowDay === 6 || nowDay === 7) {
                 socket.emit("intraday", "disconnect");
                 clearInterval(socket.intraday);
@@ -29,7 +29,7 @@ const socket = async (io) => {
             }
             socket.watchlist = setInterval(async () => {
                 socket.emit("intraday", await getWatchlist(token));
-            }, 20000);
+            }, 60000);
             if ((nowHours <= 13 || nowHours >= 20) || (nowHours === 13 && nowMinutes > 1 && nowMinutes < 30) || nowDay === 6 || nowDay === 7) {
                 socket.emit("intraday", "disconnect");
                 clearInterval(socket.watchlist);

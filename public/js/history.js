@@ -19,7 +19,7 @@ async function getHistory() {
         });
         const resJson = (await res.json()).data;
         if (resJson.error === "Wrong authentication") {
-            swal.close();
+            Swal.close();
             await Swal.fire({
                 title: "Please login again",
                 icon: "error",

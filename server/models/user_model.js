@@ -4,32 +4,39 @@ const crypto = require("crypto");
 const { FINNHUB_API_KEY } = process.env;
 const axios = require("axios");
 const _ = require("lodash");
-const {query} = require("../../utils/mysqlcon.js");
+const {query, transaction, commit, rollback} = require("../../utils/mysqlcon.js");
 const {formatedDate} = require("../../utils/util.js");
 
 const signUp = async (name, email, password) => {
-    const emails = await query("SELECT email FROM user WHERE email = ? FOR UPDATE", [email]);
-    if (emails.length > 0){
-        return {error: "Email Already Exists"};
+    try {
+        await transaction();
+        const emails = await query("SELECT email FROM user WHERE email = ? FOR UPDATE", [email]);
+        if (emails.length > 0){
+            return {error: "Email Already Exists"};
+        }
+        const loginAt = new Date();
+        const sha = crypto.createHash("sha256");
+        sha.update(email + password + loginAt);
+        const accessToken = sha.digest("hex");
+        const user = {
+            email: email,
+            password: CryptoJS.AES.encrypt(password, email).toString(),
+            name: name,
+            access_token: accessToken,
+            last_login: loginAt
+        };
+        const insertStr = "INSERT INTO user SET ?";
+        const result = await query(insertStr, user);
+        await commit();
+        user.id = result.insertId;
+        delete user.password;
+        delete user.access_token;
+        delete user.last_login;
+        return {accessToken, loginAt, user};
+    } catch(error) {
+        await rollback();
+        throw error;
     }
-    const loginAt = new Date();
-    const sha = crypto.createHash("sha256");
-    sha.update(email + password + loginAt);
-    const accessToken = sha.digest("hex");
-    const user = {
-        email: email,
-        password: CryptoJS.AES.encrypt(password, email).toString(),
-        name: name,
-        access_token: accessToken,
-        last_login: loginAt
-    };
-    const insertStr = "INSERT INTO user SET ?";
-    const result = await query(insertStr, user);
-    user.id = result.insertId;
-    delete user.password;
-    delete user.access_token;
-    delete user.last_login;
-    return {accessToken, loginAt, user};
 };
 
 const signIn = async (email, password) => {

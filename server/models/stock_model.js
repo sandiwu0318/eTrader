@@ -115,12 +115,14 @@ const getBasicInfo = async function (symbol) {
         "EPS": basicInfoRawData.eps,
         "PE Ration": basicInfoRawData.pe_ration,
         "Dividend": basicInfoRawData.dividend,
-        "Sector": JSON.parse(basicInfoRawData.profile).sector || null,
-        "Industry": JSON.parse(basicInfoRawData.profile).industry || null,
-        "Employees": toThousands(JSON.parse(basicInfoRawData.profile).fullTimeEmployees) || null,
     };
     if (basicInfoRawData.financial_chart) {
         basicInfoData.financialChart = JSON.parse(basicInfoRawData.financial_chart);
+    }
+    if (basicInfoData.profile) {
+        basicInfoData.Sector = JSON.parse(basicInfoRawData.profile).sector || null;
+        basicInfoData.Industry = JSON.parse(basicInfoRawData.profile).industry || null;
+        basicInfoData.Employees = toThousands(JSON.parse(basicInfoRawData.profile).fullTimeEmployees) || null;
     }
     return basicInfoData;
 };

@@ -143,7 +143,7 @@ async function renderData(symbol){
     createTitle("#basicInfo_ul", "Basic Info");
     createList("#basicInfo_ul", "basic_info", basicInfoData);
     //Financials
-    if (resJson1.financialChart) {
+    if (resJson1.financialChart && Object.entries(resJson1.financialChart).length !== 0) {
         getElement("#financials").style.display = "flex";
         const financials_yearly = resJson1.financialChart.yearly;
         const financials_quarterly = resJson1.financialChart.quarterly;

@@ -47,7 +47,7 @@
 
 ## Database schema
 
-![](https://i.imgur.com/oYBouiY.png)
+![](https://i.imgur.com/V560aKQ.png)
 
 ## Main features
 * Stock search

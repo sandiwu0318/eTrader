@@ -22,6 +22,8 @@ const setOrder = async function (token, symbol, indicator, value, indicatorPerio
     case "90 days":
         deadline = new Date(today.getTime()+1000*60*60*24*90);
         break;
+    default:
+        break;
     }
     const selectIdStr = "SELECT id FROM user WHERE access_token = ?";
     const databaseId = await query(selectIdStr, token);
@@ -167,6 +169,9 @@ const matchIndicatorOrders = async function () {
                 calculateValueForMA2 = WMA.calculate(calculateInputForMA2);
                 break;
             }
+            default: {
+                break;
+            }
             }
             let arrFilledWithZero;
             if (isMA(order.indicator)) {
@@ -191,6 +196,9 @@ const matchIndicatorOrders = async function () {
             }
             case "crossdown": {
                 crossArr = CrossDown.calculate(crossInput);
+                break;
+            }
+            default: {
                 break;
             }
             }
@@ -238,6 +246,9 @@ const checkValidOrder = async function(orders) {
         }
         case "short": {
             validOrders.push(order);
+            break;
+        }
+        default: {
             break;
         }
         }

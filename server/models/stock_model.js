@@ -71,7 +71,10 @@ const getPrices = async function (symbol, frequency) {
     case "max":
         month = 12*50;
         break;
+    default:
+        break;
     }
+    
     //Select from database first, if no data then call API
     const startDate = formatedDate(new Date(current-(1000*60*60*24*30*month)).toISOString());
     const selectStr = "SELECT DISTINCT(time), price, volume FROM stock_price WHERE symbol=? AND time >= ? ORDER BY time";

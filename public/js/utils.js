@@ -505,6 +505,9 @@ function showResult(div_id, ul_id, response) {
             })
             break;
         }
+        default: {
+            break;
+        }
         }
     }
     if (response.indicator.substr(1, 2) === "MA") {
@@ -529,6 +532,9 @@ function showResult(div_id, ul_id, response) {
                     i.y = buyFilter[buyArrow.indexOf(i)].indicatorValue["actionValue1"];
                     i.yref = 'y1';
                 })
+                break;
+            }
+            default: {
                 break;
             }
             }

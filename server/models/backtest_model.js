@@ -51,6 +51,9 @@ const showIndicatorData = async function (periods, symbol, indicator, indicatorP
         indicatorValue = WMA.calculate(calculateInput);
         break;
     }
+    default: {
+        break;
+    }
     }
     //Fill with zero for first few days
     let arrFilledWithZero = new Array(indicatorPeriod).fill(0);
@@ -133,6 +136,9 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         indicatorValueForMA2 = WMA.calculate(calculateInputForMA2);
         break;
     }
+    default: {
+        break;
+    }
     }
     let arrFilledWithZero = []; 
     let arrFilledWithZeroForMA1 = [];
@@ -203,6 +209,9 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         exitCrossArr = CrossDown.calculate(exitInput);
         break;
     }
+    default: {
+        break;
+    }
     }
     if (isMA(indicator)) {
         actionCrossArr = actionCrossArr.fill(false, 0, _.max([arrFilledWithZeroForMA1.length+1, arrFilledWithZeroForMA2.length+1]));
@@ -261,6 +270,9 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         }));
         break;
     }
+    default: {
+        break;
+    }
     }
     //Concat buy and sell arrays
     const allArr = _.orderBy(actionArr.concat(exitArr), "index");
@@ -273,6 +285,9 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
     }
     case "short": {
         filterData = getFilterData(allArr, prices, indicatorResult, "sell", "buy");
+        break;
+    }
+    default: {
         break;
     }
     }

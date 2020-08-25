@@ -54,7 +54,12 @@ async function signInUp(action) {
                 timer: "1000"
             });
             localStorage.setItem("token", resJson.accessToken);
-            window.location = localStorage.getItem("page");
+            if (localStorage.getItem("page")) {
+                window.location = localStorage.getItem("page");
+            } else {
+                window.location = "/"
+            }
+            
         }
     }
 }

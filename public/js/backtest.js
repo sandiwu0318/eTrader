@@ -156,6 +156,10 @@ showGraphBtn.addEventListener("click",
                                         indicatorTrace.marker = {color: "rgba(15, 68, 15, 0.7)"};
                                         break;
                                     }
+                                    default: {
+                                        indicatorTrace = "";
+                                        break;
+                                    }
                                 }
                                 plotData.push(indicatorTrace);
                             }

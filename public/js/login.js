@@ -15,6 +15,7 @@ async function signInUp(action) {
         data.name = getElement("#name").value;
     }
     const EmailRe = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+    const passwordRe = /^.[A-Za-z0-9]+$/;
     if (data.email.length === 0 || data.password.length === 0) {
         Swal.fire({
             title: "Error!",
@@ -24,8 +25,15 @@ async function signInUp(action) {
         });
     } else if (data.email.search(EmailRe) === -1) {
         Swal.fire({
-            title: "Error!",
-            text: "Wrong email format",
+            title: "Wrong email format!",
+            text: "Please check again",
+            icon: "error",
+            confirmButtonText: "Ok"
+        });
+    } else if (data.password.search(passwordRe) === -1) {
+        Swal.fire({
+            title: "Wrong password format!",
+            text: "English characters and numbers only",
             icon: "error",
             confirmButtonText: "Ok"
         });

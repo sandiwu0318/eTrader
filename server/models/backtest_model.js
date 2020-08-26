@@ -52,7 +52,7 @@ const showIndicatorData = async function (periods, symbol, indicator, indicatorP
         break;
     }
     default: {
-        break;
+        return {error: "Wrong indicator"};
     }
     }
     //Fill with zero for first few days
@@ -137,7 +137,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         break;
     }
     default: {
-        break;
+        return {error: "Wrong indicator"};
     }
     }
     let arrFilledWithZero = []; 
@@ -199,6 +199,9 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         actionCrossArr = CrossDown.calculate(actionInput);
         break;
     }
+    default: {
+        return {error: "Wrong action cross"};
+    }
     }
     switch(exitCross) {
     case "crossup": {
@@ -210,7 +213,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         break;
     }
     default: {
-        break;
+        return {error: "Wrong exit cross"};
     }
     }
     if (isMA(indicator)) {
@@ -271,7 +274,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         break;
     }
     default: {
-        break;
+        return {error: "Wrong action"};
     }
     }
     //Concat buy and sell arrays
@@ -288,7 +291,7 @@ const testWithIndicator = async function (periods, symbol, action, volume, indic
         break;
     }
     default: {
-        break;
+        return {error: "Wrong action"};
     }
     }
     const revenue = filterData.filter(i => i.action === "sell").reduce((a, b) => a+b.price, 0);

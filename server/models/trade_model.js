@@ -23,7 +23,7 @@ const setOrder = async function (token, symbol, indicator, value, indicatorPerio
         deadline = new Date(today.getTime()+1000*60*60*24*90);
         break;
     default:
-        break;
+        return {error: "Wrong period"};
     }
     const selectIdStr = "SELECT id FROM user WHERE access_token = ?";
     const databaseId = await query(selectIdStr, token);
@@ -170,7 +170,7 @@ const matchIndicatorOrders = async function () {
                 break;
             }
             default: {
-                break;
+                return {error: "Wrong indicator"};
             }
             }
             let arrFilledWithZero;
@@ -199,7 +199,7 @@ const matchIndicatorOrders = async function () {
                 break;
             }
             default: {
-                break;
+                return {error: "Wrong indicator"};
             }
             }
             if (crossArr[crossArr.length-1] === true) {
@@ -249,7 +249,7 @@ const checkValidOrder = async function(orders) {
             break;
         }
         default: {
-            break;
+            return {error: "Wrong action"};
         }
         }
     }

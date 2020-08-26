@@ -72,7 +72,7 @@ const getPrices = async function (symbol, frequency) {
         month = 12*50;
         break;
     default:
-        break;
+        return {error: "Wrong frequency"};
     }
     
     //Select from database first, if no data then call API

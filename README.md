@@ -43,7 +43,7 @@
 
 ## Architecture
 
-![](https://i.imgur.com/TrAs2Yv.jpg)
+![](https://i.imgur.com/0XWMPFp.jpg)
 
 ## Database schema
 
